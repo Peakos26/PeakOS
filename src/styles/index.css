@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-bg: theme('colors.light.bg');
+    --color-card: theme('colors.light.card');
+    --color-border: theme('colors.light.border');
+    --color-text: theme('colors.light.text');
+    --color-muted: theme('colors.light.muted');
+  }
+
+  .dark {
+    --color-bg: theme('colors.dark.bg');
+    --color-card: theme('colors.dark.card');
+    --color-border: theme('colors.dark.border');
+    --color-text: theme('colors.dark.text');
+    --color-muted: theme('colors.dark.muted');
+  }
+
+  body {
+    @apply bg-[var(--color-bg)] text-[var(--color-text)] transition-colors duration-200;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply px-4 py-2 rounded-lg bg-primary-600 text-white font-medium hover:bg-primary-700 transition-colors;
+  }
+
+  .btn-secondary {
+    @apply px-4 py-2 rounded-lg bg-gray-200 text-gray-800 font-medium hover:bg-gray-300 transition-colors dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600;
+  }
+
+  .card {
+    @apply bg-[var(--color-card)] border border-[var(--color-border)] rounded-xl p-4;
+  }
+
+  .input {
+    @apply w-full px-4 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-primary-500;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
