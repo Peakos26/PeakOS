@@ -2,7 +2,7 @@ export const TREINOS_POR_OBJETIVO = {
   massa: {
     nome: 'Ganho de Massa',
     descricao: 'Treino focado em hipertrofia muscular com cargas moderadas a altas',
-    duracao: 45,
+    duracao: 50,
     descanso: 90,
     intervalo: 120,
     exercicios: [
@@ -11,13 +11,15 @@ export const TREINOS_POR_OBJETIVO = {
       { nome: 'Desenvolvimento Militar', series: 3, repeticoes: '10-12', descanso: 60 },
       { nome: 'Barra Fixa', series: 3, repeticoes: '8-10', descanso: 90 },
       { nome: 'Remada Curvada', series: 4, repeticoes: '10-12', descanso: 90 },
-      { nome: 'HIIT: Burpees', series: 3, repeticoes: '30s', descanso: 30 }
+      { nome: 'Rosca Direta', series: 3, repeticoes: '10-12', descanso: 60 },
+      { nome: 'Leg Press', series: 4, repeticoes: '10-12', descanso: 90 },
+      { nome: 'Cardio: Esteira (moderado)', series: 1, repeticoes: '10 min', descanso: 0 }
     ]
   },
   peso: {
     nome: 'Perda de Peso',
     descricao: 'Treino combinado HIIT + musculação para queima calórica',
-    duracao: 40,
+    duracao: 45,
     descanso: 60,
     intervalo: 30,
     exercicios: [
@@ -26,13 +28,15 @@ export const TREINOS_POR_OBJETIVO = {
       { nome: 'HIIT: Mountain Climber', series: 3, repeticoes: '30s', descanso: 15 },
       { nome: 'Supino com Halteres', series: 3, repeticoes: '12-15', descanso: 45 },
       { nome: 'HIIT: Saltos', series: 3, repeticoes: '30s', descanso: 15 },
-      { nome: 'Leg Press', series: 3, repeticoes: '15-20', descanso: 60 }
+      { nome: 'Leg Press', series: 3, repeticoes: '15-20', descanso: 60 },
+      { nome: 'HIIT: Corrida no lugar', series: 2, repeticoes: '45s', descanso: 15 },
+      { nome: 'Cardio: Bicicleta (intenso)', series: 1, repeticoes: '15 min', descanso: 0 }
     ]
   },
   tonificacao: {
     nome: 'Tonificação',
     descricao: 'Treino com repetições moderadas para definição muscular',
-    duracao: 35,
+    duracao: 40,
     descanso: 45,
     intervalo: 60,
     exercicios: [
@@ -41,13 +45,15 @@ export const TREINOS_POR_OBJETIVO = {
       { nome: 'Elevação Lateral', series: 3, repeticoes: '15-20', descanso: 30 },
       { nome: 'HIIT: Corrida no lugar', series: 2, repeticoes: '45s', descanso: 15 },
       { nome: 'Abdominal Infra', series: 3, repeticoes: '15-20', descanso: 30 },
-      { nome: 'Rosca Direta', series: 3, repeticoes: '12-15', descanso: 45 }
+      { nome: 'Rosca Direta', series: 3, repeticoes: '12-15', descanso: 45 },
+      { nome: 'Prancha', series: 3, repeticoes: '30s', descanso: 30 },
+      { nome: 'Cardio: Elíptico (moderado)', series: 1, repeticoes: '12 min', descanso: 0 }
     ]
   },
   gordura: {
     nome: 'Queima de Gordura',
     descricao: 'Treino intenso com foco em HIIT para queima de gordura',
-    duracao: 30,
+    duracao: 35,
     descanso: 30,
     intervalo: 20,
     exercicios: [
@@ -56,13 +62,15 @@ export const TREINOS_POR_OBJETIVO = {
       { nome: 'HIIT: Burpees', series: 3, repeticoes: '30s', descanso: 20 },
       { nome: 'Flexão de Braço', series: 3, repeticoes: '15-20', descanso: 30 },
       { nome: 'HIIT: Corda', series: 3, repeticoes: '45s', descanso: 20 },
-      { nome: 'Prancha', series: 3, repeticoes: '45s', descanso: 20 }
+      { nome: 'Prancha', series: 3, repeticoes: '45s', descanso: 20 },
+      { nome: 'HIIT: Mountain Climber', series: 3, repeticoes: '30s', descanso: 20 },
+      { nome: 'Cardio: Esteira (intervalado)', series: 1, repeticoes: '20 min', descanso: 0 }
     ]
   },
   performance: {
     nome: 'Alta Performance',
     descricao: 'Treino avançado para atletas com alta intensidade',
-    duracao: 50,
+    duracao: 55,
     descanso: 120,
     intervalo: 90,
     exercicios: [
@@ -71,13 +79,15 @@ export const TREINOS_POR_OBJETIVO = {
       { nome: 'HIIT: Sprints', series: 5, repeticoes: '20s', descanso: 40 },
       { nome: 'Agachamento Pesado', series: 5, repeticoes: '5-8', descanso: 150 },
       { nome: 'Deadlift', series: 4, repeticoes: '5-8', descanso: 180 },
-      { nome: 'HIIT: Box Jumps', series: 4, repeticoes: '10', descanso: 60 }
+      { nome: 'HIIT: Box Jumps', series: 4, repeticoes: '10', descanso: 60 },
+      { nome: 'Pull-ups', series: 3, repeticoes: '8-12', descanso: 90 },
+      { nome: 'Cardio: Remo (intenso)', series: 1, repeticoes: '10 min', descanso: 0 }
     ]
   },
   manutencao: {
     nome: 'Manutenção',
     descricao: 'Treino equilibrado para manter condicionamento físico',
-    duracao: 40,
+    duracao: 45,
     descanso: 60,
     intervalo: 60,
     exercicios: [
@@ -86,33 +96,43 @@ export const TREINOS_POR_OBJETIVO = {
       { nome: 'HIIT: Corda', series: 2, repeticoes: '30s', descanso: 30 },
       { nome: 'Remada', series: 3, repeticoes: '12-15', descanso: 60 },
       { nome: 'HIIT: Polichinelo', series: 2, repeticoes: '30s', descanso: 30 },
-      { nome: 'Abdominal', series: 3, repeticoes: '15-20', descanso: 45 }
+      { nome: 'Abdominal', series: 3, repeticoes: '15-20', descanso: 45 },
+      { nome: 'Rosca Direta', series: 3, repeticoes: '12-15', descanso: 45 },
+      { nome: 'Cardio: Caminhada (leve)', series: 1, repeticoes: '15 min', descanso: 0 }
     ]
   },
   caminhada: {
     nome: 'Caminhada',
     descricao: 'Programa de caminhada para saúde cardiovascular e bem-estar',
-    duracao: 30,
+    duracao: 40,
     descanso: 0,
     intervalo: 0,
     exercicios: [
-      { nome: 'Caminhada Leve', series: 1, repeticoes: '15 min', descanso: 0 },
-      { nome: 'Caminhada Moderada', series: 1, repeticoes: '10 min', descanso: 0 },
-      { nome: 'Caminhada Rápida', series: 1, repeticoes: '5 min', descanso: 0 },
-      { nome: 'Alongamento de Pernas', series: 1, repeticoes: '5 min', descanso: 0 }
+      { nome: 'Aquecimento: Caminhada Leve', series: 1, repeticoes: '5 min', descanso: 0 },
+      { nome: 'Caminhada Moderada', series: 1, repeticoes: '15 min', descanso: 0 },
+      { nome: 'Caminhada Rápida', series: 1, repeticoes: '10 min', descanso: 0 },
+      { nome: 'Alongamento de Pernas', series: 1, repeticoes: '5 min', descanso: 0 },
+      { nome: 'Alongamento de Braços', series: 1, repeticoes: '5 min', descanso: 0 },
+      { nome: 'Alongamento de Costas', series: 1, repeticoes: '5 min', descanso: 0 },
+      { nome: 'Respiração Profunda', series: 1, repeticoes: '3 min', descanso: 0 },
+      { nome: 'Caminhada Leve (Resfriamento)', series: 1, repeticoes: '5 min', descanso: 0 }
     ]
   },
   pedalada: {
     nome: 'Pedalada',
     descricao: 'Programa de pedalada para condicionamento cardiovascular',
-    duracao: 35,
+    duracao: 45,
     descanso: 0,
     intervalo: 0,
     exercicios: [
-      { nome: 'Pedalada Leve', series: 1, repeticoes: '10 min', descanso: 0 },
+      { nome: 'Aquecimento: Pedalada Leve', series: 1, repeticoes: '5 min', descanso: 0 },
       { nome: 'Pedalada Moderada', series: 1, repeticoes: '15 min', descanso: 0 },
-      { nome: 'Pedalada Intensa', series: 1, repeticoes: '5 min', descanso: 0 },
-      { nome: 'Pedalada Leve (Recuperação)', series: 1, repeticoes: '5 min', descanso: 0 }
+      { nome: 'Pedalada Intensa', series: 1, repeticoes: '10 min', descanso: 0 },
+      { nome: 'Pedalada em Subida', series: 1, repeticoes: '5 min', descanso: 0 },
+      { nome: 'Pedalada Moderada', series: 1, repeticoes: '5 min', descanso: 0 },
+      { nome: 'Alongamento de Pernas', series: 1, repeticoes: '5 min', descanso: 0 },
+      { nome: 'Alongamento de Tronco', series: 1, repeticoes: '5 min', descanso: 0 },
+      { nome: 'Pedalada Leve (Resfriamento)', series: 1, repeticoes: '5 min', descanso: 0 }
     ]
   }
 }
