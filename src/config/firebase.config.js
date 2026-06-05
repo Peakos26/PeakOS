@@ -17,4 +17,6 @@ const app = initializeApp(firebaseConfig)
 const database = getDatabase(app)
 const functions = getFunctions(app)
 
+export const GROQ_API_KEY = process.env.VITE_GROQ_API_KEY || 'SUA_CHAVE_API_GROQ'
+
 export { app, database, functions }

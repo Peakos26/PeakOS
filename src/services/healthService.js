@@ -1,6 +1,8 @@
 // Serviço para integração com Apple Health, Garmin e Google Fit
 // Nota: Apple HealthKit requer app nativa iOS, Garmin Connect API e Google Fit API requerem autenticação
 
+import { database, GROQ_API_KEY } from '@config/firebase.config'
+
 export const healthService = {
   // Apple Health (simulado para web, requer app nativa para HealthKit)
   async connectAppleHealth() {
@@ -139,17 +141,20 @@ export const healthService = {
   // Função para sincronizar dados de saúde com o Firebase
   async syncHealthData(tokenKey, healthData) {
     try {
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
+      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': process.env.VITE_ANTHROPIC_API_KEY || 'SUA_CHAVE_API_ANTHROPIC',
-          'anthropic-version': '2023-06-01'
+          'Authorization': `Bearer ${GROQ_API_KEY}`
         },
         body: JSON.stringify({
-          model: 'claude-3-opus-20240229',
+          model: 'llama-3.3-70b-versatile',
           max_tokens: 1024,
           messages: [
+            {
+              role: 'system',
+              content: 'Você é um especialista em saúde e fitness. Analise os dados de saúde fornecidos e forneça insights úteis. Responda em português brasileiro.'
+            },
             {
               role: 'user',
               content: `Analise estes dados de saúde e forneça insights:
@@ -172,7 +177,7 @@ Forneça:
       })
 
       const data = await response.json()
-      const insights = data.content[0].text
+      const insights = data.choices[0].message.content
 
       return {
         success: true,
