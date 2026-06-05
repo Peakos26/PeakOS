@@ -43,7 +43,7 @@ const AdminRoute = ({ children }) => {
 
 const AppRouter = () => {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/PeakOS">
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/" element={
