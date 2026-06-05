@@ -1,10 +1,10 @@
-import { database } from '@config/firebase.config'
+import { database, ref, get, set, push, remove } from '@config/firebase.config'
 
 export const timelineService = {
   async saveTimelineEntry(tokenKey, entryData) {
     try {
-      const entryRef = database.ref(`gymai_timeline/${tokenKey}`).push()
-      await entryRef.set({
+      const entryRef = push(ref(database, `gymai_timeline/${tokenKey}`))
+      await set(entryRef, {
         ...entryData,
         createdAt: Date.now()
       })
@@ -17,7 +17,7 @@ export const timelineService = {
 
   async getTimeline(tokenKey) {
     try {
-      const snapshot = await database.ref(`gymai_timeline/${tokenKey}`).once('value')
+      const snapshot = await get(ref(database, `gymai_timeline/${tokenKey}`))
       const timeline = snapshot.val()
       
       if (!timeline) {
@@ -76,7 +76,7 @@ export const timelineService = {
 
   async deleteTimelineEntry(tokenKey, entryId) {
     try {
-      await database.ref(`gymai_timeline/${tokenKey}/${entryId}`).remove()
+      await remove(ref(database, `gymai_timeline/${tokenKey}/${entryId}`))
       return { success: true }
     } catch (error) {
       console.error('Erro ao deletar entrada da timeline:', error)
@@ -86,7 +86,7 @@ export const timelineService = {
 
   async compareTimelineEntries(tokenKey, entryId1, entryId2) {
     try {
-      const snapshot = await database.ref(`gymai_timeline/${tokenKey}`).once('value')
+      const snapshot = await get(ref(database, `gymai_timeline/${tokenKey}`))
       const timeline = snapshot.val()
 
       if (!timeline) {

@@ -1,9 +1,9 @@
-import { database } from '@config/firebase.config'
+import { database, ref, get, set } from '@config/firebase.config'
 
 export const profileService = {
   async saveProfile(tokenKey, profileData) {
     try {
-      await database.ref(`gymai_profile/${tokenKey}`).set({
+      await set(ref(database, `gymai_profile/${tokenKey}`), {
         ...profileData,
         updatedAt: Date.now()
       })
@@ -16,7 +16,7 @@ export const profileService = {
 
   async getProfile(tokenKey) {
     try {
-      const snapshot = await database.ref(`gymai_profile/${tokenKey}`).once('value')
+      const snapshot = await get(ref(database, `gymai_profile/${tokenKey}`))
       const profile = snapshot.val()
       return { success: true, data: profile }
     } catch (error) {
@@ -27,7 +27,7 @@ export const profileService = {
 
   async saveMeasurements(tokenKey, measurementsData) {
     try {
-      await database.ref(`gymai_medidas/${tokenKey}`).set({
+      await set(ref(database, `gymai_medidas/${tokenKey}`), {
         ...measurementsData,
         updatedAt: Date.now()
       })
@@ -40,7 +40,7 @@ export const profileService = {
 
   async getMeasurements(tokenKey) {
     try {
-      const snapshot = await database.ref(`gymai_medidas/${tokenKey}`).once('value')
+      const snapshot = await get(ref(database, `gymai_medidas/${tokenKey}`))
       const measurements = snapshot.val()
       return { success: true, data: measurements }
     } catch (error) {
@@ -51,7 +51,7 @@ export const profileService = {
 
   async saveGoals(tokenKey, goalsData) {
     try {
-      await database.ref(`gymai_metas/${tokenKey}`).set({
+      await set(ref(database, `gymai_metas/${tokenKey}`), {
         ...goalsData,
         updatedAt: Date.now()
       })
@@ -64,7 +64,7 @@ export const profileService = {
 
   async getGoals(tokenKey) {
     try {
-      const snapshot = await database.ref(`gymai_metas/${tokenKey}`).once('value')
+      const snapshot = await get(ref(database, `gymai_metas/${tokenKey}`))
       const goals = snapshot.val()
       return { success: true, data: goals }
     } catch (error) {

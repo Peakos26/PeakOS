@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react'
-import { database } from '@config/firebase.config'
+import { database, ref, get, onValue } from '@config/firebase.config'
 
 const AuthContext = createContext()
 
@@ -20,6 +20,27 @@ export const AuthProvider = ({ children }) => {
     loadSession()
   }, [])
 
+  useEffect(() => {
+    if (!session?.tokenKey) return
+
+    // Listener para monitorar mudanças no token do usuário
+    const tokenRef = ref(database, `gymai_tokens/${session.tokenKey}`)
+    const unsubscribe = onValue(tokenRef, (snapshot) => {
+      const tokenData = snapshot.val()
+      
+      // Se o token não existir mais (foi deletado/revogado), fazer logout
+      if (!tokenData) {
+        logout()
+      }
+    }, (error) => {
+      console.error('Erro ao monitorar token:', error)
+    })
+
+    return () => {
+      unsubscribe()
+    }
+  }, [session?.tokenKey])
+
   const loadSession = () => {
     const savedSession = localStorage.getItem('gymai_session')
     if (savedSession) {
@@ -34,11 +55,23 @@ export const AuthProvider = ({ children }) => {
     setLoading(false)
   }
 
-  const login = async (tokenKey) => {
+  const login = async (tokenKey, userData = null) => {
     try {
-      const snapshot = await database.ref(`gymai_tokens/${tokenKey}`).once('value')
-      const tokenData = snapshot.val()
-      
+      let tokenData = userData
+
+      // Se não foi passado userData, tenta obter do gymai_tokens
+      if (!tokenData) {
+        try {
+          const snapshot = await get(ref(database, `gymai_tokens/${tokenKey}`))
+          tokenData = snapshot.val()
+        } catch (err) {
+          // Se falhar ao acessar gymai_tokens, usa userData ou retorna erro
+          if (!userData) {
+            throw new Error('Token inválido ou sem permissão')
+          }
+        }
+      }
+
       if (!tokenData) {
         throw new Error('Token inválido')
       }
@@ -53,7 +86,7 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('gymai_session', JSON.stringify(sessionData))
       setSession(sessionData)
       setUser({ email: tokenKey, nome: sessionData.nome })
-      
+
       return { success: true }
     } catch (error) {
       console.error('Erro ao fazer login:', error)

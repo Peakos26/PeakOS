@@ -1,4 +1,4 @@
-import { database } from '@config/firebase.config'
+import { database, ref, get, set, push, update } from '@config/firebase.config'
 
 export const rewardsService = {
   // Definição de conquistas
@@ -101,7 +101,7 @@ export const rewardsService = {
 
   async getUserRewards(tokenKey) {
     try {
-      const snapshot = await database.ref(`gymai_rewards/${tokenKey}`).once('value')
+      const snapshot = await get(ref(database, `gymai_rewards/${tokenKey}`))
       const rewards = snapshot.val()
 
       if (!rewards) {
@@ -134,7 +134,7 @@ export const rewardsService = {
       const newXP = rewards.xp + amount
       const newLevel = this.calculateLevel(newXP)
 
-      await database.ref(`gymai_rewards/${tokenKey}`).update({
+      await update(ref(database, `gymai_rewards/${tokenKey}`), {
         xp: newXP,
         level: newLevel,
         lastXPUpdate: Date.now()
@@ -189,7 +189,7 @@ export const rewardsService = {
 
       const points = rewards.points + achievement.points
 
-      await database.ref(`gymai_rewards/${tokenKey}`).update({
+      await update(ref(database, `gymai_rewards/${tokenKey}`), {
         achievements,
         points,
         lastAchievement: {
@@ -265,7 +265,7 @@ export const rewardsService = {
 
   async checkStreakAchievements(tokenKey) {
     try {
-      const snapshot = await database.ref(`gymai_dias_treino/${tokenKey}`).once('value')
+      const snapshot = await get(ref(database, `gymai_dias_treino/${tokenKey}`))
       const dias = snapshot.val()
 
       if (!dias) {
@@ -304,7 +304,7 @@ export const rewardsService = {
 
   async getLeaderboard(limit = 10) {
     try {
-      const snapshot = await database.ref('gymai_rewards').once('value')
+      const snapshot = await get(ref(database, 'gymai_rewards'))
       const allRewards = snapshot.val()
 
       if (!allRewards) {

@@ -1,10 +1,10 @@
-import { database } from '@config/firebase.config'
+import { database, ref, set, get, push } from '@config/firebase.config'
 
 export const trainingService = {
   async saveWorkoutLog(tokenKey, workoutData) {
     try {
-      const logRef = database.ref(`gymai_log/${tokenKey}`).push()
-      await logRef.set({
+      const logRef = push(ref(database, `gymai_log/${tokenKey}`))
+      await set(logRef, {
         ...workoutData,
         createdAt: Date.now()
       })
@@ -17,7 +17,7 @@ export const trainingService = {
 
   async getWorkoutLogs(tokenKey) {
     try {
-      const snapshot = await database.ref(`gymai_log/${tokenKey}`).once('value')
+      const snapshot = await get(ref(database, `gymai_log/${tokenKey}`))
       const logs = snapshot.val()
       return { success: true, data: logs }
     } catch (error) {
@@ -28,7 +28,7 @@ export const trainingService = {
 
   async saveTrainingPlan(tokenKey, planData) {
     try {
-      await database.ref(`gymai_treinos/${tokenKey}`).set(planData)
+      await set(ref(database, `gymai_treinos/${tokenKey}`), planData)
       return { success: true }
     } catch (error) {
       console.error('Erro ao salvar plano de treino:', error)
@@ -38,7 +38,7 @@ export const trainingService = {
 
   async getTrainingPlan(tokenKey) {
     try {
-      const snapshot = await database.ref(`gymai_treinos/${tokenKey}`).once('value')
+      const snapshot = await get(ref(database, `gymai_treinos/${tokenKey}`))
       const plan = snapshot.val()
       return { success: true, data: plan }
     } catch (error) {
@@ -49,7 +49,7 @@ export const trainingService = {
 
   async saveWorkoutSheet(tokenKey, sheetId, sheetData) {
     try {
-      await database.ref(`gymai_fichas/${tokenKey}/${sheetId}`).set(sheetData)
+      await set(ref(database, `gymai_fichas/${tokenKey}/${sheetId}`), sheetData)
       return { success: true }
     } catch (error) {
       console.error('Erro ao salvar ficha de treino:', error)
@@ -59,7 +59,7 @@ export const trainingService = {
 
   async getWorkoutSheets(tokenKey) {
     try {
-      const snapshot = await database.ref(`gymai_fichas/${tokenKey}`).once('value')
+      const snapshot = await get(ref(database, `gymai_fichas/${tokenKey}`))
       const sheets = snapshot.val()
       return { success: true, data: sheets }
     } catch (error) {
@@ -68,14 +68,24 @@ export const trainingService = {
     }
   },
 
+  async deleteWorkoutSheet(tokenKey, sheetId) {
+    try {
+      await set(ref(database, `gymai_fichas/${tokenKey}/${sheetId}`), null)
+      return { success: true }
+    } catch (error) {
+      console.error('Erro ao deletar ficha de treino:', error)
+      return { success: false, error: error.message }
+    }
+  },
+
   async saveCheckIn(tokenKey, day, location) {
     try {
       const diaData = {
-        dia,
+        day,
         timestamp: Date.now(),
         location
       }
-      await database.ref(`gymai_dias_treino/${tokenKey}/${day}`).set(diaData)
+      await set(ref(database, `gymai_dias_treino/${tokenKey}/${day}`), diaData)
       return { success: true }
     } catch (error) {
       console.error('Erro ao salvar check-in:', error)
@@ -85,7 +95,7 @@ export const trainingService = {
 
   async getCheckIns(tokenKey) {
     try {
-      const snapshot = await database.ref(`gymai_dias_treino/${tokenKey}`).once('value')
+      const snapshot = await get(ref(database, `gymai_dias_treino/${tokenKey}`))
       const checkIns = snapshot.val()
       return { success: true, data: checkIns }
     } catch (error) {

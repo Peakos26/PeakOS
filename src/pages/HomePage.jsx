@@ -98,14 +98,14 @@ const HomePage = () => {
       const isHoje = index === hoje
       const isFeito = diasFeitos.includes(index)
       
-      let className = 'flex flex-col items-center justify-center p-3 rounded-lg cursor-pointer transition-colors'
+      let className = 'flex flex-col items-center justify-center p-3 rounded-lg transition-colors'
       
       if (isHoje && !isFeito) {
-        className += ' bg-primary-600 text-white hover:bg-primary-700'
+        className += ' bg-primary-600 text-white hover:bg-primary-700 cursor-pointer'
       } else if (isFeito) {
-        className += ' bg-green-500 text-white'
+        className += ' bg-green-500 text-white cursor-not-allowed opacity-80'
       } else {
-        className += ' bg-[var(--color-border)] text-[var(--color-muted)]'
+        className += ' bg-[var(--color-border)] text-[var(--color-muted)] cursor-not-allowed'
       }
       
       return (
@@ -125,12 +125,12 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen pb-20 md:pb-0 md:pl-64">
-      <Header currentPage={currentPage} setCurrentPage={setCurrentPage} />
+      <Header />
       
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-2xl font-bold font-display mb-2">Olá, {session?.nome || 'Usuário'}</h1>
-          <p className="text-[var(--color-muted)]">Bem-vindo de volta ao PeakOS</p>
+          <p className="text-[var(--color-muted)]">Bem-vindo de volta ao Peak<span className="font-bold text-primary-600">OS</span></p>
         </div>
 
         {/* Dias da semana */}
@@ -169,7 +169,7 @@ const HomePage = () => {
               <div className="font-semibold">Treino A — Peito & Tríceps</div>
               <div className="text-sm text-[var(--color-muted)]">6 exercícios · ~50 min</div>
             </div>
-            <Button>Iniciar</Button>
+            <Button onClick={() => setCurrentPage('treinos')}>Iniciar</Button>
           </div>
         </Card>
 
@@ -182,7 +182,7 @@ const HomePage = () => {
         </Card>
       </main>
 
-      <Navigation currentPage={currentPage} setCurrentPage={setCurrentPage} />
+      <Navigation />
     </div>
   )
 }

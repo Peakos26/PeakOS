@@ -1,9 +1,9 @@
-import { database } from '@config/firebase.config'
+import { database, ref, get } from '@config/firebase.config'
 
 export const authService = {
   async login(tokenKey) {
     try {
-      const snapshot = await database.ref(`gymai_tokens/${tokenKey}`).once('value')
+      const snapshot = await get(ref(database, `gymai_tokens/${tokenKey}`))
       const tokenData = snapshot.val()
       
       if (!tokenData) {

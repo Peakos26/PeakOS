@@ -32,7 +32,7 @@ const EvolutionPage = () => {
 
   return (
     <div className="min-h-screen pb-20 md:pb-0 md:pl-64">
-      <Header currentPage={currentPage} setCurrentPage={setCurrentPage} />
+      <Header />
       
       <main className="container mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold font-display mb-6">Evolução</h1>
@@ -123,7 +123,7 @@ const EvolutionPage = () => {
         </Card>
       </main>
 
-      <Navigation currentPage={currentPage} setCurrentPage={setCurrentPage} />
+      <Navigation />
     </div>
   )
 }

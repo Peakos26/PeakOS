@@ -1,10 +1,10 @@
-import { database, GROQ_API_KEY } from '@config/firebase.config'
+import { database, ref, get, set, push, GROQ_API_KEY } from '@config/firebase.config'
 
 export const bodyScannerService = {
   async saveAnalysis(tokenKey, analysisData) {
     try {
-      const analysisRef = database.ref(`gymai_body_scanner/${tokenKey}`).push()
-      await analysisRef.set({
+      const analysisRef = push(ref(database, `gymai_body_scanner/${tokenKey}`))
+      await set(analysisRef, {
         ...analysisData,
         createdAt: Date.now()
       })
@@ -17,7 +17,7 @@ export const bodyScannerService = {
 
   async getAnalysisHistory(tokenKey) {
     try {
-      const snapshot = await database.ref(`gymai_body_scanner/${tokenKey}`).once('value')
+      const snapshot = await get(ref(database, `gymai_body_scanner/${tokenKey}`))
       const analyses = snapshot.val()
       return { success: true, data: analyses }
     } catch (error) {

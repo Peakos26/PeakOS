@@ -1,10 +1,10 @@
-import { database } from '@config/firebase.config'
+import { database, ref, get, set, push } from '@config/firebase.config'
 
 export const reportService = {
   async saveReport(tokenKey, reportData) {
     try {
-      const reportRef = database.ref(`gymai_relatorios/${tokenKey}`).push()
-      await reportRef.set({
+      const reportRef = push(ref(database, `gymai_relatorios/${tokenKey}`))
+      await set(reportRef, {
         ...reportData,
         createdAt: Date.now()
       })
@@ -17,7 +17,7 @@ export const reportService = {
 
   async getReports(tokenKey) {
     try {
-      const snapshot = await database.ref(`gymai_relatorios/${tokenKey}`).once('value')
+      const snapshot = await get(ref(database, `gymai_relatorios/${tokenKey}`))
       const reports = snapshot.val()
       return { success: true, data: reports }
     } catch (error) {
@@ -28,10 +28,10 @@ export const reportService = {
 
   async generateWeeklyReport(tokenKey) {
     try {
-      const logsSnapshot = await database.ref(`gymai_log/${tokenKey}`).once('value')
+      const logsSnapshot = await get(ref(database, `gymai_log/${tokenKey}`))
       const logs = logsSnapshot.val()
 
-      const diasSnapshot = await database.ref(`gymai_dias_treino/${tokenKey}`).once('value')
+      const diasSnapshot = await get(ref(database, `gymai_dias_treino/${tokenKey}`))
       const dias = diasSnapshot.val()
 
       let totalSeries = 0
@@ -73,16 +73,16 @@ export const reportService = {
 
   async generateMonthlyReport(tokenKey) {
     try {
-      const logsSnapshot = await database.ref(`gymai_log/${tokenKey}`).once('value')
+      const logsSnapshot = await get(ref(database, `gymai_log/${tokenKey}`))
       const logs = logsSnapshot.val()
 
-      const diasSnapshot = await database.ref(`gymai_dias_treino/${tokenKey}`).once('value')
+      const diasSnapshot = await get(ref(database, `gymai_dias_treino/${tokenKey}`))
       const dias = diasSnapshot.val()
 
-      const medidasSnapshot = await database.ref(`gymai_medidas/${tokenKey}`).once('value')
+      const medidasSnapshot = await get(ref(database, `gymai_medidas/${tokenKey}`))
       const medidas = medidasSnapshot.val()
 
-      const metasSnapshot = await database.ref(`gymai_metas/${tokenKey}`).once('value')
+      const metasSnapshot = await get(ref(database, `gymai_metas/${tokenKey}`))
       const metas = metasSnapshot.val()
 
       let totalSeries = 0

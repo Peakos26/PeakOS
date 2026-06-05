@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@context/AuthContext'
+import { Pencil } from 'lucide-react'
 import Header from '@components/layout/Header'
 import Navigation from '@components/layout/Navigation'
 import Card from '@components/ui/Card'
@@ -27,6 +28,10 @@ const ProfilePage = () => {
     abdomen: ''
   })
   const [loading, setLoading] = useState(false)
+  const [profileSaved, setProfileSaved] = useState(false)
+  const [medidasSaved, setMedidasSaved] = useState(false)
+  const [editingProfile, setEditingProfile] = useState(false)
+  const [editingMedidas, setEditingMedidas] = useState(false)
 
   useEffect(() => {
     loadProfile()
@@ -38,6 +43,7 @@ const ProfilePage = () => {
     const result = await profileService.getProfile(session.tokenKey)
     if (result.success && result.data) {
       setProfile(result.data)
+      setProfileSaved(true)
     }
   }
 
@@ -46,6 +52,7 @@ const ProfilePage = () => {
     const result = await profileService.getMeasurements(session.tokenKey)
     if (result.success && result.data) {
       setMedidas(result.data)
+      setMedidasSaved(true)
     }
   }
 
@@ -56,6 +63,8 @@ const ProfilePage = () => {
     const result = await profileService.saveProfile(session.tokenKey, profile)
     if (result.success) {
       alert('Perfil salvo com sucesso!')
+      setProfileSaved(true)
+      setEditingProfile(false)
     } else {
       alert('Erro ao salvar perfil')
     }
@@ -70,6 +79,8 @@ const ProfilePage = () => {
     const result = await profileService.saveMeasurements(session.tokenKey, medidas)
     if (result.success) {
       alert('Medidas salvas com sucesso!')
+      setMedidasSaved(true)
+      setEditingMedidas(false)
     } else {
       alert('Erro ao salvar medidas')
     }
@@ -77,9 +88,17 @@ const ProfilePage = () => {
     setLoading(false)
   }
 
+  const handleEditProfile = () => {
+    setEditingProfile(true)
+  }
+
+  const handleEditMedidas = () => {
+    setEditingMedidas(true)
+  }
+
   return (
     <div className="min-h-screen pb-20 md:pb-0 md:pl-64">
-      <Header currentPage={currentPage} setCurrentPage={setCurrentPage} />
+      <Header />
       
       <main className="container mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold font-display mb-6">Perfil</h1>
@@ -93,7 +112,8 @@ const ProfilePage = () => {
               <select
                 value={profile.sexo}
                 onChange={(e) => setProfile({ ...profile, sexo: e.target.value })}
-                className="w-full px-4 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-primary-500"
+                disabled={!editingProfile}
+                className={`w-full px-4 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-primary-500 ${!editingProfile ? 'opacity-60 cursor-not-allowed' : ''}`}
               >
                 <option value="">Selecione</option>
                 <option value="M">Masculino</option>
@@ -106,6 +126,8 @@ const ProfilePage = () => {
                 type="date"
                 value={profile.nascimento}
                 onChange={(e) => setProfile({ ...profile, nascimento: e.target.value })}
+                disabled={!editingProfile}
+                className={!editingProfile ? 'opacity-60 cursor-not-allowed' : ''}
               />
             </div>
             <div>
@@ -114,6 +136,8 @@ const ProfilePage = () => {
                 type="number"
                 value={profile.peso}
                 onChange={(e) => setProfile({ ...profile, peso: e.target.value })}
+                disabled={!editingProfile}
+                className={!editingProfile ? 'opacity-60 cursor-not-allowed' : ''}
               />
             </div>
             <div>
@@ -122,6 +146,8 @@ const ProfilePage = () => {
                 type="number"
                 value={profile.altura}
                 onChange={(e) => setProfile({ ...profile, altura: e.target.value })}
+                disabled={!editingProfile}
+                className={!editingProfile ? 'opacity-60 cursor-not-allowed' : ''}
               />
             </div>
             <div>
@@ -130,10 +156,17 @@ const ProfilePage = () => {
                 type="number"
                 value={profile.pesoObjetivo}
                 onChange={(e) => setProfile({ ...profile, pesoObjetivo: e.target.value })}
+                disabled={!editingProfile}
+                className={!editingProfile ? 'opacity-60 cursor-not-allowed' : ''}
               />
             </div>
-            <Button onClick={handleSaveProfile} disabled={loading}>
-              {loading ? 'Salvando...' : 'Salvar Perfil'}
+            <Button onClick={editingProfile ? handleSaveProfile : handleEditProfile} disabled={loading}>
+              {loading ? 'Salvando...' : editingProfile ? 'Salvar Perfil' : (
+                <span className="flex items-center gap-2">
+                  <Pencil size={16} />
+                  Editar Perfil
+                </span>
+              )}
             </Button>
           </div>
         </Card>
@@ -148,6 +181,8 @@ const ProfilePage = () => {
                 type="number"
                 value={medidas.cintura}
                 onChange={(e) => setMedidas({ ...medidas, cintura: e.target.value })}
+                disabled={!editingMedidas}
+                className={!editingMedidas ? 'opacity-60 cursor-not-allowed' : ''}
               />
             </div>
             <div>
@@ -156,6 +191,8 @@ const ProfilePage = () => {
                 type="number"
                 value={medidas.peito}
                 onChange={(e) => setMedidas({ ...medidas, peito: e.target.value })}
+                disabled={!editingMedidas}
+                className={!editingMedidas ? 'opacity-60 cursor-not-allowed' : ''}
               />
             </div>
             <div>
@@ -164,6 +201,8 @@ const ProfilePage = () => {
                 type="number"
                 value={medidas.bracoEsq}
                 onChange={(e) => setMedidas({ ...medidas, bracoEsq: e.target.value })}
+                disabled={!editingMedidas}
+                className={!editingMedidas ? 'opacity-60 cursor-not-allowed' : ''}
               />
             </div>
             <div>
@@ -172,6 +211,8 @@ const ProfilePage = () => {
                 type="number"
                 value={medidas.bracoDir}
                 onChange={(e) => setMedidas({ ...medidas, bracoDir: e.target.value })}
+                disabled={!editingMedidas}
+                className={!editingMedidas ? 'opacity-60 cursor-not-allowed' : ''}
               />
             </div>
             <div>
@@ -180,6 +221,8 @@ const ProfilePage = () => {
                 type="number"
                 value={medidas.coxaEsq}
                 onChange={(e) => setMedidas({ ...medidas, coxaEsq: e.target.value })}
+                disabled={!editingMedidas}
+                className={!editingMedidas ? 'opacity-60 cursor-not-allowed' : ''}
               />
             </div>
             <div>
@@ -188,6 +231,8 @@ const ProfilePage = () => {
                 type="number"
                 value={medidas.coxaDir}
                 onChange={(e) => setMedidas({ ...medidas, coxaDir: e.target.value })}
+                disabled={!editingMedidas}
+                className={!editingMedidas ? 'opacity-60 cursor-not-allowed' : ''}
               />
             </div>
             <div>
@@ -196,10 +241,17 @@ const ProfilePage = () => {
                 type="number"
                 value={medidas.abdomen}
                 onChange={(e) => setMedidas({ ...medidas, abdomen: e.target.value })}
+                disabled={!editingMedidas}
+                className={!editingMedidas ? 'opacity-60 cursor-not-allowed' : ''}
               />
             </div>
-            <Button onClick={handleSaveMedidas} disabled={loading}>
-              {loading ? 'Salvando...' : 'Salvar Medidas'}
+            <Button onClick={editingMedidas ? handleSaveMedidas : handleEditMedidas} disabled={loading}>
+              {loading ? 'Salvando...' : editingMedidas ? 'Salvar Medidas' : (
+                <span className="flex items-center gap-2">
+                  <Pencil size={16} />
+                  Editar Medidas
+                </span>
+              )}
             </Button>
           </div>
         </Card>
@@ -210,7 +262,7 @@ const ProfilePage = () => {
         </Button>
       </main>
 
-      <Navigation currentPage={currentPage} setCurrentPage={setCurrentPage} />
+      <Navigation />
     </div>
   )
 }

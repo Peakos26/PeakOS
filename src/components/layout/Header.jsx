@@ -1,20 +1,39 @@
 import { useTheme } from '@context/ThemeContext'
 import { useAuth } from '@context/AuthContext'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { Sun, Moon, Menu, X } from 'lucide-react'
 import { useState } from 'react'
 
-const Header = ({ currentPage, setCurrentPage }) => {
+const Header = () => {
   const { theme, toggleTheme } = useTheme()
-  const { user, logout } = useAuth()
+  const { logout } = useAuth()
+  const navigate = useNavigate()
+  const location = useLocation()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const navItems = [
-    { id: 'home', label: 'Início', icon: '🏠' },
-    { id: 'treinos', label: 'Treinos', icon: '💪' },
-    { id: 'evolucao', label: 'Evolução', icon: '📈' },
-    { id: 'ia', label: 'IA', icon: '🤖' },
-    { id: 'perfil', label: 'Perfil', icon: '👤' },
+    { id: 'home', label: 'Início', icon: '🏠', path: '/' },
+    { id: 'treinos', label: 'Treinos', icon: '💪', path: '/treinos' },
+    { id: 'evolucao', label: 'Evolução', icon: '📈', path: '/evolucao' },
+    { id: 'ia', label: 'IA', icon: '🤖', path: '/ia' },
+    { id: 'features', label: 'Features', icon: '⭐', path: '/features' },
+    { id: 'perfil', label: 'Perfil', icon: '👤', path: '/perfil' },
   ]
+
+  const currentPage = location.pathname === '/' ? 'home' : location.pathname.replace('/', '')
+
+  // Mapear rotas especiais para itens de navegação
+  const getActiveItem = () => {
+    if (location.pathname === '/log-treino') return 'treinos'
+    return currentPage
+  }
+  
+  const activeItem = getActiveItem()
+
+  const handleNavClick = (path) => {
+    navigate(path)
+    setMobileMenuOpen(false)
+  }
 
   return (
     <header className="sticky top-0 z-50 bg-[var(--color-card)] border-b border-[var(--color-border)]">
@@ -22,7 +41,9 @@ const Header = ({ currentPage, setCurrentPage }) => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold font-display">PeakOS</h1>
+            <h1 className="text-2xl font-bold font-display">
+              Peak<span className="font-bold text-primary-600">OS</span>
+            </h1>
           </div>
 
           {/* Desktop Navigation */}
@@ -30,9 +51,9 @@ const Header = ({ currentPage, setCurrentPage }) => {
             {navItems.map(item => (
               <button
                 key={item.id}
-                onClick={() => setCurrentPage(item.id)}
+                onClick={() => handleNavClick(item.path)}
                 className={`px-4 py-2 rounded-lg transition-colors ${
-                  currentPage === item.id
+                  activeItem === item.id
                     ? 'bg-primary-600 text-white'
                     : 'text-[var(--color-muted)] hover:text-[var(--color-text)]'
                 }`}
@@ -66,12 +87,9 @@ const Header = ({ currentPage, setCurrentPage }) => {
             {navItems.map(item => (
               <button
                 key={item.id}
-                onClick={() => {
-                  setCurrentPage(item.id)
-                  setMobileMenuOpen(false)
-                }}
+                onClick={() => handleNavClick(item.path)}
                 className={`w-full px-4 py-3 rounded-lg transition-colors text-left ${
-                  currentPage === item.id
+                  activeItem === item.id
                     ? 'bg-primary-600 text-white'
                     : 'text-[var(--color-muted)] hover:text-[var(--color-text)]'
                 }`}

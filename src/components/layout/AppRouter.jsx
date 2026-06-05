@@ -3,9 +3,11 @@ import { useAuth } from '@context/AuthContext'
 import LoginPage from '@pages/LoginPage'
 import HomePage from '@pages/HomePage'
 import TrainingPage from '@pages/TrainingPage'
+import WorkoutLogPage from '@pages/WorkoutLogPage'
 import EvolutionPage from '@pages/EvolutionPage'
 import AIPage from '@pages/AIPage'
 import ProfilePage from '@pages/ProfilePage'
+import FeaturesPage from '@pages/FeaturesPage'
 import AdminPage from '@pages/AdminPage'
 
 const ProtectedRoute = ({ children }) => {
@@ -38,7 +40,7 @@ const AdminRoute = ({ children }) => {
 
 const AppRouter = () => {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/PeakOS">
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/" element={
@@ -49,6 +51,11 @@ const AppRouter = () => {
         <Route path="/treinos" element={
           <ProtectedRoute>
             <TrainingPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/log-treino" element={
+          <ProtectedRoute>
+            <WorkoutLogPage />
           </ProtectedRoute>
         } />
         <Route path="/evolucao" element={
@@ -64,6 +71,11 @@ const AppRouter = () => {
         <Route path="/perfil" element={
           <ProtectedRoute>
             <ProfilePage />
+          </ProtectedRoute>
+        } />
+        <Route path="/features" element={
+          <ProtectedRoute>
+            <FeaturesPage />
           </ProtectedRoute>
         } />
         <Route path="/admin" element={

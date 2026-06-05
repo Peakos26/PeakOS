@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app'
-import { getDatabase } from 'firebase/database'
+import { getDatabase, ref, get, set, push, update, remove, onValue } from 'firebase/database'
 import { getFunctions } from 'firebase/functions'
 
 const firebaseConfig = {
@@ -17,6 +17,6 @@ const app = initializeApp(firebaseConfig)
 const database = getDatabase(app)
 const functions = getFunctions(app)
 
-export const GROQ_API_KEY = process.env.VITE_GROQ_API_KEY || 'SUA_CHAVE_API_GROQ'
+export const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY
 
-export { app, database, functions }
+export { app, database, functions, ref, get, set, push, update, remove, onValue }

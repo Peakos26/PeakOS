@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '@context/AuthContext'
+import { database, ref, get, set } from '@config/firebase.config'
 import Header from '@components/layout/Header'
 import Navigation from '@components/layout/Navigation'
 import Card from '@components/ui/Card'
@@ -12,26 +13,70 @@ const AIPage = () => {
   const [message, setMessage] = useState('')
   const [chatHistory, setChatHistory] = useState([])
   const [loading, setLoading] = useState(false)
+  const [groqApiKey, setGroqApiKey] = useState('')
+  const messagesEndRef = useRef(null)
+
+  useEffect(() => {
+    loadGroqApiKey()
+  }, [])
+
+  useEffect(() => {
+    scrollToBottom()
+  }, [chatHistory])
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  const loadGroqApiKey = async () => {
+    try {
+      const snapshot = await get(ref(database, 'gymai_config/groq_api_key'))
+      const data = snapshot.val()
+      if (data) {
+        setGroqApiKey(data)
+      }
+    } catch (error) {
+      console.error('Erro ao carregar API key:', error)
+    }
+  }
 
   const handleSendMessage = async () => {
-    if (!message.trim() || !session) return
+    if (!message.trim() || !session || !groqApiKey) {
+      if (!groqApiKey) {
+        alert('Chave API Groq não configurada. Configure no portal admin (/admin)')
+      }
+      return
+    }
 
     setLoading(true)
     const userMessage = message
     setMessage('')
 
+    // Adicionar mensagem do usuário imediatamente
+    setChatHistory(prev => [...prev, { role: 'user', content: userMessage }])
+
     try {
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
+      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': process.env.VITE_ANTHROPIC_API_KEY || 'SUA_CHAVE_API_ANTHROPIC',
-          'anthropic-version': '2023-06-01'
+          'Authorization': `Bearer ${groqApiKey}`
         },
         body: JSON.stringify({
-          model: 'claude-3-opus-20240229',
+          model: 'llama-3.3-70b-versatile',
           max_tokens: 1024,
           messages: [
+            {
+              role: 'system',
+              content: `Você é um coach de fitness experiente e motivador. Responda em português brasileiro de forma clara, prática e encorajadora.
+
+IMPORTANTE: Formate suas respostas de forma organizada:
+- Use quebras de linha entre parágrafos
+- Use listas com marcadores (• ou -) para itens
+- Use negrito **texto** para palavras-chave importantes
+- Separe tópicos com linhas em branco
+- Mantenha respostas concisas e diretas`
+            },
             {
               role: 'user',
               content: userMessage
@@ -41,13 +86,9 @@ const AIPage = () => {
       })
 
       const data = await response.json()
-      const aiResponse = data.content[0].text
+      const aiResponse = data.choices[0].message.content
 
-      setChatHistory([
-        ...chatHistory,
-        { role: 'user', content: userMessage },
-        { role: 'assistant', content: aiResponse }
-      ])
+      setChatHistory(prev => [...prev, { role: 'assistant', content: aiResponse }])
     } catch (error) {
       console.error('Erro ao enviar mensagem:', error)
       alert('Erro ao enviar mensagem')
@@ -56,9 +97,49 @@ const AIPage = () => {
     setLoading(false)
   }
 
+  const formatMessage = (content) => {
+    // Formatação básica de markdown
+    return content
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Negrito
+      .replace(/\n/g, '<br />') // Quebras de linha
+      .replace(/^- (.*)/gm, '• $1') // Listas
+      .replace(/^• (.*)/gm, '<div class="ml-4">• $1</div>') // Indentação de listas
+  }
+
+  const extractSuggestions = (content) => {
+    // Detectar sugestões em formato de lista ou entre aspas
+    const suggestions = []
+    
+    // Detectar listas numeradas ou com bullets
+    const listMatches = content.match(/^\d+\.\s+(.+)$/gm) || content.match(/^-\s+(.+)$/gm) || content.match(/^•\s+(.+)$/gm)
+    if (listMatches) {
+      suggestions.push(...listMatches.map(m => m.replace(/^\d+\.\s+|^- |^• /, '').trim()))
+    }
+    
+    // Detectar frases entre aspas
+    const quoteMatches = content.match(/"([^"]+)"/g)
+    if (quoteMatches) {
+      suggestions.push(...quoteMatches.map(q => q.replace(/"/g, '').trim()))
+    }
+    
+    // Detectar frases que começam com "Sugestão:" ou similar
+    const suggestionMatch = content.match(/(?:Sugestão|Sugestões|Recomendo|Recomendação):\s*(.+)/i)
+    if (suggestionMatch) {
+      suggestions.push(suggestionMatch[1].trim())
+    }
+    
+    // Remover duplicatas e limitar a 5 sugestões
+    return [...new Set(suggestions)].slice(0, 5)
+  }
+
+  const handleSuggestionClick = (suggestion) => {
+    setMessage(suggestion)
+    handleSendMessage()
+  }
+
   return (
     <div className="min-h-screen pb-20 md:pb-0 md:pl-64">
-      <Header currentPage={currentPage} setCurrentPage={setCurrentPage} />
+      <Header />
       
       <main className="container mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold font-display mb-6">IA Coach</h1>
@@ -71,18 +152,57 @@ const AIPage = () => {
               </p>
             ) : (
               chatHistory.map((msg, index) => (
-                <div
-                  key={index}
-                  className={`p-3 rounded-lg ${
-                    msg.role === 'user'
-                      ? 'bg-primary-600 text-white ml-8'
-                      : 'bg-[var(--color-border)] mr-8'
-                  }`}
-                >
-                  {msg.content}
+                <div key={index}>
+                  <div
+                    className={`p-3 rounded-lg ${
+                      msg.role === 'user'
+                        ? 'bg-primary-600 text-white ml-8'
+                        : 'bg-[var(--color-border)] mr-8'
+                    }`}
+                  >
+                    {msg.role === 'assistant' ? (
+                      <span dangerouslySetInnerHTML={{ __html: formatMessage(msg.content) }} />
+                    ) : (
+                      msg.content
+                    )}
+                  </div>
+                  
+                  {/* Sugestões clicáveis para mensagens da IA */}
+                  {msg.role === 'assistant' && (
+                    <div className="mt-2 mr-8 flex flex-wrap gap-2">
+                      {extractSuggestions(msg.content).map((suggestion, idx) => (
+                        <Button
+                          key={idx}
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleSuggestionClick(suggestion)}
+                          className="text-xs"
+                        >
+                          {suggestion}
+                        </Button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               ))
             )}
+            
+            {/* Indicador de digitando */}
+            {loading && (
+              <div className="bg-[var(--color-border)] mr-8 p-3 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <div className="flex gap-1">
+                    <div className="w-2 h-2 bg-[var(--color-muted)] rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                    <div className="w-2 h-2 bg-[var(--color-muted)] rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                    <div className="w-2 h-2 bg-[var(--color-muted)] rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                  </div>
+                  <span className="text-sm text-[var(--color-muted)]">Peak<span className="font-bold text-primary-600">OS</span> está digitando...</span>
+                </div>
+              </div>
+            )}
+            
+            {/* Elemento invisível para scroll automático */}
+            <div ref={messagesEndRef} />
           </div>
 
           <div className="flex gap-2">
@@ -116,7 +236,7 @@ const AIPage = () => {
         </div>
       </main>
 
-      <Navigation currentPage={currentPage} setCurrentPage={setCurrentPage} />
+      <Navigation />
     </div>
   )
 }
