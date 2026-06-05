@@ -20,7 +20,7 @@ export default defineConfig({
       '@constants': path.resolve(__dirname, './src/constants'),
     }
   },
-  base: '/PeakOS/',
+  base: '/',
   build: {
     outDir: 'dist',
     sourcemap: true
