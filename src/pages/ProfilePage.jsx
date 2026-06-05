@@ -124,6 +124,8 @@ const ProfilePage = () => {
               <label className="block text-sm font-medium mb-2">Data de Nascimento</label>
               <Input
                 type="date"
+                id="nascimento"
+                name="nascimento"
                 value={profile.nascimento}
                 onChange={(e) => setProfile({ ...profile, nascimento: e.target.value })}
                 disabled={!editingProfile}
@@ -134,6 +136,8 @@ const ProfilePage = () => {
               <label className="block text-sm font-medium mb-2">Peso (kg)</label>
               <Input
                 type="number"
+                id="peso"
+                name="peso"
                 value={profile.peso}
                 onChange={(e) => setProfile({ ...profile, peso: e.target.value })}
                 disabled={!editingProfile}
@@ -144,6 +148,8 @@ const ProfilePage = () => {
               <label className="block text-sm font-medium mb-2">Altura (cm)</label>
               <Input
                 type="number"
+                id="altura"
+                name="altura"
                 value={profile.altura}
                 onChange={(e) => setProfile({ ...profile, altura: e.target.value })}
                 disabled={!editingProfile}
@@ -154,6 +160,8 @@ const ProfilePage = () => {
               <label className="block text-sm font-medium mb-2">Peso Objetivo (kg)</label>
               <Input
                 type="number"
+                id="pesoObjetivo"
+                name="pesoObjetivo"
                 value={profile.pesoObjetivo}
                 onChange={(e) => setProfile({ ...profile, pesoObjetivo: e.target.value })}
                 disabled={!editingProfile}
@@ -179,6 +187,8 @@ const ProfilePage = () => {
               <label className="block text-sm font-medium mb-2">Cintura (cm)</label>
               <Input
                 type="number"
+                id="cintura"
+                name="cintura"
                 value={medidas.cintura}
                 onChange={(e) => setMedidas({ ...medidas, cintura: e.target.value })}
                 disabled={!editingMedidas}
@@ -189,6 +199,8 @@ const ProfilePage = () => {
               <label className="block text-sm font-medium mb-2">Peito (cm)</label>
               <Input
                 type="number"
+                id="peito"
+                name="peito"
                 value={medidas.peito}
                 onChange={(e) => setMedidas({ ...medidas, peito: e.target.value })}
                 disabled={!editingMedidas}
@@ -199,6 +211,8 @@ const ProfilePage = () => {
               <label className="block text-sm font-medium mb-2">Braço Esquerdo (cm)</label>
               <Input
                 type="number"
+                id="bracoEsq"
+                name="bracoEsq"
                 value={medidas.bracoEsq}
                 onChange={(e) => setMedidas({ ...medidas, bracoEsq: e.target.value })}
                 disabled={!editingMedidas}
@@ -209,6 +223,8 @@ const ProfilePage = () => {
               <label className="block text-sm font-medium mb-2">Braço Direito (cm)</label>
               <Input
                 type="number"
+                id="bracoDir"
+                name="bracoDir"
                 value={medidas.bracoDir}
                 onChange={(e) => setMedidas({ ...medidas, bracoDir: e.target.value })}
                 disabled={!editingMedidas}
@@ -219,6 +235,8 @@ const ProfilePage = () => {
               <label className="block text-sm font-medium mb-2">Coxa Esquerda (cm)</label>
               <Input
                 type="number"
+                id="coxaEsq"
+                name="coxaEsq"
                 value={medidas.coxaEsq}
                 onChange={(e) => setMedidas({ ...medidas, coxaEsq: e.target.value })}
                 disabled={!editingMedidas}
@@ -229,6 +247,8 @@ const ProfilePage = () => {
               <label className="block text-sm font-medium mb-2">Coxa Direita (cm)</label>
               <Input
                 type="number"
+                id="coxaDir"
+                name="coxaDir"
                 value={medidas.coxaDir}
                 onChange={(e) => setMedidas({ ...medidas, coxaDir: e.target.value })}
                 disabled={!editingMedidas}
@@ -239,6 +259,8 @@ const ProfilePage = () => {
               <label className="block text-sm font-medium mb-2">Abdômen (cm)</label>
               <Input
                 type="number"
+                id="abdomen"
+                name="abdomen"
                 value={medidas.abdomen}
                 onChange={(e) => setMedidas({ ...medidas, abdomen: e.target.value })}
                 disabled={!editingMedidas}

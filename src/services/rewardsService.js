@@ -1,5 +1,10 @@
 import { database, ref, get, set, push, update } from '@config/firebase.config'
 
+// Função para codificar tokenKey para paths válidos do Firebase
+const encodeTokenKey = (tokenKey) => {
+  return tokenKey.replace(/[.#$\[\]]/g, '_')
+}
+
 export const rewardsService = {
   // Definição de conquistas
   ACHIEVEMENTS: {
@@ -101,7 +106,8 @@ export const rewardsService = {
 
   async getUserRewards(tokenKey) {
     try {
-      const snapshot = await get(ref(database, `gymai_rewards/${tokenKey}`))
+      const encodedKey = encodeTokenKey(tokenKey)
+      const snapshot = await get(ref(database, `gymai_rewards/${encodedKey}`))
       const rewards = snapshot.val()
 
       if (!rewards) {
@@ -134,7 +140,8 @@ export const rewardsService = {
       const newXP = rewards.xp + amount
       const newLevel = this.calculateLevel(newXP)
 
-      await update(ref(database, `gymai_rewards/${tokenKey}`), {
+      const encodedKey = encodeTokenKey(tokenKey)
+      await update(ref(database, `gymai_rewards/${encodedKey}`), {
         xp: newXP,
         level: newLevel,
         lastXPUpdate: Date.now()
@@ -189,7 +196,8 @@ export const rewardsService = {
 
       const points = rewards.points + achievement.points
 
-      await update(ref(database, `gymai_rewards/${tokenKey}`), {
+      const encodedKey = encodeTokenKey(tokenKey)
+      await update(ref(database, `gymai_rewards/${encodedKey}`), {
         achievements,
         points,
         lastAchievement: {
@@ -265,7 +273,8 @@ export const rewardsService = {
 
   async checkStreakAchievements(tokenKey) {
     try {
-      const snapshot = await get(ref(database, `gymai_dias_treino/${tokenKey}`))
+      const encodedKey = encodeTokenKey(tokenKey)
+      const snapshot = await get(ref(database, `gymai_dias_treino/${encodedKey}`))
       const dias = snapshot.val()
 
       if (!dias) {

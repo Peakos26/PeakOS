@@ -1,9 +1,15 @@
 import { database, ref, get, set, push } from '@config/firebase.config'
 
+// Função para codificar tokenKey para paths válidos do Firebase
+const encodeTokenKey = (tokenKey) => {
+  return tokenKey.replace(/[.#$[\]]/g, '_')
+}
+
 export const reportService = {
   async saveReport(tokenKey, reportData) {
     try {
-      const reportRef = push(ref(database, `gymai_relatorios/${tokenKey}`))
+      const encodedKey = encodeTokenKey(tokenKey)
+      const reportRef = push(ref(database, `gymai_relatorios/${encodedKey}`))
       await set(reportRef, {
         ...reportData,
         createdAt: Date.now()
@@ -17,7 +23,8 @@ export const reportService = {
 
   async getReports(tokenKey) {
     try {
-      const snapshot = await get(ref(database, `gymai_relatorios/${tokenKey}`))
+      const encodedKey = encodeTokenKey(tokenKey)
+      const snapshot = await get(ref(database, `gymai_relatorios/${encodedKey}`))
       const reports = snapshot.val()
       return { success: true, data: reports }
     } catch (error) {
@@ -28,10 +35,11 @@ export const reportService = {
 
   async generateWeeklyReport(tokenKey) {
     try {
-      const logsSnapshot = await get(ref(database, `gymai_log/${tokenKey}`))
+      const encodedKey = encodeTokenKey(tokenKey)
+      const logsSnapshot = await get(ref(database, `gymai_log/${encodedKey}`))
       const logs = logsSnapshot.val()
 
-      const diasSnapshot = await get(ref(database, `gymai_dias_treino/${tokenKey}`))
+      const diasSnapshot = await get(ref(database, `gymai_dias_treino/${encodedKey}`))
       const dias = diasSnapshot.val()
 
       let totalSeries = 0
@@ -73,16 +81,17 @@ export const reportService = {
 
   async generateMonthlyReport(tokenKey) {
     try {
-      const logsSnapshot = await get(ref(database, `gymai_log/${tokenKey}`))
+      const encodedKey = encodeTokenKey(tokenKey)
+      const logsSnapshot = await get(ref(database, `gymai_log/${encodedKey}`))
       const logs = logsSnapshot.val()
 
-      const diasSnapshot = await get(ref(database, `gymai_dias_treino/${tokenKey}`))
+      const diasSnapshot = await get(ref(database, `gymai_dias_treino/${encodedKey}`))
       const dias = diasSnapshot.val()
 
-      const medidasSnapshot = await get(ref(database, `gymai_medidas/${tokenKey}`))
+      const medidasSnapshot = await get(ref(database, `gymai_medidas/${encodedKey}`))
       const medidas = medidasSnapshot.val()
 
-      const metasSnapshot = await get(ref(database, `gymai_metas/${tokenKey}`))
+      const metasSnapshot = await get(ref(database, `gymai_metas/${encodedKey}`))
       const metas = metasSnapshot.val()
 
       let totalSeries = 0

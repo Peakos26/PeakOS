@@ -5,6 +5,11 @@ import Card from '@components/ui/Card'
 import Button from '@components/ui/Button'
 import Input from '@components/ui/Input'
 
+// Função para codificar tokenKey para paths válidos do Firebase
+const encodeTokenKey = (tokenKey) => {
+  return tokenKey.replace(/[.#$\[\]]/g, '_')
+}
+
 const AdminPage = () => {
   const { session } = useAuth()
   const [tokens, setTokens] = useState({})
@@ -60,7 +65,8 @@ const AdminPage = () => {
       expiresAt: newTokenExpires ? new Date(newTokenExpires).getTime() : null
     }
 
-    await set(ref(database, `gymai_tokens/${newTokenKey}`), tokenData)
+    const encodedKey = encodeTokenKey(newTokenKey)
+    await set(ref(database, `gymai_tokens/${encodedKey}`), tokenData)
     alert('Token criado com sucesso!')
     
     setNewTokenKey('')
@@ -73,7 +79,8 @@ const AdminPage = () => {
   const handleDeleteToken = async (tokenKey) => {
     if (!confirm('Tem certeza que deseja deletar este token?')) return
 
-    await set(ref(database, `gymai_tokens/${tokenKey}`), null)
+    const encodedKey = encodeTokenKey(tokenKey)
+    await set(ref(database, `gymai_tokens/${encodedKey}`), null)
     alert('Token deletado com sucesso!')
     loadTokens()
   }
@@ -97,7 +104,8 @@ const AdminPage = () => {
       expiresAt: null
     }
 
-    await set(ref(database, `gymai_tokens/${tokenKey}`), tokenData)
+    const encodedKey = encodeTokenKey(tokenKey)
+    await set(ref(database, `gymai_tokens/${encodedKey}`), tokenData)
     await set(ref(database, `gymai_requests/${requestId}/status`), 'approved')
     await set(ref(database, `gymai_requests/${requestId}/tokenKey`), tokenKey)
     
@@ -139,7 +147,8 @@ const AdminPage = () => {
     if (!editingToken) return
 
     try {
-      await set(ref(database, `gymai_tokens/${editingToken}/features`), editingFeatures)
+      const encodedKey = encodeTokenKey(editingToken)
+      await set(ref(database, `gymai_tokens/${encodedKey}/features`), editingFeatures)
       alert('Features atualizadas com sucesso!')
       setEditingToken(null)
       setEditingFeatures([])
@@ -171,6 +180,8 @@ const AdminPage = () => {
               <label className="block text-sm font-medium mb-2">Chave do Token (email)</label>
               <Input
                 type="email"
+                id="newTokenKey"
+                name="newTokenKey"
                 value={newTokenKey}
                 onChange={(e) => setNewTokenKey(e.target.value)}
                 placeholder="usuario@email.com"
@@ -180,6 +191,8 @@ const AdminPage = () => {
               <label className="block text-sm font-medium mb-2">Nome do Usuário</label>
               <Input
                 type="text"
+                id="newTokenNome"
+                name="newTokenNome"
                 value={newTokenNome}
                 onChange={(e) => setNewTokenNome(e.target.value)}
                 placeholder="Nome do usuário"
@@ -189,6 +202,8 @@ const AdminPage = () => {
               <label className="block text-sm font-medium mb-2">Data de Expiração (opcional)</label>
               <Input
                 type="date"
+                id="newTokenExpires"
+                name="newTokenExpires"
                 value={newTokenExpires}
                 onChange={(e) => setNewTokenExpires(e.target.value)}
               />
@@ -200,6 +215,8 @@ const AdminPage = () => {
                   <label key={feature} className="flex items-center gap-2">
                     <input
                       type="checkbox"
+                      id={`feature-${feature}`}
+                      name={`feature-${feature}`}
                       checked={newTokenFeatures.includes(feature)}
                       onChange={() => toggleFeature(feature)}
                       className="rounded"
@@ -223,6 +240,11 @@ const AdminPage = () => {
                   <div>
                     <div className="font-semibold">{token.nome}</div>
                     <div className="text-sm text-[var(--color-muted)]">{key}</div>
+                    {token.expiresAt && (
+                      <div className="text-xs text-[var(--color-muted)] mt-1">
+                        Expira: {new Date(token.expiresAt).toLocaleDateString('pt-BR')}
+                      </div>
+                    )}
                   </div>
                   <div className="flex gap-2">
                     <Button variant="outline" size="sm" onClick={() => handleStartEditFeatures(key, token)}>
@@ -259,6 +281,8 @@ const AdminPage = () => {
                       <label key={feature} className="flex items-center gap-2">
                         <input
                           type="checkbox"
+                          id={`editing-feature-${feature}`}
+                          name={`editing-feature-${feature}`}
                           checked={editingFeatures.includes(feature)}
                           onChange={() => toggleEditingFeature(feature)}
                           className="rounded"
@@ -326,6 +350,8 @@ const AdminPage = () => {
               <label className="block text-sm font-medium mb-2">Chave API Groq (gratuita)</label>
               <Input
                 type="password"
+                id="groqApiKey"
+                name="groqApiKey"
                 value={groqApiKey}
                 onChange={(e) => setGroqApiKey(e.target.value)}
                 placeholder="gsk_..."

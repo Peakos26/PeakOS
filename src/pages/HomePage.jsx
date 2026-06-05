@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@context/AuthContext'
+import { useNavigate } from 'react-router-dom'
 import Header from '@components/layout/Header'
 import Navigation from '@components/layout/Navigation'
 import Card from '@components/ui/Card'
@@ -10,6 +11,7 @@ import { reportService } from '@services/reportService'
 
 const HomePage = () => {
   const { session } = useAuth()
+  const navigate = useNavigate()
   const [currentPage, setCurrentPage] = useState('home')
   const [diasFeitos, setDiasFeitos] = useState([])
   const [stats, setStats] = useState({
@@ -17,10 +19,13 @@ const HomePage = () => {
     volumeHoje: 0,
     sequencia: 0
   })
+  const [trainingPlan, setTrainingPlan] = useState(null)
+  const [nextWorkout, setNextWorkout] = useState(null)
 
   useEffect(() => {
     loadDiasFeitos()
     loadStats()
+    loadTrainingPlan()
   }, [session])
 
   const loadDiasFeitos = async () => {
@@ -58,6 +63,40 @@ const HomePage = () => {
         sequencia: diasFeitos.length
       })
     }
+  }
+
+  const loadTrainingPlan = async () => {
+    if (!session) return
+    const result = await trainingService.getTrainingPlan(session.tokenKey)
+    if (result.success && result.data) {
+      setTrainingPlan(result.data)
+      calculateNextWorkout(result.data)
+    }
+  }
+
+  const calculateNextWorkout = (plan) => {
+    if (!plan || !plan.planoSemanal) return
+    
+    const today = new Date().getDay()
+    const nextDay = (today + 1) % 7
+    
+    const nextWorkoutDay = plan.planoSemanal.find(day => day.dia === nextDay)
+    
+    if (nextWorkoutDay) {
+      setNextWorkout({
+        dia: nextDay,
+        nomeDia: DIAS_LABEL[nextDay],
+        nome: plan.nome,
+        exercicios: nextWorkoutDay.exercicios,
+        totalExercicios: nextWorkoutDay.exercicios.length,
+        duracaoEstimada: plan.duracao
+      })
+    }
+  }
+
+  const handleStartNextWorkout = () => {
+    if (!nextWorkout) return
+    navigate('/treinos', { state: { selectedDay: nextWorkout.dia } })
   }
 
   const handleCheckIn = async () => {
@@ -123,6 +162,15 @@ const HomePage = () => {
     })
   }
 
+  const formatExpirationDate = (expiresAt) => {
+    if (!expiresAt) return 'Sem validade definida'
+    const date = new Date(expiresAt)
+    const daysRemaining = Math.ceil((date - new Date()) / (1000 * 60 * 60 * 24))
+    if (daysRemaining <= 0) return 'Expirado'
+    if (daysRemaining === 1) return 'Expira em 1 dia'
+    return `Expira em ${daysRemaining} dias (${date.toLocaleDateString('pt-BR')})`
+  }
+
   return (
     <div className="min-h-screen pb-20 md:pb-0 md:pl-64">
       <Header />
@@ -132,6 +180,21 @@ const HomePage = () => {
           <h1 className="text-2xl font-bold font-display mb-2">Olá, {session?.nome || 'Usuário'}</h1>
           <p className="text-[var(--color-muted)]">Bem-vindo de volta ao Peak<span className="font-bold text-primary-600">OS</span></p>
         </div>
+
+        {/* Validade de Acesso */}
+        {session?.expiresAt && (
+          <Card className="mb-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-semibold">Validade de Acesso</h2>
+                <p className="text-sm text-[var(--color-muted)]">Sua licença expira em breve</p>
+              </div>
+              <div className="text-right">
+                <div className="text-2xl font-bold text-primary-600">{formatExpirationDate(session.expiresAt)}</div>
+              </div>
+            </div>
+          </Card>
+        )}
 
         {/* Dias da semana */}
         <Card className="mb-6">
@@ -164,21 +227,21 @@ const HomePage = () => {
         {/* Próximo treino */}
         <Card className="mb-6">
           <h2 className="text-lg font-semibold mb-4">Próximo Treino</h2>
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="font-semibold">Treino A — Peito & Tríceps</div>
-              <div className="text-sm text-[var(--color-muted)]">6 exercícios · ~50 min</div>
+          {nextWorkout ? (
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="font-semibold">{nextWorkout.nome} — {nextWorkout.nomeDia}</div>
+                <div className="text-sm text-[var(--color-muted)]">
+                  {nextWorkout.totalExercicios} exercícios · ~{nextWorkout.duracaoEstimada || '50'} min
+                </div>
+              </div>
+              <Button onClick={handleStartNextWorkout}>Iniciar</Button>
             </div>
-            <Button onClick={() => setCurrentPage('treinos')}>Iniciar</Button>
-          </div>
-        </Card>
-
-        {/* Validade do acesso */}
-        <Card>
-          <h2 className="text-lg font-semibold mb-4">Validade do Acesso</h2>
-          <div className="text-sm text-[var(--color-muted)]">
-            Acesso ilimitado
-          </div>
+          ) : (
+            <div className="text-sm text-[var(--color-muted)]">
+              Nenhum treino agendado. Crie seu plano de treino na aba Treinos.
+            </div>
+          )}
         </Card>
       </main>
 

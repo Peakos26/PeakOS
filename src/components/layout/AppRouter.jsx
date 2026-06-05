@@ -8,6 +8,9 @@ import EvolutionPage from '@pages/EvolutionPage'
 import AIPage from '@pages/AIPage'
 import ProfilePage from '@pages/ProfilePage'
 import FeaturesPage from '@pages/FeaturesPage'
+import BodyScannerPage from '@pages/BodyScannerPage'
+import CoachAvancadoPage from '@pages/CoachAvancadoPage'
+import SocialSearchPage from '@pages/SocialSearchPage'
 import AdminPage from '@pages/AdminPage'
 
 const ProtectedRoute = ({ children }) => {
@@ -76,6 +79,21 @@ const AppRouter = () => {
         <Route path="/features" element={
           <ProtectedRoute>
             <FeaturesPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/scanner" element={
+          <ProtectedRoute>
+            <BodyScannerPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/coach-avancado" element={
+          <ProtectedRoute>
+            <CoachAvancadoPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/comunidade" element={
+          <ProtectedRoute>
+            <SocialSearchPage />
           </ProtectedRoute>
         } />
         <Route path="/admin" element={

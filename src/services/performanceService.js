@@ -1,23 +1,29 @@
 import { database, ref, get, set, push, update, remove } from '@config/firebase.config'
 
+// Função para codificar tokenKey para paths válidos do Firebase
+const encodeTokenKey = (tokenKey) => {
+  return tokenKey.replace(/[.#$\[\]]/g, '_')
+}
+
 export const performanceService = {
   // Calcula o score de performance detalhado
   async calculateDetailedPerformanceScore(tokenKey) {
     try {
+      const encodedKey = encodeTokenKey(tokenKey)
       // Buscar dados de treino
-      const logsSnapshot = await get(ref(database, `gymai_log/${tokenKey}`))
+      const logsSnapshot = await get(ref(database, `gymai_log/${encodedKey}`))
       const logs = logsSnapshot.val() || {}
 
       // Buscar dados de check-in
-      const diasSnapshot = await get(ref(database, `gymai_dias_treino/${tokenKey}`))
+      const diasSnapshot = await get(ref(database, `gymai_dias_treino/${encodedKey}`))
       const dias = diasSnapshot.val() || {}
 
       // Buscar metas
-      const metasSnapshot = await get(ref(database, `gymai_metas/${tokenKey}`))
+      const metasSnapshot = await get(ref(database, `gymai_metas/${encodedKey}`))
       const metas = metasSnapshot.val() || {}
 
       // Buscar medidas
-      const medidasSnapshot = await get(ref(database, `gymai_medidas/${tokenKey}`))
+      const medidasSnapshot = await get(ref(database, `gymai_medidas/${encodedKey}`))
       const medidas = medidasSnapshot.val() || {}
 
       // Calcular componentes do score
@@ -300,7 +306,8 @@ export const performanceService = {
 
   async savePerformanceScore(tokenKey, scoreData) {
     try {
-      const scoreRef = push(ref(database, `gymai_performance/${tokenKey}`))
+      const encodedKey = encodeTokenKey(tokenKey)
+      const scoreRef = push(ref(database, `gymai_performance/${encodedKey}`))
       await set(scoreRef, scoreData)
       return { success: true }
     } catch (error) {
@@ -311,7 +318,8 @@ export const performanceService = {
 
   async getPerformanceHistory(tokenKey) {
     try {
-      const snapshot = await get(ref(database, `gymai_performance/${tokenKey}`))
+      const encodedKey = encodeTokenKey(tokenKey)
+      const snapshot = await get(ref(database, `gymai_performance/${encodedKey}`))
       const history = snapshot.val()
       return { success: true, data: history }
     } catch (error) {

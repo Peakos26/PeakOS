@@ -1,11 +1,16 @@
 import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '@context/AuthContext'
-import { database, ref, get, set } from '@config/firebase.config'
+import { database, ref, get, set, push, onValue } from '@config/firebase.config'
 import Header from '@components/layout/Header'
 import Navigation from '@components/layout/Navigation'
 import Card from '@components/ui/Card'
 import Button from '@components/ui/Button'
 import Input from '@components/ui/Input'
+
+// Função para codificar tokenKey para paths válidos do Firebase
+const encodeTokenKey = (tokenKey) => {
+  return tokenKey.replace(/[.#$\[\]]/g, '_')
+}
 
 const AIPage = () => {
   const { session, hasFeature } = useAuth()
@@ -18,7 +23,8 @@ const AIPage = () => {
 
   useEffect(() => {
     loadGroqApiKey()
-  }, [])
+    loadChatHistory()
+  }, [session])
 
   useEffect(() => {
     scrollToBottom()
@@ -40,6 +46,52 @@ const AIPage = () => {
     }
   }
 
+  const loadChatHistory = async () => {
+    if (!session) return
+    
+    try {
+      const encodedKey = encodeTokenKey(session.tokenKey)
+      const snapshot = await get(ref(database, `gymai_chat/${encodedKey}`))
+      const data = snapshot.val()
+      if (data) {
+        const messages = Object.values(data)
+        // Manter apenas as últimas 20 mensagens
+        setChatHistory(messages.slice(-20))
+      }
+    } catch (error) {
+      console.error('Erro ao carregar histórico de chat:', error)
+    }
+  }
+
+  const saveMessageToFirebase = async (message) => {
+    if (!session) return
+    
+    try {
+      const encodedKey = encodeTokenKey(session.tokenKey)
+      const chatRef = ref(database, `gymai_chat/${encodedKey}`)
+      await push(chatRef, {
+        ...message,
+        timestamp: Date.now()
+      })
+      
+      // Manter apenas as últimas 20 mensagens no Firebase
+      const snapshot = await get(chatRef)
+      const data = snapshot.val()
+      if (data) {
+        const messages = Object.entries(data)
+        if (messages.length > 20) {
+          // Remover as mensagens mais antigas
+          const toDelete = messages.slice(0, messages.length - 20)
+          for (const [key] of toDelete) {
+            await set(ref(database, `gymai_chat/${encodedKey}/${key}`), null)
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao salvar mensagem no Firebase:', error)
+    }
+  }
+
   const handleSendMessage = async () => {
     if (!message.trim() || !session || !groqApiKey) {
       if (!groqApiKey) {
@@ -54,6 +106,7 @@ const AIPage = () => {
 
     // Adicionar mensagem do usuário imediatamente
     setChatHistory(prev => [...prev, { role: 'user', content: userMessage }])
+    await saveMessageToFirebase({ role: 'user', content: userMessage })
 
     try {
       const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -89,6 +142,7 @@ IMPORTANTE: Formate suas respostas de forma organizada:
       const aiResponse = data.choices[0].message.content
 
       setChatHistory(prev => [...prev, { role: 'assistant', content: aiResponse }])
+      await saveMessageToFirebase({ role: 'assistant', content: aiResponse })
     } catch (error) {
       console.error('Erro ao enviar mensagem:', error)
       alert('Erro ao enviar mensagem')

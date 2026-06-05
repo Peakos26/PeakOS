@@ -32,22 +32,30 @@ const LoginPage = () => {
   }
 
   const checkExistingUser = async () => {
+    console.log('🔍 [LOGIN] Iniciando checkExistingUser')
+    console.log('🔍 [LOGIN] Token:', token)
+    console.log('🔍 [LOGIN] Celular:', celular)
     setLoading(true)
     setError('')
 
     // Se o usuário inseriu um token, tentar login com o token
     if (token) {
+      console.log('🔍 [LOGIN] Tentando login com token')
       try {
         const result = await login(token, { nome: 'Usuário' })
+        console.log('🔍 [LOGIN] Resultado login token:', result)
         if (result.success) {
           await logLogin(token, { nome: 'Usuário' })
+          console.log('🔍 [LOGIN] Login com token sucesso, navegando para /')
           navigate('/')
         } else {
+          console.log('🔍 [LOGIN] Token inválido ou expirado')
           setError('Token inválido ou expirado')
         }
         setLoading(false)
         return
       } catch (err) {
+        console.error('❌ [LOGIN] Erro ao verificar token:', err)
         setError('Erro ao verificar token')
         setLoading(false)
         return
@@ -56,26 +64,35 @@ const LoginPage = () => {
 
     // Se não tiver token, verificar por celular
     if (!celular || celular.length < 10) {
+      console.log('🔍 [LOGIN] Celular inválido')
       setError('Digite um celular válido (com DDD) ou insira um token')
       setLoading(false)
       return
     }
 
     try {
+      console.log('🔍 [LOGIN] Buscando requests no Firebase')
       const requestsSnapshot = await get(ref(database, 'gymai_requests'))
+      console.log('🔍 [LOGIN] Requests snapshot:', requestsSnapshot.val())
       const requests = requestsSnapshot.val() || {}
       const existing = Object.values(requests).find(r => r.celular === celular)
+      console.log('🔍 [LOGIN] Usuário existente:', existing)
 
       if (existing && existing.status === 'approved' && existing.tokenKey) {
+        console.log('🔍 [LOGIN] Usuário aprovado, tentando login automático')
         // Login automático com token
         const result = await login(existing.tokenKey, { nome: existing.nome })
+        console.log('🔍 [LOGIN] Resultado login automático:', result)
         if (result.success) {
           await logLogin(existing.tokenKey, { nome: existing.nome })
+          console.log('🔍 [LOGIN] Login automático sucesso, navegando para /')
           navigate('/')
         } else {
+          console.log('🔍 [LOGIN] Erro ao fazer login automático')
           setError('Erro ao fazer login automático')
         }
       } else if (existing && existing.status === 'pending') {
+        console.log('🔍 [LOGIN] Usuário pendente')
         setStep(3)
       } else {
         setStep(2)
@@ -196,21 +213,11 @@ const LoginPage = () => {
         {step === 1 && (
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-2">Token (opcional)</label>
-              <Input
-                type="text"
-                value={token}
-                onChange={(e) => setToken(e.target.value)}
-                placeholder="Insira seu token de acesso"
-              />
-            </div>
-            <div className="text-center text-[var(--color-muted)] text-sm">
-              ou
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Celular (com DDD)</label>
+              <label htmlFor="celular" className="block text-sm font-medium mb-2">Celular (com DDD)</label>
               <Input
                 type="tel"
+                id="celular"
+                name="celular"
                 value={celular}
                 onChange={(e) => setCelular(e.target.value)}
                 placeholder="Ex: 11999999999"
@@ -226,18 +233,22 @@ const LoginPage = () => {
         {step === 2 && (
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-2">Nome</label>
+              <label htmlFor="nome" className="block text-sm font-medium mb-2">Nome</label>
               <Input
                 type="text"
+                id="nome"
+                name="nome"
                 value={nome}
                 onChange={(e) => setNome(e.target.value)}
                 placeholder="Seu nome completo"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">Celular (com DDD)</label>
+              <label htmlFor="celularRegistro" className="block text-sm font-medium mb-2">Celular (com DDD)</label>
               <Input
                 type="tel"
+                id="celularRegistro"
+                name="celularRegistro"
                 value={celular}
                 onChange={(e) => setCelular(e.target.value)}
                 placeholder="Ex: 11999999999"

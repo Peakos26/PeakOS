@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@context/AuthContext'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import Header from '@components/layout/Header'
 import Navigation from '@components/layout/Navigation'
 import Card from '@components/ui/Card'
@@ -13,6 +13,7 @@ import { ChevronRight, Eye, Edit2, Trash2 } from 'lucide-react'
 const TrainingPage = () => {
   const { session, hasFeature } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
   const [currentPage, setCurrentPage] = useState('treinos')
   const [trainingPlan, setTrainingPlan] = useState(null)
   const [workoutSheets, setWorkoutSheets] = useState([])
@@ -27,7 +28,12 @@ const TrainingPage = () => {
   useEffect(() => {
     loadTrainingPlan()
     loadWorkoutSheets()
-  }, [session])
+    
+    // Verificar se veio da HomePage com selectedDay
+    if (location.state?.selectedDay) {
+      handleStartWorkout(location.state.selectedDay)
+    }
+  }, [session, location.state])
 
   const loadTrainingPlan = async () => {
     if (!session) return
@@ -149,8 +155,11 @@ const TrainingPage = () => {
     }
   }
 
-  const handleStartWorkout = (sheetId = null) => {
-    if (sheetId) {
+  const handleStartWorkout = (sheetId = null, selectedDay = null) => {
+    if (selectedDay !== null) {
+      // Se foi passado um dia específico, navega com o dia selecionado
+      navigate('/log-treino', { state: { useTrainingPlan: true, selectedDay } })
+    } else if (sheetId) {
       // Se foi passada uma ficha específica, navega com o ID da ficha
       navigate('/log-treino', { state: { sheetId } })
     } else {
@@ -206,8 +215,10 @@ const TrainingPage = () => {
             <h2 className="text-lg font-semibold mb-4">Gerar Treino Personalizado</h2>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-2">Objetivo</label>
+                <label htmlFor="objetivo" className="block text-sm font-medium mb-2">Objetivo</label>
                 <select
+                  id="objetivo"
+                  name="objetivo"
                   value={selectedObjective}
                   onChange={(e) => setSelectedObjective(e.target.value)}
                   className="w-full px-4 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-primary-500"
@@ -224,8 +235,10 @@ const TrainingPage = () => {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-2">Dias por semana</label>
+                <label htmlFor="dias-semana" className="block text-sm font-medium mb-2">Dias por semana</label>
                 <select
+                  id="dias-semana"
+                  name="dias-semana"
                   value={selectedDays}
                   onChange={(e) => setSelectedDays(parseInt(e.target.value))}
                   className="w-full px-4 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-primary-500"
@@ -333,6 +346,8 @@ const TrainingPage = () => {
                 <div>
                   <label className="block text-sm font-medium mb-2">Nome da Ficha</label>
                   <Input
+                    id="newSheetName"
+                    name="newSheetName"
                     value={newSheetName}
                     onChange={(e) => setNewSheetName(e.target.value)}
                     placeholder="Ex: Treino A - Peito"

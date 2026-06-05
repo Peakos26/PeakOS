@@ -1,9 +1,15 @@
 import { database, ref, get } from '@config/firebase.config'
 
+// Função para codificar tokenKey para paths válidos do Firebase
+const encodeTokenKey = (tokenKey) => {
+  return tokenKey.replace(/[.#$[\]]/g, '_')
+}
+
 export const authService = {
   async login(tokenKey) {
     try {
-      const snapshot = await get(ref(database, `gymai_tokens/${tokenKey}`))
+      const encodedKey = encodeTokenKey(tokenKey)
+      const snapshot = await get(ref(database, `gymai_tokens/${encodedKey}`))
       const tokenData = snapshot.val()
       
       if (!tokenData) {

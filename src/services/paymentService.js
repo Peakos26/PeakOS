@@ -1,5 +1,10 @@
 import { database, ref, get, set, update } from '@config/firebase.config'
 
+// Função para codificar tokenKey para paths válidos do Firebase
+const encodeTokenKey = (tokenKey) => {
+  return tokenKey.replace(/[.#$\[\]]/g, '_')
+}
+
 export const paymentService = {
   // Planos disponíveis
   PLANS: {
@@ -66,7 +71,8 @@ export const paymentService = {
         createdAt: Date.now()
       }
 
-      await set(ref(database, `gymai_payments/${tokenKey}/${paymentIntent.id}`), paymentIntent)
+      const encodedKey = encodeTokenKey(tokenKey)
+      await set(ref(database, `gymai_payments/${encodedKey}/${paymentIntent.id}`), paymentIntent)
 
       return { success: true, data: paymentIntent }
     } catch (error) {
@@ -77,7 +83,8 @@ export const paymentService = {
 
   async confirmPayment(tokenKey, paymentIntentId) {
     try {
-      const paymentRef = ref(database, `gymai_payments/${tokenKey}/${paymentIntentId}`)
+      const encodedKey = encodeTokenKey(tokenKey)
+      const paymentRef = ref(database, `gymai_payments/${encodedKey}/${paymentIntentId}`)
       const snapshot = await get(paymentRef)
       const payment = snapshot.val()
 
@@ -93,7 +100,7 @@ export const paymentService = {
 
       // Atualizar plano do usuário
       const plan = this.PLANS[payment.planId]
-      await update(ref(database, `gymai_tokens/${tokenKey}`), {
+      await update(ref(database, `gymai_tokens/${encodedKey}`), {
         plan: payment.planId,
         planExpiresAt: Date.now() + (30 * 24 * 60 * 60 * 1000), // 30 dias
         planActivatedAt: Date.now()
@@ -106,7 +113,7 @@ export const paymentService = {
       }
 
       const features = featuresMap[payment.planId] || []
-      await database.ref(`gymai_tokens/${tokenKey}/features`).set(features)
+      await database.ref(`gymai_tokens/${encodedKey}/features`).set(features)
 
       return { success: true, data: { plan: payment.planId, features } }
     } catch (error) {
@@ -117,7 +124,8 @@ export const paymentService = {
 
   async getUserPlan(tokenKey) {
     try {
-      const snapshot = await get(ref(database, `gymai_tokens/${tokenKey}`))
+      const encodedKey = encodeTokenKey(tokenKey)
+      const snapshot = await get(ref(database, `gymai_tokens/${encodedKey}`))
       const tokenData = snapshot.val()
 
       if (!tokenData) {
@@ -131,7 +139,7 @@ export const paymentService = {
       // Verificar se o plano expirou
       if (plan !== 'free' && planExpiresAt && Date.now() > planExpiresAt) {
         // Reverter para plano gratuito
-        await update(ref(database, `gymai_tokens/${tokenKey}`), {
+        await update(ref(database, `gymai_tokens/${encodedKey}`), {
           plan: 'free',
           features: []
         })
@@ -147,7 +155,8 @@ export const paymentService = {
 
   async cancelSubscription(tokenKey) {
     try {
-      const snapshot = await get(ref(database, `gymai_tokens/${tokenKey}`))
+      const encodedKey = encodeTokenKey(tokenKey)
+      const snapshot = await get(ref(database, `gymai_tokens/${encodedKey}`))
       const tokenData = snapshot.val()
 
       if (!tokenData) {
@@ -156,7 +165,7 @@ export const paymentService = {
 
       // Em produção, isso cancelaria a assinatura no Stripe
       // Aqui apenas removemos o plano pago
-      await update(ref(database, `gymai_tokens/${tokenKey}`), {
+      await update(ref(database, `gymai_tokens/${encodedKey}`), {
         plan: 'free',
         features: [],
         planExpiresAt: null,
@@ -172,7 +181,8 @@ export const paymentService = {
 
   async getPaymentHistory(tokenKey) {
     try {
-      const snapshot = await database.ref(`gymai_payments/${tokenKey}`).once('value')
+      const encodedKey = encodeTokenKey(tokenKey)
+      const snapshot = await database.ref(`gymai_payments/${encodedKey}`).once('value')
       const payments = snapshot.val()
 
       if (!payments) {

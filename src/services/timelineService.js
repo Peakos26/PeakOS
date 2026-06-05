@@ -1,9 +1,15 @@
 import { database, ref, get, set, push, remove } from '@config/firebase.config'
 
+// Função para codificar tokenKey para paths válidos do Firebase
+const encodeTokenKey = (tokenKey) => {
+  return tokenKey.replace(/[.#$[\]]/g, '_')
+}
+
 export const timelineService = {
   async saveTimelineEntry(tokenKey, entryData) {
     try {
-      const entryRef = push(ref(database, `gymai_timeline/${tokenKey}`))
+      const encodedKey = encodeTokenKey(tokenKey)
+      const entryRef = push(ref(database, `gymai_timeline/${encodedKey}`))
       await set(entryRef, {
         ...entryData,
         createdAt: Date.now()
@@ -17,7 +23,8 @@ export const timelineService = {
 
   async getTimeline(tokenKey) {
     try {
-      const snapshot = await get(ref(database, `gymai_timeline/${tokenKey}`))
+      const encodedKey = encodeTokenKey(tokenKey)
+      const snapshot = await get(ref(database, `gymai_timeline/${encodedKey}`))
       const timeline = snapshot.val()
       
       if (!timeline) {
@@ -76,7 +83,8 @@ export const timelineService = {
 
   async deleteTimelineEntry(tokenKey, entryId) {
     try {
-      await remove(ref(database, `gymai_timeline/${tokenKey}/${entryId}`))
+      const encodedKey = encodeTokenKey(tokenKey)
+      await remove(ref(database, `gymai_timeline/${encodedKey}/${entryId}`))
       return { success: true }
     } catch (error) {
       console.error('Erro ao deletar entrada da timeline:', error)
@@ -86,7 +94,8 @@ export const timelineService = {
 
   async compareTimelineEntries(tokenKey, entryId1, entryId2) {
     try {
-      const snapshot = await get(ref(database, `gymai_timeline/${tokenKey}`))
+      const encodedKey = encodeTokenKey(tokenKey)
+      const snapshot = await get(ref(database, `gymai_timeline/${encodedKey}`))
       const timeline = snapshot.val()
 
       if (!timeline) {

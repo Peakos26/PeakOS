@@ -1,9 +1,15 @@
 import { database, ref, get, set, push, GROQ_API_KEY } from '@config/firebase.config'
 
+// Função para codificar tokenKey para paths válidos do Firebase
+const encodeTokenKey = (tokenKey) => {
+  return tokenKey.replace(/[.#$[\]]/g, '_')
+}
+
 export const bodyScannerService = {
   async saveAnalysis(tokenKey, analysisData) {
     try {
-      const analysisRef = push(ref(database, `gymai_body_scanner/${tokenKey}`))
+      const encodedKey = encodeTokenKey(tokenKey)
+      const analysisRef = push(ref(database, `gymai_body_scanner/${encodedKey}`))
       await set(analysisRef, {
         ...analysisData,
         createdAt: Date.now()
@@ -17,7 +23,8 @@ export const bodyScannerService = {
 
   async getAnalysisHistory(tokenKey) {
     try {
-      const snapshot = await get(ref(database, `gymai_body_scanner/${tokenKey}`))
+      const encodedKey = encodeTokenKey(tokenKey)
+      const snapshot = await get(ref(database, `gymai_body_scanner/${encodedKey}`))
       const analyses = snapshot.val()
       return { success: true, data: analyses }
     } catch (error) {

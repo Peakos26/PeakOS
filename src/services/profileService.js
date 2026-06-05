@@ -1,9 +1,15 @@
 import { database, ref, get, set } from '@config/firebase.config'
 
+// Função para codificar tokenKey para paths válidos do Firebase
+const encodeTokenKey = (tokenKey) => {
+  return tokenKey.replace(/[.#$[\]]/g, '_')
+}
+
 export const profileService = {
   async saveProfile(tokenKey, profileData) {
     try {
-      await set(ref(database, `gymai_profile/${tokenKey}`), {
+      const encodedKey = encodeTokenKey(tokenKey)
+      await set(ref(database, `gymai_profile/${encodedKey}`), {
         ...profileData,
         updatedAt: Date.now()
       })
@@ -16,7 +22,8 @@ export const profileService = {
 
   async getProfile(tokenKey) {
     try {
-      const snapshot = await get(ref(database, `gymai_profile/${tokenKey}`))
+      const encodedKey = encodeTokenKey(tokenKey)
+      const snapshot = await get(ref(database, `gymai_profile/${encodedKey}`))
       const profile = snapshot.val()
       return { success: true, data: profile }
     } catch (error) {
@@ -27,7 +34,8 @@ export const profileService = {
 
   async saveMeasurements(tokenKey, measurementsData) {
     try {
-      await set(ref(database, `gymai_medidas/${tokenKey}`), {
+      const encodedKey = encodeTokenKey(tokenKey)
+      await set(ref(database, `gymai_medidas/${encodedKey}`), {
         ...measurementsData,
         updatedAt: Date.now()
       })
@@ -40,7 +48,8 @@ export const profileService = {
 
   async getMeasurements(tokenKey) {
     try {
-      const snapshot = await get(ref(database, `gymai_medidas/${tokenKey}`))
+      const encodedKey = encodeTokenKey(tokenKey)
+      const snapshot = await get(ref(database, `gymai_medidas/${encodedKey}`))
       const measurements = snapshot.val()
       return { success: true, data: measurements }
     } catch (error) {
@@ -51,7 +60,8 @@ export const profileService = {
 
   async saveGoals(tokenKey, goalsData) {
     try {
-      await set(ref(database, `gymai_metas/${tokenKey}`), {
+      const encodedKey = encodeTokenKey(tokenKey)
+      await set(ref(database, `gymai_metas/${encodedKey}`), {
         ...goalsData,
         updatedAt: Date.now()
       })
@@ -64,7 +74,8 @@ export const profileService = {
 
   async getGoals(tokenKey) {
     try {
-      const snapshot = await get(ref(database, `gymai_metas/${tokenKey}`))
+      const encodedKey = encodeTokenKey(tokenKey)
+      const snapshot = await get(ref(database, `gymai_metas/${encodedKey}`))
       const goals = snapshot.val()
       return { success: true, data: goals }
     } catch (error) {

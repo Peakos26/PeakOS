@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@context/AuthContext'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import Header from '@components/layout/Header'
 import Navigation from '@components/layout/Navigation'
 import Card from '@components/ui/Card'
@@ -11,14 +11,21 @@ import { trainingService } from '@services/trainingService'
 const WorkoutLogPage = () => {
   const { session } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
   const [currentPage, setCurrentPage] = useState('log-treino')
   const [trainingPlan, setTrainingPlan] = useState(null)
   const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0)
   const [series, setSeries] = useState([])
+  const [selectedDay, setSelectedDay] = useState(null)
 
   useEffect(() => {
     loadTrainingPlan()
-  }, [session])
+    
+    // Verificar se veio da TrainingPage com selectedDay
+    if (location.state?.selectedDay !== undefined) {
+      setSelectedDay(location.state.selectedDay)
+    }
+  }, [session, location.state])
 
   const loadTrainingPlan = async () => {
     if (!session) return
@@ -43,7 +50,7 @@ const WorkoutLogPage = () => {
   }
 
   const handleNextExercise = () => {
-    if (currentExerciseIndex < (trainingPlan?.exercicios?.length || 0) - 1) {
+    if (currentExerciseIndex < currentExercisesList.length - 1) {
       setCurrentExerciseIndex(currentExerciseIndex + 1)
       setSeries([])
     }
@@ -60,8 +67,8 @@ const WorkoutLogPage = () => {
     if (!session || !trainingPlan) return
 
     const workoutData = {
-      dia: new Date().getDay(),
-      exercicios: trainingPlan.exercicios.map((exercicio, index) => ({
+      dia: selectedDay !== null ? selectedDay : new Date().getDay(),
+      exercicios: currentExercisesList.map((exercicio, index) => ({
         nome: exercicio.nome,
         series: index === currentExerciseIndex ? series : []
       })),
@@ -77,14 +84,24 @@ const WorkoutLogPage = () => {
     }
   }
 
-  const currentExercise = trainingPlan?.exercicios?.[currentExerciseIndex]
+  const currentExercise = selectedDay !== null && trainingPlan?.planoSemanal
+    ? trainingPlan.planoSemanal.find(day => day.dia === selectedDay)?.exercicios?.[currentExerciseIndex]
+    : trainingPlan?.exercicios?.[currentExerciseIndex]
+
+  const currentExercisesList = selectedDay !== null && trainingPlan?.planoSemanal
+    ? trainingPlan.planoSemanal.find(day => day.dia === selectedDay)?.exercicios || []
+    : trainingPlan?.exercicios || []
+
+  const currentDayName = selectedDay !== null && trainingPlan?.planoSemanal
+    ? trainingPlan.planoSemanal.find(day => day.dia === selectedDay)?.nomeDia
+    : 'Treino Atual'
 
   return (
     <div className="min-h-screen pb-20 md:pb-0 md:pl-64">
       <Header />
       
       <main className="container mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold font-display mb-6">Log de Treino</h1>
+        <h1 className="text-2xl font-bold font-display mb-6">Log de Treino — {currentDayName}</h1>
 
         {!trainingPlan ? (
           <Card>
@@ -114,6 +131,8 @@ const WorkoutLogPage = () => {
                     <div className="flex-1">
                       <Input
                         type="number"
+                        id={`peso-${index}`}
+                        name={`peso-${index}`}
                         placeholder="Peso (kg)"
                         value={serie.peso}
                         onChange={(e) => handleUpdateSerie(index, 'peso', parseFloat(e.target.value) || 0)}
@@ -122,6 +141,8 @@ const WorkoutLogPage = () => {
                     <div className="flex-1">
                       <Input
                         type="number"
+                        id={`reps-${index}`}
+                        name={`reps-${index}`}
                         placeholder="Reps"
                         value={serie.reps}
                         onChange={(e) => handleUpdateSerie(index, 'reps', parseInt(e.target.value) || 0)}
