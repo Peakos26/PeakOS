@@ -17,21 +17,24 @@ const FEATURES = [
     name: 'Scanner Corporal IA',
     description: 'Análise de fotos para estimar composição corporal',
     price: 0,
-    icon: '📷'
+    icon: '📷',
+    unlockMessage: '✅ Scanner Corporal IA (PeakOS) desbloqueado!\n\nVocê agora pode:\n• Fazer upload de fotos do seu corpo\n• A IA analisa as fotos para estimar composição corporal\n• Ver histórico de análises e evolução ao longo do tempo\n• Receber recomendações baseadas na análise'
   },
   {
     id: 'metas_inteligentes',
     name: 'Metas Inteligentes',
     description: 'IA gera metas personalizadas baseadas no seu perfil',
     price: 0,
-    icon: '🎯'
+    icon: '🎯',
+    unlockMessage: '✅ Metas Inteligentes (PeakOS) desbloqueado!\n\nVocê agora pode:\n• Receber metas personalizadas geradas por IA\n• Metas adaptadas ao seu perfil e objetivos\n• Acompanhar progresso em tempo real\n• Ajustar metas conforme sua evolução'
   },
   {
     id: 'performance_score',
     name: 'Performance Score',
     description: 'Dashboard com score de performance em tempo real',
     price: 0,
-    icon: '📊'
+    icon: '📊',
+    unlockMessage: '✅ Performance Score (PeakOS) desbloqueado!\n\nVocê agora pode:\n• Ver seu score de performance em tempo real\n• Analisar métricas detalhadas de treino\n• Comparar performance ao longo do tempo\n• Receber insights para melhorar seus resultados'
   },
   {
     id: 'coach_avancado',
@@ -39,7 +42,8 @@ const FEATURES = [
     description: 'IA com análise avançada e recomendações personalizadas',
     price: 11.99,
     duration: 90,
-    icon: '🤖'
+    icon: '🤖',
+    unlockMessage: '✅ Coach Avançado (PeakOS) desbloqueado!\n\nVocê agora tem acesso a:\n• Análise avançada com IA\n• Recomendações personalizadas\n• Dicas exclusivas de treino\n• Sugestões de suplementação\n• Planos de alimentação\n• Dicas de sono e recuperação'
   },
   {
     id: 'treinos_personalizados',
@@ -47,7 +51,8 @@ const FEATURES = [
     description: 'Treinos gerados especificamente para o seu objetivo',
     price: 24.32,
     duration: 180,
-    icon: '💪'
+    icon: '💪',
+    unlockMessage: '✅ Treinos Personalizados (PeakOS) desbloqueado!\n\nTodas as features foram liberadas automaticamente!\n\nVocê agora tem acesso completo a:\n• Treinos personalizados gerados por IA\n• Scanner Corporal IA\n• Metas Inteligentes\n• Performance Score\n• Coach Avançado\n• E muito mais!'
   }
 ]
 
@@ -136,11 +141,7 @@ const FeaturesPage = () => {
       // Mostrar notificação
       const feature = FEATURES.find(f => f.id === featureId)
       if (!userFeatures.includes(featureId)) {
-        if (featureId === 'treinos_personalizados') {
-          alert(`✅ ${feature.name} (PeakOS) desbloqueado! Todas as features foram liberadas automaticamente.`)
-        } else {
-          alert(`✅ ${feature.name} (PeakOS) desbloqueado com sucesso!`)
-        }
+        alert(feature.unlockMessage || `✅ ${feature.name} (PeakOS) desbloqueado com sucesso!`)
       } else {
         if (featureId === 'treinos_personalizados') {
           alert(`ℹ️ ${feature.name} desativado. Todas as features foram removidas.`)
