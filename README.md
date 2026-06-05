@@ -1,122 +1,233 @@
-# PeakOS - Fitness AI Platform
+# PeakOS — Fitness AI Platform
 
-Plataforma de fitness baseada em IA, construída com React + Vite + Tailwind CSS e Firebase.
+> Plataforma de fitness baseada em IA, com check-in por geolocalização, scanner corporal, performance score e integração com Apple Health / Garmin / Google Fit.
 
-## 🚀 Tecnologias
+**URL de produção:** https://peakos26.github.io/PeakOS/
 
-- **Frontend**: React 18 + Vite
-- **UI Framework**: Tailwind CSS
-- **Icons**: Lucide React
-- **Charts**: Chart.js + React Chart.js 2
-- **Maps**: Leaflet + React Leaflet
-- **Backend**: Firebase (Realtime Database, Functions)
-- **IA**: Anthropic Claude API
+---
+
+## 🏗️ Stack
+
+| Camada | Tecnologia |
+|---|---|
+| Frontend | React 18 + Vite 5 |
+| Estilo | Tailwind CSS |
+| Roteamento | React Router DOM v6 |
+| Backend / DB | Firebase Realtime Database |
+| IA | Groq API (llama-3.3-70b-versatile) |
+| Deploy | GitHub Pages via `gh-pages` |
+
+---
+
+## 🚀 Deploy
+
+```bash
+# Instalar dependências
+npm install
+
+# Desenvolvimento local
+npm run dev
+
+# Build + publicar no GitHub Pages
+npm run deploy
+```
+
+> ⚠️ Requer Node.js v18+. Use `nvm use 18` se necessário.
+
+**Configuração do GitHub Pages:**
+- Branch: `gh-pages` 
+- Folder: `/ (root)` 
+- URL: `peakos26.github.io/PeakOS/` 
+
+**Configuração do Vite (`vite.config.js`):**
+```js
+base: '/PeakOS/' // OBRIGATÓRIO — nunca remover
+```
+
+---
+
+## 🔥 Firebase — Estrutura do Banco
+
+> Projeto: `mygym-ebc54`  
+> URL: `https://mygym-ebc54-default-rtdb.firebaseio.com` 
+
+### ⚠️ REGRA CRÍTICA — SDK Modular v9
+
+**NUNCA usar sintaxe legada.** O projeto usa Firebase SDK v10 (modular):
+
+```js
+// ❌ ERRADO — sintaxe legada (causa: "$.ref is not a function")
+database.ref('path').once('value')
+database.ref('path').push().set(data)
+
+// ✅ CORRETO — sintaxe modular v9+
+import { ref, get, set, push, update, remove } from 'firebase/database'
+await get(ref(database, 'path'))
+const newRef = push(ref(database, 'path'))
+await set(newRef, data)
+```
+
+### Coleções (todas com prefixo `gymai_`)
+
+| Coleção | Descrição |
+|---|---|
+| `gymai_admin_tokens/{tokenKey}` | Tokens de acesso dos usuários |
+| `gymai_requests/{reqId}` | Solicitações de acesso (status: pending/approved) |
+| `gymai_logins/{logId}` | Histórico de logins |
+| `gymai_log/{tokenKey}/{logId}` | Logs de treino |
+| `gymai_treinos/{tokenKey}` | Plano de treino ativo |
+| `gymai_fichas/{tokenKey}/{sheetId}` | Fichas de treino |
+| `gymai_dias_treino/{tokenKey}/{day}` | Check-ins diários |
+| `gymai_medidas/{tokenKey}` | Medidas corporais |
+| `gymai_metas/{tokenKey}` | Metas (sono, calorias, água, proteína) |
+| `gymai_profile/{tokenKey}` | Perfil do usuário |
+| `gymai_performance/{tokenKey}` | Histórico de performance score |
+| `gymai_rewards/{tokenKey}` | XP, nível e conquistas |
+| `gymai_body_scanner/{tokenKey}` | Análises corporais por foto |
+| `gymai_timeline/{tokenKey}` | Timeline de fotos e medidas |
+| `gymai_relatorios/{tokenKey}` | Relatórios gerados |
+| `gymai_payments/{tokenKey}` | Histórico de pagamentos |
+
+### Estrutura do token (`gymai_admin_tokens`)
+
+```json
+{
+  "tk_xxxxxxxxxxxxxxx": {
+    "celular": "11991634961",
+    "nome": "Helton Sales",
+    "createdAt": 1780668113981,
+    "expiresAt": 1783260113981,
+    "uses": 0,
+    "plan": "free",
+    "features": []
+  }
+}
+```
+
+### Estrutura de request (`gymai_requests`)
+
+```json
+{
+  "req_xxxx": {
+    "celular": "11991634961",
+    "nome": "Helton Sales",
+    "status": "approved",
+    "createdAt": 1780668101474,
+    "approvedAt": 1780668113981,
+    "tokenKey": "tk_xxxxxxxxxxxxxxx"
+  }
+}
+```
+
+---
+
+## 🔐 Fluxo de Autenticação
+
+```
+1. Usuário digita celular (com DDD) na LoginPage
+2. AuthContext busca em gymai_requests pelo celular
+3. Verifica status === 'approved'
+4. Busca token em gymai_admin_tokens/{tokenKey}
+5. Salva sessão no localStorage como 'gymai_session'
+6. Redireciona para '/'
+```
+
+> ⚠️ Login é por **celular**, não por tokenKey diretamente.
+
+---
 
 ## 📁 Estrutura do Projeto
 
 ```
-peakos-react/
-├── src/
-│   ├── components/
-│   │   ├── layout/       # Componentes de layout (Header, Navigation, Router)
-│   │   ├── ui/           # Componentes reutilizáveis (Button, Card, Input)
-│   │   └── features/     # Componentes específicos de features
-│   ├── pages/           # Páginas principais
-│   ├── hooks/           # Custom hooks
-│   ├── services/         # Serviços (Model) - Integração com Firebase
-│   ├── context/         # Contextos (ViewModel) - Estado global
-│   ├── utils/           # Utilitários
-│   ├── types/           # Tipos TypeScript
-│   ├── assets/          # Imagens, fontes
-│   ├── styles/          # Estilos globais
-│   ├── config/          # Configurações
-│   └── constants/       # Constantes
-├── public/              # Arquivos estáticos
-└── functions/           # Firebase Cloud Functions
+src/
+├── config/
+│   └── firebase.config.js      # Configuração Firebase + export database
+├── context/
+│   ├── AuthContext.jsx          # Login por celular, sessão localStorage
+│   ├── FirebaseContext.jsx      
+│   └── ThemeContext.jsx         
+├── components/
+│   ├── layout/
+│   │   ├── AppRouter.jsx        # Rotas protegidas
+│   │   ├── Header.jsx           
+│   │   └── Navigation.jsx       
+│   └── ui/
+│       ├── Button.jsx
+│       ├── Card.jsx
+│       └── Input.jsx
+├── pages/
+│   ├── LoginPage.jsx            # Login por celular
+│   ├── HomePage.jsx             
+│   ├── TrainingPage.jsx         
+│   ├── EvolutionPage.jsx        
+│   ├── ProfilePage.jsx          
+│   ├── AIPage.jsx               # Chat com Groq API
+│   └── AdminPage.jsx            
+├── services/                    # Todos usam Firebase v9 modular
+│   ├── authService.js
+│   ├── trainingService.js
+│   ├── profileService.js
+│   ├── performanceService.js
+│   ├── rewardsService.js
+│   ├── timelineService.js
+│   ├── reportService.js
+│   ├── paymentService.js
+│   ├── bodyScannerService.js
+│   └── healthService.js
+├── constants/
+│   └── trainingConstants.js
+└── utils/
+    └── cn.js
 ```
 
-## 🏗️ Arquitetura MVVM
+---
 
-- **Model**: Serviços em `src/services/` - Integração com Firebase
-- **View**: Componentes em `src/components/` e `src/pages/` - Interface do usuário
-- **ViewModel**: Contextos em `src/context/` - Lógica de negócio e estado
+## ⚙️ Variáveis de Ambiente
 
-## 📦 Instalação
-
-```bash
-cd peakos-react
-npm install
-```
-
-## 🔧 Configuração
-
-1. Configure a chave da API da Anthropic no arquivo `.env`:
 ```env
-VITE_ANTHROPIC_API_KEY=sua_chave_aqui
+VITE_GROQ_API_KEY=sua_chave_groq
+VITE_GARMIN_CLIENT_ID=sua_chave_garmin
+VITE_GOOGLE_CLIENT_ID=sua_chave_google
 ```
 
-2. O Firebase já está configurado em `src/config/firebase.config.js`
+---
 
-## 🚀 Desenvolvimento
+## 🐛 Problemas conhecidos e soluções
 
-```bash
-npm run dev
-```
+### `$.ref is not a function` 
+**Causa:** Sintaxe legada do Firebase sendo usada.  
+**Fix:** Usar sempre `get(ref(database, path))` da SDK modular v9.
 
-## 🏗️ Build
+### `Token inválido` no login
+**Causa:** Path errado no Firebase ou busca por tokenKey em vez de celular.  
+**Fix:** Login busca por celular em `gymai_requests`, não por token diretamente.
 
-```bash
-npm run build
-```
+### Assets 404 no GitHub Pages
+**Causa:** `base` ausente ou errado no `vite.config.js`.  
+**Fix:** Garantir `base: '/PeakOS/'` no `vite.config.js`.
 
-## 🌐 Deploy no GitHub Pages
+### React Router 404 ao navegar
+**Causa:** GitHub Pages não suporta SPA routing nativamente.  
+**Fix:** `public/404.html` com script de redirect + script de restore no `index.html`.
 
-```bash
-npm run deploy
-```
+### `history item skippable` 
+**Causa:** `history.pushState()` chamado sem interação do usuário.  
+**Fix:** Chamar pushState apenas em handlers de eventos do usuário.
 
-## 📝 Funcionalidades
+---
 
-- ✅ Autenticação com tokens
-- ✅ Log de treino
-- ✅ Planos de treino personalizados
-- ✅ Fichas de treino
-- ✅ Check-in com geolocalização
-- ✅ Scanner corporal com IA
-- ✅ Metas inteligentes
-- ✅ Performance score
-- ✅ Relatórios de progresso
-- ✅ IA Coach
-- ✅ Temas Dark/Light/System
-- ✅ Responsivo (mobile e desktop)
+## 📋 Checklist de Deploy
 
-## 🔐 Firebase Rules
+- [ ] `vite.config.js` tem `base: '/PeakOS/'` 
+- [ ] Node.js v18+ ativo (`node -v`)
+- [ ] Remote correto: `https://github.com/Peakos26/PeakOS.git` 
+- [ ] `npm run deploy` retorna `Published` 
+- [ ] Branch `gh-pages` atualizado no GitHub
+- [ ] GitHub Pages configurado para branch `gh-pages` / `/ (root)` 
 
-As regras do Firebase estão configuradas no arquivo `../gymai/database.rules.json`
+---
 
-## 📱 PWA
+## 👤 Contato
 
-O projeto está configurado como PWA com suporte a instalação.
-
-## 🎨 Temas
-
-O projeto suporta 3 temas:
-- **Light**: Tema claro
-- **Dark**: Tema escuro
-- **System**: Segue a preferência do sistema
-
-## 📊 Monitoramento
-
-O projeto integra com Firebase Analytics para monitoramento de uso.
-
-## 🤝 Contribuindo
-
-1. Fork o projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/MinhaFeature`)
-3. Commit suas mudanças (`git commit -m 'Adiciona MinhaFeature'`)
-4. Push para a branch (`git push origin feature/MinhaFeature`)
-5. Abra um Pull Request
-
-## 📄 Licença
-
-Este projeto está sob licença MIT.
+Desenvolvido por **Helton Sales** — IT Manager / IT Analytics & Insights  
+GitHub: [@Peakos26](https://github.com/Peakos26)
