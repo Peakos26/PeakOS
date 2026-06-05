@@ -1,0 +1,178 @@
+{
+  "rules": {
+    ".read": true,
+    ".write": true,
+    "gymai_admin_tokens": {
+      ".read": true,
+      ".write": true,
+      "$tokenKey": {
+        ".read": true,
+        ".write": true
+      }
+    },
+    "gymai_tokens": {
+      ".read": true,
+      ".write": true,
+      "$tokenKey": {
+        ".read": true,
+        ".write": true
+      }
+    },
+    "gymai_config": {
+      ".read": true,
+      ".write": true,
+      "groq_api_key": {
+        ".read": true,
+        ".write": true
+      }
+    },
+    "gymai_logins": {
+      ".read": true,
+      ".write": true,
+      "$loginId": {
+        ".read": true,
+        ".write": true
+      }
+    },
+    "gymai_requests": {
+      ".read": true,
+      ".write": true,
+      "$requestId": {
+        ".read": true,
+        ".write": true
+      }
+    },
+    "gymai_social": {
+      ".read": true,
+      ".write": true,
+      "$tokenKey": {
+        ".read": true,
+        ".write": true
+      }
+    },
+    "gymai_rewards": {
+      ".read": true,
+      ".write": true,
+      "$tokenKey": {
+        ".read": true,
+        ".write": true
+      }
+    },
+    "gymai_body_scanner": {
+      ".read": true,
+      ".write": true,
+      "$tokenKey": {
+        ".read": true,
+        ".write": true
+      }
+    },
+    "gymai_payments": {
+      ".read": true,
+      ".write": true,
+      "$tokenKey": {
+        ".read": true,
+        ".write": true
+      }
+    },
+    "gymai_training_plans": {
+      ".read": true,
+      ".write": true,
+      "$tokenKey": {
+        ".read": true,
+        ".write": true
+      }
+    },
+    "gymai_workout_sheets": {
+      ".read": true,
+      ".write": true,
+      "$tokenKey": {
+        ".read": true,
+        ".write": true,
+        "$sheetId": {
+          ".read": true,
+          ".write": true
+        }
+      }
+    },
+    "gymai_workout_logs": {
+      ".read": true,
+      ".write": true,
+      "$tokenKey": {
+        ".read": true,
+        ".write": true,
+        "$logId": {
+          ".read": true,
+          ".write": true
+        }
+      }
+    },
+    "gymai_checkins": {
+      ".read": true,
+      ".write": true,
+      "$tokenKey": {
+        ".read": true,
+        ".write": true,
+        "$checkinId": {
+          ".read": true,
+          ".write": true
+        }
+      }
+    },
+    "gymai_profile": {
+      ".read": true,
+      ".write": true,
+      "$tokenKey": {
+        ".read": true,
+        ".write": true
+      }
+    },
+    "gymai_goals": {
+      ".read": true,
+      ".write": true,
+      "$tokenKey": {
+        ".read": true,
+        ".write": true
+      }
+    },
+    "gymai_timeline": {
+      ".read": true,
+      ".write": true,
+      "$tokenKey": {
+        ".read": true,
+        ".write": true,
+        "$entryId": {
+          ".read": true,
+          ".write": true
+        }
+      }
+    },
+    "gymai_reports": {
+      ".read": true,
+      ".write": true,
+      "$tokenKey": {
+        ".read": true,
+        ".write": true,
+        "$reportId": {
+          ".read": true,
+          ".write": true
+        }
+      }
+    },
+    "gymai_performance": {
+      ".read": true,
+      ".write": true,
+      "$tokenKey": {
+        ".read": true,
+        ".write": true
+      }
+    },
+    "gymai_chat": {
+      ".read": true,
+      ".write": true,
+      "$tokenKey": {
+        ".read": true,
+        ".write": true
+      }
+    }
+  }
+}
