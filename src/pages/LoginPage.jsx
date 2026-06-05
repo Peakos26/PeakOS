@@ -17,6 +17,10 @@ const LoginPage = () => {
   const navigate = useNavigate()
 
   const logLogin = async (tokenKey, userData) => {
+    console.log('📝 [LOGIN] Iniciando registro de login')
+    console.log('📝 [LOGIN] TokenKey:', tokenKey)
+    console.log('📝 [LOGIN] UserData:', userData)
+    console.log('📝 [LOGIN] Celular:', celular)
     try {
       const logRef = push(ref(database, 'gymai_logins'))
       await set(logRef, {
@@ -26,8 +30,9 @@ const LoginPage = () => {
         timestamp: Date.now(),
         date: new Date().toISOString()
       })
+      console.log('✅ [LOGIN] Login registrado com sucesso')
     } catch (err) {
-      console.error('Erro ao registrar login:', err)
+      console.error('❌ [LOGIN] Erro ao registrar login:', err)
     }
   }
 
@@ -40,16 +45,17 @@ const LoginPage = () => {
 
     // Se o usuário inseriu um token, tentar login com o token
     if (token) {
-      console.log('🔍 [LOGIN] Tentando login com token')
+      console.log('� [LOGIN] Token informado, tentando login com token')
       try {
         const result = await login(token, { nome: 'Usuário' })
         console.log('🔍 [LOGIN] Resultado login token:', result)
         if (result.success) {
+          console.log('✅ [LOGIN] Login com token sucesso')
           await logLogin(token, { nome: 'Usuário' })
           console.log('🔍 [LOGIN] Login com token sucesso, navegando para /')
           navigate('/')
         } else {
-          console.log('🔍 [LOGIN] Token inválido ou expirado')
+          console.log('❌ [LOGIN] Token inválido ou expirado')
           setError('Token inválido ou expirado')
         }
         setLoading(false)
@@ -64,7 +70,7 @@ const LoginPage = () => {
 
     // Se não tiver token, verificar por celular
     if (!celular || celular.length < 10) {
-      console.log('🔍 [LOGIN] Celular inválido')
+      console.log('❌ [LOGIN] Celular inválido')
       setError('Digite um celular válido (com DDD) ou insira um token')
       setLoading(false)
       return
@@ -79,25 +85,28 @@ const LoginPage = () => {
       console.log('🔍 [LOGIN] Usuário existente:', existing)
 
       if (existing && existing.status === 'approved' && existing.tokenKey) {
-        console.log('🔍 [LOGIN] Usuário aprovado, tentando login automático')
+        console.log('✅ [LOGIN] Usuário aprovado, tentando login automático')
         // Login automático com token
         const result = await login(existing.tokenKey, { nome: existing.nome })
         console.log('🔍 [LOGIN] Resultado login automático:', result)
         if (result.success) {
+          console.log('✅ [LOGIN] Login automático sucesso')
           await logLogin(existing.tokenKey, { nome: existing.nome })
           console.log('🔍 [LOGIN] Login automático sucesso, navegando para /')
           navigate('/')
         } else {
-          console.log('🔍 [LOGIN] Erro ao fazer login automático')
+          console.log('❌ [LOGIN] Erro ao fazer login automático')
           setError('Erro ao fazer login automático')
         }
       } else if (existing && existing.status === 'pending') {
-        console.log('🔍 [LOGIN] Usuário pendente')
+        console.log('⏳ [LOGIN] Usuário pendente, indo para step 3')
         setStep(3)
       } else {
+        console.log('📝 [LOGIN] Usuário não encontrado, indo para step 2 (solicitar acesso)')
         setStep(2)
       }
     } catch (err) {
+      console.error('❌ [LOGIN] Erro ao verificar celular:', err)
       setError('Erro ao verificar celular')
     }
 
@@ -105,37 +114,51 @@ const LoginPage = () => {
   }
 
   const requestAccess = async () => {
+    console.log('📝 [LOGIN] Iniciando requestAccess')
+    console.log('📝 [LOGIN] Nome:', nome)
+    console.log('📝 [LOGIN] Celular:', celular)
     setLoading(true)
     setError('')
 
     if (!nome) {
+      console.log('❌ [LOGIN] Nome não informado')
       setError('Digite seu nome')
       setLoading(false)
       return
     }
     if (!celular || celular.length < 10) {
+      console.log('❌ [LOGIN] Celular inválido')
       setError('Digite um celular válido (com DDD)')
       setLoading(false)
       return
     }
 
     try {
+      console.log('🔍 [LOGIN] Buscando requests existentes no Firebase')
       const requestsSnapshot = await get(ref(database, 'gymai_requests'))
+      console.log('🔍 [LOGIN] Requests snapshot:', requestsSnapshot.val())
       const requests = requestsSnapshot.val() || {}
       const existing = Object.values(requests).find(r => r.celular === celular)
+      console.log('🔍 [LOGIN] Usuário existente:', existing)
 
       if (existing) {
+        console.log('🔍 [LOGIN] Usuário já existe, status:', existing.status)
         if (existing.status === 'pending') {
+          console.log('📝 [LOGIN] Usuário pendente, indo para step 3')
           setStep(3)
           setLoading(false)
           return
         }
         if (existing.status === 'approved' && existing.tokenKey) {
+          console.log('✅ [LOGIN] Usuário aprovado, tentando login automático')
           const result = await login(existing.tokenKey, { nome: existing.nome })
+          console.log('🔍 [LOGIN] Resultado login automático:', result)
           if (result.success) {
             await logLogin(existing.tokenKey, { nome: existing.nome })
+            console.log('✅ [LOGIN] Login automático sucesso, navegando para /')
             navigate('/')
           } else {
+            console.log('❌ [LOGIN] Erro ao fazer login automático')
             setError('Erro ao fazer login')
           }
           setLoading(false)
@@ -143,7 +166,9 @@ const LoginPage = () => {
         }
       }
 
+      console.log('📝 [LOGIN] Criando nova solicitação')
       const requestId = 'req_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8)
+      console.log('📝 [LOGIN] RequestID:', requestId)
       requests[requestId] = {
         nome,
         celular,
@@ -152,8 +177,10 @@ const LoginPage = () => {
       }
 
       await set(ref(database, 'gymai_requests'), requests)
+      console.log('✅ [LOGIN] Solicitação criada com sucesso')
       setStep(3)
     } catch (err) {
+      console.error('❌ [LOGIN] Erro ao solicitar acesso:', err)
       setError('Erro ao solicitar acesso')
     }
 
@@ -161,37 +188,51 @@ const LoginPage = () => {
   }
 
   const checkApproval = async () => {
+    console.log('🔍 [LOGIN] Iniciando checkApproval')
+    console.log('🔍 [LOGIN] Celular:', celular)
     setLoading(true)
 
     try {
+      console.log('🔍 [LOGIN] Buscando requests no Firebase')
       const requestsSnapshot = await get(ref(database, 'gymai_requests'))
+      console.log('🔍 [LOGIN] Requests snapshot:', requestsSnapshot.val())
       const requests = requestsSnapshot.val() || {}
       const existing = Object.values(requests).find(r => r.celular === celular)
+      console.log('🔍 [LOGIN] Usuário existente:', existing)
 
       if (!existing) {
+        console.log('❌ [LOGIN] Solicitação não encontrada')
         setError('Solicitação não encontrada')
         setLoading(false)
         return
       }
 
+      console.log('🔍 [LOGIN] Status do usuário:', existing.status)
       if (existing.status === 'pending') {
+        console.log('⏳ [LOGIN] Usuário ainda pendente')
         setError('Ainda pendente. Aguarde aprovação do administrador')
         setLoading(false)
         return
       }
 
       if (existing.status === 'approved' && existing.tokenKey) {
+        console.log('✅ [LOGIN] Usuário aprovado, tentando login')
         const result = await login(existing.tokenKey, { nome: existing.nome })
+        console.log('🔍 [LOGIN] Resultado login:', result)
         if (result.success) {
           await logLogin(existing.tokenKey, { nome: existing.nome })
+          console.log('✅ [LOGIN] Login sucesso, navegando para /')
           navigate('/')
         } else {
+          console.log('❌ [LOGIN] Erro ao fazer login')
           setError('Erro ao fazer login')
         }
       } else {
+        console.log('❌ [LOGIN] Solicitação rejeitada')
         setError('Solicitação rejeitada')
       }
     } catch (err) {
+      console.error('❌ [LOGIN] Erro ao verificar aprovação:', err)
       setError('Erro ao verificar aprovação')
     }
 
