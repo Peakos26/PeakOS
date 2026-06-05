@@ -55,6 +55,12 @@ const TrainingPage = () => {
     const baseTreino = TREINOS_POR_OBJETIVO[objective]
     if (!baseTreino) return null
 
+    // Verificar se há fichas de treino criadas e usar os exercícios da primeira ficha
+    let exerciciosBase = baseTreino.exercicios
+    if (workoutSheets.length > 0 && workoutSheets[0].exercicios) {
+      exerciciosBase = workoutSheets[0].exercicios
+    }
+
     // Distribuição de dias da semana
     const diasSemana = [
       { dia: 0, nome: 'Segunda', abrev: 'Seg' },
@@ -72,10 +78,10 @@ const TrainingPage = () => {
     // Criar variações de exercícios para cada dia
     const planoSemanal = diasSelecionados.map((diaInfo, index) => {
       // Rotacionar exercícios para cada dia
-      const exerciciosRotacionados = baseTreino.exercicios.map((exercicio, i) => {
-        const novoIndex = (i + index * 2) % baseTreino.exercicios.length
+      const exerciciosRotacionados = exerciciosBase.map((exercicio, i) => {
+        const novoIndex = (i + index * 2) % exerciciosBase.length
         return {
-          ...baseTreino.exercicios[novoIndex],
+          ...exerciciosBase[novoIndex],
           series: exercicio.series,
           repeticoes: exercicio.repeticoes,
           descanso: exercicio.descanso
@@ -269,10 +275,19 @@ const TrainingPage = () => {
             
             {/* Exibir plano semanal */}
             {trainingPlan.planoSemanal ? (
-              <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {trainingPlan.planoSemanal.map((dia, index) => (
                   <div key={index} className="p-4 bg-[var(--color-border)] rounded-lg">
-                    <div className="font-semibold mb-3">{dia.nomeDia}</div>
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="font-semibold">{dia.nomeDia}</div>
+                      <Button 
+                        size="sm" 
+                        onClick={() => handleStartWorkout(null, index)}
+                        className="flex items-center gap-1"
+                      >
+                        Iniciar <ChevronRight size={14} />
+                      </Button>
+                    </div>
                     <div className="space-y-2">
                       {dia.exercicios.map((exercicio, exIndex) => (
                         <div key={exIndex} className="flex items-center justify-between p-3 bg-[var(--color-bg)] rounded">
@@ -283,6 +298,9 @@ const TrainingPage = () => {
                                   src={MUSCLE_IMAGES[exercicio.nome]} 
                                   alt={exercicio.nome}
                                   className="w-12 h-12 object-contain"
+                                  onError={(e) => {
+                                    e.target.style.display = 'none'
+                                  }}
                                 />
                               )}
                               <div>
