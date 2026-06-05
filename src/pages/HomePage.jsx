@@ -12,7 +12,6 @@ import { reportService } from '@services/reportService'
 const HomePage = () => {
   const { session } = useAuth()
   const navigate = useNavigate()
-  const [currentPage, setCurrentPage] = useState('home')
   const [diasFeitos, setDiasFeitos] = useState([])
   const [stats, setStats] = useState({
     seriesHoje: 0,
@@ -24,7 +23,6 @@ const HomePage = () => {
 
   useEffect(() => {
     loadDiasFeitos()
-    loadStats()
     loadTrainingPlan()
   }, [session])
 
@@ -34,20 +32,22 @@ const HomePage = () => {
     if (result.success && result.data) {
       const dias = Object.values(result.data).map(d => d.dia)
       setDiasFeitos(dias)
+      // Calcular sequência após carregar dias feitos
+      loadStats(dias)
     }
   }
 
-  const loadStats = async () => {
+  const loadStats = async (diasFeitosData = null) => {
     if (!session) return
     const result = await trainingService.getWorkoutLogs(session.tokenKey)
     if (result.success && result.data) {
       const logs = Object.values(result.data)
       const today = new Date().getDay()
       const logsHoje = logs.filter(log => log.dia === today)
-      
+
       let seriesHoje = 0
       let volumeHoje = 0
-      
+
       logsHoje.forEach(log => {
         if (log.series) {
           log.series.forEach(serie => {
@@ -57,10 +57,13 @@ const HomePage = () => {
         }
       })
 
+      // Usar dados passados como parâmetro ou estado atual
+      const sequencia = diasFeitosData ? diasFeitosData.length : diasFeitos.length
+
       setStats({
         seriesHoje,
         volumeHoje,
-        sequencia: diasFeitos.length
+        sequencia
       })
     }
   }
