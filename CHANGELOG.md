@@ -5,6 +5,23 @@ Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
 e este projeto adere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.7] - 2026-06-07
+
+### Adicionado
+- Sprint 6 - Relatórios e Evolução
+- Dashboard de Evolução com gráficos de peso corporal ao longo do tempo
+- Gráfico de medidas (cintura, braço, coxa) no tempo
+- Gráfico de % gordura corporal (preparado para scanner)
+- Comparativo fotos (antes/depois lado a lado)
+- Relatório semanal com gráficos reais (Chart.js)
+- Relatório mensal com comparativo ao mês anterior
+- Export PDF do relatório (preparado para jsPDF)
+- Relatório de suplementação
+- Timeline vertical com todos os eventos (treinos, check-ins, PRs, conquistas)
+- Filtro por tipo de evento e período
+- Busca por exercício no histórico
+- Salvar/restaurar histórico completo
+
 ## [1.0.6] - 2026-06-07
 
 ### Adicionado

@@ -29,6 +29,7 @@ import WeeklyInsightsPage from '@pages/WeeklyInsightsPage'
 import SmartGoalsPage from '@pages/SmartGoalsPage'
 import AchievementsPage from '@pages/AchievementsPage'
 import GamificationPage from '@pages/GamificationPage'
+import EvolutionDashboardPage from '@pages/EvolutionDashboardPage'
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth()
@@ -161,6 +162,11 @@ const AppRouter = () => {
         <Route path="/gamificacao" element={
           <ProtectedRoute>
             <GamificationPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/dashboard-evolucao" element={
+          <ProtectedRoute>
+            <EvolutionDashboardPage />
           </ProtectedRoute>
         } />
         <Route path="/evolucao" element={
