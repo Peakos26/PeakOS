@@ -4,8 +4,15 @@
     <meta charset="utf-8">
     <title>PeakOS</title>
     <script>
-      sessionStorage.redirect = location.href;
-      window.location.replace('/PeakOS/');
+      var path = window.location.pathname;
+      // Só redireciona se não estiver já em /PeakOS/
+      if (path.indexOf('/PeakOS') === -1) {
+        sessionStorage.redirect = path + window.location.search + window.location.hash;
+        window.location.replace('/PeakOS/');
+      } else {
+        sessionStorage.redirect = path + window.location.search + window.location.hash;
+        window.location.replace('/PeakOS/');
+      }
     </script>
   </head>
 </html>
