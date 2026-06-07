@@ -5,6 +5,30 @@ Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
 e este projeto adere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.5] - 2026-06-07
+
+### Adicionado
+- Sprint 4 - IA Avançada
+- Coach IA Contextual com histórico de conversa persistido (últimas 10 mensagens)
+- Quick chips dinâmicos baseados no histórico do usuário
+- Modo "Analisar minha semana" com relatório completo gerado pela IA
+- Gerador de Treino com IA baseado em objetivo, equipamento, tempo e histórico
+- Ajuste automático de volume baseado na recuperação informada
+- Sugestão de substituição de exercício se reportar dor
+- Plano de 4-8 semanas com progressão automática
+- Análise Nutricional por Foto com upload de imagem
+- Integração preparada para Groq (llama-3.2-11b-vision-preview)
+- Confirmação ou ajuste manual de estimativa nutricional
+- Insights Semanais Automáticos com comparação com semana anterior
+- 3 pontos positivos + 2 áreas de melhoria gerados pela IA
+- Metas Inteligentes Dinâmicas com reavaliação automática a cada 4 semanas
+- Metas adaptativas (se usuário supera meta 3x seguidas → IA sugere aumentar)
+- Notificação de progresso em direção às metas
+
+### Corrigido
+- Corrigido erro de `require is not defined` no CardioPage.jsx ao rodar localmente
+- Substituído require() por URLs diretas do unpkg para ícones do Leaflet
+
 ## [1.0.4] - 2026-06-07
 
 ### Adicionado
