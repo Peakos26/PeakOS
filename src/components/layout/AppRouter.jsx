@@ -17,6 +17,11 @@ import WorkoutProgramsPage from '@pages/WorkoutProgramsPage'
 import FoodDiaryPage from '@pages/FoodDiaryPage'
 import HydrationPage from '@pages/HydrationPage'
 import MacrosPage from '@pages/MacrosPage'
+import SleepPage from '@pages/SleepPage'
+import RecoveryPage from '@pages/RecoveryPage'
+import MindsetPage from '@pages/MindsetPage'
+import FastingPage from '@pages/FastingPage'
+import CardioPage from '@pages/CardioPage'
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth()
@@ -89,6 +94,31 @@ const AppRouter = () => {
         <Route path="/macros" element={
           <ProtectedRoute>
             <MacrosPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/sono" element={
+          <ProtectedRoute>
+            <SleepPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/recuperacao" element={
+          <ProtectedRoute>
+            <RecoveryPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/mindset" element={
+          <ProtectedRoute>
+            <MindsetPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/jejum" element={
+          <ProtectedRoute>
+            <FastingPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/cardio" element={
+          <ProtectedRoute>
+            <CardioPage />
           </ProtectedRoute>
         } />
         <Route path="/evolucao" element={
