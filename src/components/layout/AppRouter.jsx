@@ -14,6 +14,9 @@ import SocialSearchPage from '@pages/SocialSearchPage'
 import AdminPage from '@pages/AdminPage'
 import ExercisesLibraryPage from '@pages/ExercisesLibraryPage'
 import WorkoutProgramsPage from '@pages/WorkoutProgramsPage'
+import FoodDiaryPage from '@pages/FoodDiaryPage'
+import HydrationPage from '@pages/HydrationPage'
+import MacrosPage from '@pages/MacrosPage'
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth()
@@ -71,6 +74,21 @@ const AppRouter = () => {
         <Route path="/programas" element={
           <ProtectedRoute>
             <WorkoutProgramsPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/diario-alimentar" element={
+          <ProtectedRoute>
+            <FoodDiaryPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/hidratacao" element={
+          <ProtectedRoute>
+            <HydrationPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/macros" element={
+          <ProtectedRoute>
+            <MacrosPage />
           </ProtectedRoute>
         } />
         <Route path="/evolucao" element={

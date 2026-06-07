@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { Sun, Moon, Menu, X } from 'lucide-react'
 import { useState } from 'react'
 
-const APP_VERSION = '1.0.1'
+const APP_VERSION = '1.0.2'
 
 const Header = () => {
   const { theme, toggleTheme } = useTheme()
