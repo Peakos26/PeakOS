@@ -1,7 +1,7 @@
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useTheme } from '@context/ThemeContext'
 import { useAuth } from '@context/AuthContext'
-import { Home, Dumbbell, TrendingUp, Bot, Star, User, LogOut, BookOpen, Layout, Utensils, Droplets, Calculator, Moon, Battery, Brain, Clock, Activity, Ruler, Zap, Camera, Calendar, Target, Trophy, Flame, BarChart3, Pill } from 'lucide-react'
+import { Home, Dumbbell, TrendingUp, Bot, Star, User, LogOut, BookOpen, Layout, Utensils, Droplets, Calculator, Moon, Battery, Brain, Clock, Activity, Ruler, Zap, Camera, Calendar, Target, Trophy, Flame, BarChart3, Pill, Smartphone } from 'lucide-react'
 
 const Navigation = () => {
   const { theme } = useTheme()
@@ -29,6 +29,7 @@ const Navigation = () => {
     { id: 'gamificacao', label: 'Gamificação', icon: Flame, path: '/gamificacao' },
     { id: 'dashboard-evolucao', label: 'Dashboard', icon: BarChart3, path: '/dashboard-evolucao' },
     { id: 'suplementacao', label: 'Suplementos', icon: Pill, path: '/suplementacao' },
+    { id: 'integracoes', label: 'Integrações', icon: Smartphone, path: '/integracoes' },
     { id: 'exercicios', label: 'Exercícios', icon: BookOpen, path: '/exercicios' },
     { id: 'programas', label: 'Programas', icon: Layout, path: '/programas' },
     { id: 'evolucao', label: 'Evolução', icon: TrendingUp, path: '/evolucao' },
