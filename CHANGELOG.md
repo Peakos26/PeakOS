@@ -5,6 +5,24 @@ Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
 e este projeto adere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.9] - 2026-06-07
+
+### Adicionado
+- Sprint 8 - PWA e Integrações
+- manifest.json com ícones, cores, nome
+- Service Worker para funcionamento offline
+- Cache de dados do Firebase para uso offline
+- Prompt de instalação "Adicionar à tela inicial"
+- Push notifications (Web Push API)
+- Sincronizar peso, passos, sono com Apple Health
+- Importar dados históricos do Apple Health
+- Exportar treinos para Apple Health como "Strength Training"
+- Integração com Garmin Connect API
+- Integração com Google Fit API
+- Leitura de frequência cardíaca durante treino (se disponível)
+- Página de Integrações com gerenciamento de PWA, Apple Health e Wearables
+- Registro de Service Worker no main.jsx
+
 ## [1.0.8] - 2026-06-07
 
 ### Adicionado

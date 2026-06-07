@@ -1,8 +1,30 @@
 # PeakOS — Fitness AI Platform
 
-> Plataforma de fitness baseada em IA, com check-in por geolocalização, scanner corporal, performance score e integração com Apple Health / Garmin / Google Fit.
+> Plataforma de fitness baseada em IA, com gamificação, suplementação, PWA e integrações com Apple Health / Garmin / Google Fit.
 
 **URL de produção:** https://peakos26.github.io/PeakOS/
+
+**Versão atual:** 1.0.9
+
+---
+
+## 🎯 Status das Sprints
+
+### ✅ Sprints Completadas
+- **Sprint 1** - Core de Treino (log avançado, biblioteca de exercícios, 1RM, programas, analytics)
+- **Sprint 2** - Nutrição e Dieta (diário alimentar, macros, hidratação)
+- **Sprint 3** - Saúde Holística (sono, recuperação, mindset, jejum, cardio)
+- **Sprint 4** - IA Avançada (coach contextual, gerador de treino, análise nutricional por foto, insights semanais, metas inteligentes)
+- **Sprint 5** - Gamificação e Social (conquistas, níveis e XP, streaks, desafios semanais, compartilhamento)
+- **Sprint 6** - Relatórios e Evolução (dashboard, gráficos, timeline, relatórios avançados)
+- **Sprint 7** - Suplementação (guia de suplementos, stack personalizada, ciclos)
+- **Sprint 8** - PWA e Integrações (manifest.json, service worker, Apple Health, Garmin, Google Fit)
+
+### 📊 Progresso Geral
+- **8/8 sprints** completadas (100%)
+- **Todas as features principais** implementadas
+- **PWA funcional** com suporte offline
+- **Integrações** com Apple Health, Garmin e Google Fit
 
 ---
 
