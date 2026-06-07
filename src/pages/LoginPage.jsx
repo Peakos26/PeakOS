@@ -9,8 +9,7 @@ import Input from '@components/ui/Input'
 const LoginPage = () => {
   const [celular, setCelular] = useState('')
   const [nome, setNome] = useState('')
-  const [token, setToken] = useState('')
-  const [step, setStep] = useState(1) // 1: verificar celular/token, 2: solicitar acesso, 3: pendente
+  const [step, setStep] = useState(1) // 1: verificar celular, 2: solicitar acesso, 3: pendente
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const { login } = useAuth()
@@ -38,40 +37,14 @@ const LoginPage = () => {
 
   const checkExistingUser = async () => {
     console.log('🔍 [LOGIN] Iniciando checkExistingUser')
-    console.log('🔍 [LOGIN] Token:', token)
     console.log('🔍 [LOGIN] Celular:', celular)
     setLoading(true)
     setError('')
 
-    // Se o usuário inseriu um token, tentar login com o token
-    if (token) {
-      console.log('� [LOGIN] Token informado, tentando login com token')
-      try {
-        const result = await login(token, { nome: 'Usuário' })
-        console.log('🔍 [LOGIN] Resultado login token:', result)
-        if (result.success) {
-          console.log('✅ [LOGIN] Login com token sucesso')
-          await logLogin(token, { nome: 'Usuário' })
-          console.log('🔍 [LOGIN] Login com token sucesso, navegando para /')
-          navigate('/')
-        } else {
-          console.log('❌ [LOGIN] Token inválido ou expirado')
-          setError('Token inválido ou expirado')
-        }
-        setLoading(false)
-        return
-      } catch (err) {
-        console.error('❌ [LOGIN] Erro ao verificar token:', err)
-        setError('Erro ao verificar token')
-        setLoading(false)
-        return
-      }
-    }
-
-    // Se não tiver token, verificar por celular
+    // Verificar por celular (STEP 1 do ROADMAP)
     if (!celular || celular.length < 10) {
       console.log('❌ [LOGIN] Celular inválido')
-      setError('Digite um celular válido (com DDD) ou insira um token')
+      setError('Digite um celular válido (com DDD)')
       setLoading(false)
       return
     }
@@ -86,7 +59,7 @@ const LoginPage = () => {
 
       if (existing && existing.status === 'approved' && existing.tokenKey) {
         console.log('✅ [LOGIN] Usuário aprovado, tentando login automático')
-        // Login automático com token
+        // Login automático com token (STEP 1 do ROADMAP)
         const result = await login(existing.tokenKey, { nome: existing.nome })
         console.log('🔍 [LOGIN] Resultado login automático:', result)
         if (result.success) {
@@ -99,10 +72,10 @@ const LoginPage = () => {
           setError('Erro ao fazer login automático')
         }
       } else if (existing && existing.status === 'pending') {
-        console.log('⏳ [LOGIN] Usuário pendente, indo para step 3')
+        console.log('⏳ [LOGIN] Usuário pendente, indo para tela "Aguardando aprovação"')
         setStep(3)
       } else {
-        console.log('📝 [LOGIN] Usuário não encontrado, indo para step 2 (solicitar acesso)')
+        console.log('📝 [LOGIN] Usuário não encontrado, indo para STEP 2 (solicitar acesso)')
         setStep(2)
       }
     } catch (err) {
@@ -114,7 +87,7 @@ const LoginPage = () => {
   }
 
   const requestAccess = async () => {
-    console.log('📝 [LOGIN] Iniciando requestAccess')
+    console.log('📝 [LOGIN] Iniciando requestAccess (STEP 2 do ROADMAP)')
     console.log('📝 [LOGIN] Nome:', nome)
     console.log('📝 [LOGIN] Celular:', celular)
     setLoading(true)
@@ -144,7 +117,7 @@ const LoginPage = () => {
       if (existing) {
         console.log('🔍 [LOGIN] Usuário já existe, status:', existing.status)
         if (existing.status === 'pending') {
-          console.log('📝 [LOGIN] Usuário pendente, indo para step 3')
+          console.log('📝 [LOGIN] Usuário pendente, indo para tela "Aguardando aprovação"')
           setStep(3)
           setLoading(false)
           return
@@ -166,7 +139,7 @@ const LoginPage = () => {
         }
       }
 
-      console.log('📝 [LOGIN] Criando nova solicitação')
+      console.log('📝 [LOGIN] Criando nova solicitação (STEP 2 do ROADMAP)')
       const requestId = 'req_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8)
       console.log('📝 [LOGIN] RequestID:', requestId)
       requests[requestId] = {
@@ -188,7 +161,7 @@ const LoginPage = () => {
   }
 
   const checkApproval = async () => {
-    console.log('🔍 [LOGIN] Iniciando checkApproval')
+    console.log('🔍 [LOGIN] Iniciando checkApproval (TELA PENDENTE do ROADMAP)')
     console.log('🔍 [LOGIN] Celular:', celular)
     setLoading(true)
 
@@ -216,7 +189,7 @@ const LoginPage = () => {
       }
 
       if (existing.status === 'approved' && existing.tokenKey) {
-        console.log('✅ [LOGIN] Usuário aprovado, tentando login')
+        console.log('✅ [LOGIN] Usuário aprovado, tentando login automático')
         const result = await login(existing.tokenKey, { nome: existing.nome })
         console.log('🔍 [LOGIN] Resultado login:', result)
         if (result.success) {
@@ -306,8 +279,7 @@ const LoginPage = () => {
         {step === 3 && (
           <div className="space-y-4 text-center">
             <p className="text-[var(--color-muted)]">
-              Sua solicitação foi enviada ao administrador.<br />
-              Você receberá acesso assim que for aprovada.
+              Solicitação enviada. Aguarde aprovação do administrador.
             </p>
             {error && <p className="text-red-500 text-sm">{error}</p>}
             <Button onClick={checkApproval} className="w-full" disabled={loading}>
