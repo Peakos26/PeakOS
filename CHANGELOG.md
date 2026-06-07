@@ -5,6 +5,25 @@ Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
 e este projeto adere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.8] - 2026-06-07
+
+### Adicionado
+- Sprint 7 - Suplementação (feature exclusiva)
+- Guia de Suplementos por Objetivo com banco de dados de 20+ suplementos
+- Para cada suplemento: benefícios, dosagem, horário ideal, contraindicações
+- Recomendação personalizada por objetivo do usuário
+- Integração com plano alimentar (evitar duplicidade de nutrientes)
+- Stack de Suplementos Personalizado
+- Usuário monta sua "stack" atual
+- IA avalia a stack e sugere ajustes
+- Lembrete de tomar suplemento (horário configurável)
+- Salvar em gymai_suplementos/{tokenKey}
+- Ciclo de Suplementação
+- Planos de 4-12 semanas para cada objetivo
+- Fase de carga / manutenção / off para creatina
+- Calendário de suplementação visual
+- Alertas de início/fim de ciclo
+
 ## [1.0.7] - 2026-06-07
 
 ### Adicionado

@@ -30,6 +30,7 @@ import SmartGoalsPage from '@pages/SmartGoalsPage'
 import AchievementsPage from '@pages/AchievementsPage'
 import GamificationPage from '@pages/GamificationPage'
 import EvolutionDashboardPage from '@pages/EvolutionDashboardPage'
+import SupplementationPage from '@pages/SupplementationPage'
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth()
@@ -167,6 +168,11 @@ const AppRouter = () => {
         <Route path="/dashboard-evolucao" element={
           <ProtectedRoute>
             <EvolutionDashboardPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/suplementacao" element={
+          <ProtectedRoute>
+            <SupplementationPage />
           </ProtectedRoute>
         } />
         <Route path="/evolucao" element={
