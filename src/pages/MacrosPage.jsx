@@ -13,6 +13,10 @@ ChartJS.register(ArcElement, Tooltip, Legend)
 const MacrosPage = () => {
   const { session } = useAuth()
   const [tdee, setTdee] = useState(2000)
+  const [bmr, setBmr] = useState(0)
+  const [imc, setImc] = useState(0)
+  const [imcCategory, setImcCategory] = useState('')
+  const [waterGoal, setWaterGoal] = useState(2000)
   const [dailyGoals, setDailyGoals] = useState({
     calories: 2000,
     protein: 150,
@@ -73,17 +77,19 @@ const MacrosPage = () => {
 
   const calculateTDEE = (profileData) => {
     // Fórmula Mifflin-St Jeor para BMR
-    let bmr
+    let bmrValue
     const weight = profileData.peso || 70
     const height = profileData.altura || 170
     const age = profileData.idade || 30
     const gender = profileData.genero || 'masculino'
     
     if (gender === 'masculino') {
-      bmr = 10 * weight + 6.25 * height - 5 * age + 5
+      bmrValue = 10 * weight + 6.25 * height - 5 * age + 5
     } else {
-      bmr = 10 * weight + 6.25 * height - 5 * age - 161
+      bmrValue = 10 * weight + 6.25 * height - 5 * age - 161
     }
+
+    setBmr(Math.round(bmrValue))
 
     // Multiplicador de atividade
     const activityLevel = profileData.nivelAtividade || 'moderado'
@@ -95,8 +101,27 @@ const MacrosPage = () => {
       muito_ativo: 1.9
     }
 
-    const tdeeValue = Math.round(bmr * (activityMultipliers[activityLevel] || 1.55))
+    const tdeeValue = Math.round(bmrValue * (activityMultipliers[activityLevel] || 1.55))
     setTdee(tdeeValue)
+
+    // Calcular IMC
+    const heightMeters = height / 100
+    const imcValue = weight / (heightMeters * heightMeters)
+    setImc(imcValue.toFixed(1))
+    
+    // Categoria do IMC
+    let category = ''
+    if (imcValue < 18.5) category = 'Abaixo do peso'
+    else if (imcValue < 24.9) category = 'Peso normal'
+    else if (imcValue < 29.9) category = 'Sobrepeso'
+    else if (imcValue < 34.9) category = 'Obesidade I'
+    else if (imcValue < 39.9) category = 'Obesidade II'
+    else category = 'Obesidade III'
+    setImcCategory(category)
+
+    // Calcular meta de água (35ml por kg de peso)
+    const waterGoalValue = Math.round(weight * 35)
+    setWaterGoal(waterGoalValue)
 
     // Calcular metas de macros baseadas no TDEE
     const objetivo = profileData.objetivo || 'manter'
@@ -202,7 +227,8 @@ const MacrosPage = () => {
         ...data,
         macros: dailyGoals,
         macrosTreino: workoutDayGoals,
-        macrosDescanso: restDayGoals
+        macrosDescanso: restDayGoals,
+        hidratacao: waterGoal
       })
       
       setShowSettings(false)
@@ -255,13 +281,32 @@ const MacrosPage = () => {
       <Card className="mb-6">
         <div className="flex items-center gap-2 mb-4">
           <Calculator size={24} className="text-primary-600" />
-          <h2 className="text-xl font-bold">TDEE Calculado</h2>
+          <h2 className="text-xl font-bold">Métricas Calculadas</h2>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="p-4 bg-[var(--color-border)] rounded-lg text-center">
             <div className="text-3xl font-bold text-primary-600">{tdee}</div>
             <div className="text-sm text-[var(--color-muted)]">TDEE (kcal/dia)</div>
           </div>
+          <div className="p-4 bg-[var(--color-border)] rounded-lg text-center">
+            <div className="text-3xl font-bold text-purple-600">{bmr}</div>
+            <div className="text-sm text-[var(--color-muted)]">BMR (kcal/dia)</div>
+          </div>
+          <div className="p-4 bg-[var(--color-border)] rounded-lg text-center">
+            <div className="text-3xl font-bold text-orange-600">{imc}</div>
+            <div className="text-sm text-[var(--color-muted)]">IMC</div>
+            <div className="text-xs text-[var(--color-muted)]">{imcCategory}</div>
+          </div>
+          <div className="p-4 bg-[var(--color-border)] rounded-lg text-center">
+            <div className="text-3xl font-bold text-cyan-600">{waterGoal}ml</div>
+            <div className="text-sm text-[var(--color-muted)]">Meta de Água</div>
+          </div>
+        </div>
+      </Card>
+
+      {/* Meta Calórica */}
+      <Card className="mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="p-4 bg-[var(--color-border)] rounded-lg text-center">
             <div className="text-3xl font-bold text-green-600">{currentGoals.calories}</div>
             <div className="text-sm text-[var(--color-muted)]">Meta Calórica</div>
@@ -269,6 +314,12 @@ const MacrosPage = () => {
           <div className="p-4 bg-[var(--color-border)] rounded-lg text-center">
             <div className="text-3xl font-bold text-blue-600">{currentIntake.calories}</div>
             <div className="text-sm text-[var(--color-muted)]">Consumido Hoje</div>
+          </div>
+          <div className="p-4 bg-[var(--color-border)] rounded-lg text-center">
+            <div className="text-3xl font-bold text-yellow-600">
+              {Math.max(currentGoals.calories - currentIntake.calories, 0)}
+            </div>
+            <div className="text-sm text-[var(--color-muted)]">Restante</div>
           </div>
         </div>
       </Card>

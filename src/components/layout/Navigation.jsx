@@ -1,7 +1,7 @@
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useTheme } from '@context/ThemeContext'
 import { useAuth } from '@context/AuthContext'
-import { Home, Dumbbell, TrendingUp, Bot, Star, User, LogOut, BookOpen, Layout, Utensils, Droplets, Calculator, Moon, Battery, Brain, Clock, Activity } from 'lucide-react'
+import { Home, Dumbbell, TrendingUp, Bot, Star, User, LogOut, BookOpen, Layout, Utensils, Droplets, Calculator, Moon, Battery, Brain, Clock, Activity, Ruler } from 'lucide-react'
 
 const Navigation = () => {
   const { theme } = useTheme()
@@ -20,6 +20,7 @@ const Navigation = () => {
     { id: 'mindset', label: 'Mindset', icon: Brain, path: '/mindset' },
     { id: 'jejum', label: 'Jejum', icon: Clock, path: '/jejum' },
     { id: 'cardio', label: 'Cardio', icon: Activity, path: '/cardio' },
+    { id: 'medidas', label: 'Medidas', icon: Ruler, path: '/medidas' },
     { id: 'exercicios', label: 'Exercícios', icon: BookOpen, path: '/exercicios' },
     { id: 'programas', label: 'Programas', icon: Layout, path: '/programas' },
     { id: 'evolucao', label: 'Evolução', icon: TrendingUp, path: '/evolucao' },

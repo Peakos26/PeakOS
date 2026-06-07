@@ -22,6 +22,7 @@ import RecoveryPage from '@pages/RecoveryPage'
 import MindsetPage from '@pages/MindsetPage'
 import FastingPage from '@pages/FastingPage'
 import CardioPage from '@pages/CardioPage'
+import BodyMeasurementsPage from '@pages/BodyMeasurementsPage'
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth()
@@ -119,6 +120,11 @@ const AppRouter = () => {
         <Route path="/cardio" element={
           <ProtectedRoute>
             <CardioPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/medidas" element={
+          <ProtectedRoute>
+            <BodyMeasurementsPage />
           </ProtectedRoute>
         } />
         <Route path="/evolucao" element={

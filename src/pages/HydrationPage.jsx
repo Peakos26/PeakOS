@@ -46,10 +46,30 @@ const HydrationPage = () => {
     
     try {
       const encodedKey = encodeTokenKey(session.tokenKey)
-      const snapshot = await get(ref(database, `gymai_metas/${encodedKey}`))
-      const data = snapshot.val()
-      if (data && data.hidratacao) {
-        setDailyGoal(data.hidratacao)
+      
+      // Primeiro, tentar calcular meta baseada no peso do perfil
+      const profileSnapshot = await get(ref(database, `gymai_perfil/${encodedKey}`))
+      const profile = profileSnapshot.val()
+      
+      if (profile && profile.peso) {
+        // Meta de água: 35ml por kg de peso
+        const calculatedGoal = Math.round(profile.peso * 35)
+        setDailyGoal(calculatedGoal)
+        
+        // Salvar a meta calculada no Firebase
+        const metasSnapshot = await get(ref(database, `gymai_metas/${encodedKey}`))
+        const metasData = metasSnapshot.val() || {}
+        await set(ref(database, `gymai_metas/${encodedKey}`), {
+          ...metasData,
+          hidratacao: calculatedGoal
+        })
+      } else {
+        // Se não tiver perfil, usar meta do Firebase ou padrão
+        const snapshot = await get(ref(database, `gymai_metas/${encodedKey}`))
+        const data = snapshot.val()
+        if (data && data.hidratacao) {
+          setDailyGoal(data.hidratacao)
+        }
       }
     } catch (error) {
       console.error('Erro ao carregar meta de hidratação:', error)
