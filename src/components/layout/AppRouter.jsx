@@ -27,6 +27,8 @@ import WorkoutGeneratorPage from '@pages/WorkoutGeneratorPage'
 import FoodAnalysisPage from '@pages/FoodAnalysisPage'
 import WeeklyInsightsPage from '@pages/WeeklyInsightsPage'
 import SmartGoalsPage from '@pages/SmartGoalsPage'
+import AchievementsPage from '@pages/AchievementsPage'
+import GamificationPage from '@pages/GamificationPage'
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth()
@@ -149,6 +151,16 @@ const AppRouter = () => {
         <Route path="/metas-inteligentes" element={
           <ProtectedRoute>
             <SmartGoalsPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/conquistas" element={
+          <ProtectedRoute>
+            <AchievementsPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/gamificacao" element={
+          <ProtectedRoute>
+            <GamificationPage />
           </ProtectedRoute>
         } />
         <Route path="/evolucao" element={

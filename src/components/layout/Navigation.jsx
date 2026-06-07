@@ -1,7 +1,7 @@
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useTheme } from '@context/ThemeContext'
 import { useAuth } from '@context/AuthContext'
-import { Home, Dumbbell, TrendingUp, Bot, Star, User, LogOut, BookOpen, Layout, Utensils, Droplets, Calculator, Moon, Battery, Brain, Clock, Activity, Ruler, Zap, Camera, Calendar, Target } from 'lucide-react'
+import { Home, Dumbbell, TrendingUp, Bot, Star, User, LogOut, BookOpen, Layout, Utensils, Droplets, Calculator, Moon, Battery, Brain, Clock, Activity, Ruler, Zap, Camera, Calendar, Target, Trophy, Flame } from 'lucide-react'
 
 const Navigation = () => {
   const { theme } = useTheme()
@@ -25,6 +25,8 @@ const Navigation = () => {
     { id: 'analise-alimento', label: 'Foto IA', icon: Camera, path: '/analise-alimento' },
     { id: 'insights', label: 'Insights', icon: Calendar, path: '/insights' },
     { id: 'metas-inteligentes', label: 'Metas IA', icon: Target, path: '/metas-inteligentes' },
+    { id: 'conquistas', label: 'Conquistas', icon: Trophy, path: '/conquistas' },
+    { id: 'gamificacao', label: 'Gamificação', icon: Flame, path: '/gamificacao' },
     { id: 'exercicios', label: 'Exercícios', icon: BookOpen, path: '/exercicios' },
     { id: 'programas', label: 'Programas', icon: Layout, path: '/programas' },
     { id: 'evolucao', label: 'Evolução', icon: TrendingUp, path: '/evolucao' },

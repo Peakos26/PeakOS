@@ -5,6 +5,29 @@ Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
 e este projeto adere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.6] - 2026-06-07
+
+### Adicionado
+- Sprint 5 - Gamificação e Social
+- Sistema de Conquistas com 30+ troféus
+- Conquistas por volume, consistência, PRs, streaks, primeiros logs
+- Notificação in-app ao desbloquear conquista
+- Página de troféus com timeline de conquistas
+- Sistema de Níveis e XP (10 níveis com nomes e ícones distintos)
+- XP ganho por treino logado, check-in, meta atingida, streak mantida
+- Barra de progresso para próximo nível
+- Badge de nível visível no perfil
+- Streak de dias consecutivos de treino
+- Streak de dias consecutivos de log alimentar
+- Protetor de streak (1x por mês pode salvar streak perdida)
+- Maior streak histórica registrada
+- Desafios Semanais (3 desafios novos toda segunda-feira)
+- Progresso em barra visual para desafios
+- XP dobrado ao completar desafio
+- Salvar em gymai_desafios/{tokenKey}
+- Compartilhamento de treino via Web Share API
+- Card visual com exercícios, volume total, PR batidos, data
+
 ## [1.0.5] - 2026-06-07
 
 ### Adicionado
