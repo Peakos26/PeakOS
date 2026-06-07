@@ -4,6 +4,8 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { Sun, Moon, Menu, X } from 'lucide-react'
 import { useState } from 'react'
 
+const APP_VERSION = '1.0.1'
+
 const Header = () => {
   const { theme, toggleTheme } = useTheme()
   const { logout } = useAuth()
@@ -41,9 +43,12 @@ const Header = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold font-display">
-              Peak<span className="font-bold text-primary-600">OS</span>
-            </h1>
+            <div>
+              <h1 className="text-2xl font-bold font-display">
+                Peak<span className="font-bold text-primary-600">OS</span>
+              </h1>
+              <p className="text-xs text-[var(--color-muted)]">v{APP_VERSION}</p>
+            </div>
           </div>
 
           {/* Desktop Navigation */}
