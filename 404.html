@@ -2,20 +2,17 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Redirecting...</title>
+  <title>Page Not Found</title>
   <script>
     var path = window.location.pathname;
-    // Se já estiver no path correto, não redirecionar
-    if (path.startsWith('/PeakOS') || path === '/PeakOS/') {
-      // Já está no path correto, redirecionar para o index
-      window.location.replace('/PeakOS/');
-    } else {
+    // Redirecionar para o index se não estiver no path correto
+    if (!path.startsWith('/PeakOS')) {
       sessionStorage.setItem('redirect', location.pathname)
       location.href = '/PeakOS/'
     }
   </script>
 </head>
 <body>
-  <p>Redirecting...</p>
+  <p>Page Not Found</p>
 </body>
 </html>
