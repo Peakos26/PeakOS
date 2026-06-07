@@ -95,14 +95,37 @@ const LoginPage = () => {
       const existing = Object.values(requests).find(r => r.celular === celular)
       console.log('🔍 [LOGIN] Usuário existente:', existing)
 
-      if (existing && existing.status === 'approved' && existing.tokenKey) {
+      if (existing && existing.status === 'approved') {
+        console.log('✅ [LOGIN] Usuário aprovado, verificando token')
+        // Se não tiver tokenKey, criar automaticamente
+        const tokenKey = existing.tokenKey || existing.celular
+        
+        // Verificar se o token existe em gymai_tokens
+        const encodedKey = tokenKey.replace(/[.#$\[\]]/g, '_')
+        const tokenSnapshot = await get(ref(database, `gymai_tokens/${encodedKey}`))
+        const tokenData = tokenSnapshot.val()
+        
+        if (!tokenData) {
+          console.log('📝 [LOGIN] Token não existe, criando automaticamente')
+          const newTokenData = {
+            nome: existing.nome,
+            features: [],
+            createdAt: Date.now(),
+            expiresAt: null
+          }
+          await set(ref(database, `gymai_tokens/${encodedKey}`), newTokenData)
+          
+          // Atualizar request com tokenKey
+          await set(ref(database, `gymai_requests/${Object.keys(requests).find(k => requests[k].celular === celular)}/tokenKey`), tokenKey)
+        }
+        
         console.log('✅ [LOGIN] Usuário aprovado, tentando login automático')
         // Login automático com token (STEP 1 do ROADMAP)
-        const result = await login(existing.tokenKey, { nome: existing.nome })
+        const result = await login(tokenKey, { nome: existing.nome })
         console.log('🔍 [LOGIN] Resultado login automático:', result)
         if (result.success) {
           console.log('✅ [LOGIN] Login automático sucesso')
-          await logLogin(existing.tokenKey, { nome: existing.nome })
+          await logLogin(tokenKey, { nome: existing.nome })
           console.log('🔍 [LOGIN] Login automático sucesso, navegando para /')
           navigate('/')
         } else {
@@ -160,12 +183,36 @@ const LoginPage = () => {
           setLoading(false)
           return
         }
-        if (existing.status === 'approved' && existing.tokenKey) {
+        if (existing.status === 'approved') {
+          console.log('✅ [LOGIN] Usuário aprovado, verificando token')
+          // Se não tiver tokenKey, criar automaticamente
+          const tokenKey = existing.tokenKey || existing.celular
+          
+          // Verificar se o token existe em gymai_tokens
+          const encodedKey = tokenKey.replace(/[.#$\[\]]/g, '_')
+          const tokenSnapshot = await get(ref(database, `gymai_tokens/${encodedKey}`))
+          const tokenData = tokenSnapshot.val()
+          
+          if (!tokenData) {
+            console.log('📝 [LOGIN] Token não existe, criando automaticamente')
+            const newTokenData = {
+              nome: existing.nome,
+              features: [],
+              createdAt: Date.now(),
+              expiresAt: null
+            }
+            await set(ref(database, `gymai_tokens/${encodedKey}`), newTokenData)
+            
+            // Atualizar request com tokenKey
+            const requestId = Object.keys(requests).find(k => requests[k].celular === celular)
+            await set(ref(database, `gymai_requests/${requestId}/tokenKey`), tokenKey)
+          }
+          
           console.log('✅ [LOGIN] Usuário aprovado, tentando login automático')
-          const result = await login(existing.tokenKey, { nome: existing.nome })
+          const result = await login(tokenKey, { nome: existing.nome })
           console.log('🔍 [LOGIN] Resultado login automático:', result)
           if (result.success) {
-            await logLogin(existing.tokenKey, { nome: existing.nome })
+            await logLogin(tokenKey, { nome: existing.nome })
             console.log('✅ [LOGIN] Login automático sucesso, navegando para /')
             navigate('/')
           } else {
@@ -226,12 +273,36 @@ const LoginPage = () => {
         return
       }
 
-      if (existing.status === 'approved' && existing.tokenKey) {
+      if (existing.status === 'approved') {
+        console.log('✅ [LOGIN] Usuário aprovado, verificando token')
+        // Se não tiver tokenKey, criar automaticamente
+        const tokenKey = existing.tokenKey || existing.celular
+        
+        // Verificar se o token existe em gymai_tokens
+        const encodedKey = tokenKey.replace(/[.#$\[\]]/g, '_')
+        const tokenSnapshot = await get(ref(database, `gymai_tokens/${encodedKey}`))
+        const tokenData = tokenSnapshot.val()
+        
+        if (!tokenData) {
+          console.log('📝 [LOGIN] Token não existe, criando automaticamente')
+          const newTokenData = {
+            nome: existing.nome,
+            features: [],
+            createdAt: Date.now(),
+            expiresAt: null
+          }
+          await set(ref(database, `gymai_tokens/${encodedKey}`), newTokenData)
+          
+          // Atualizar request com tokenKey
+          const requestId = Object.keys(requests).find(k => requests[k].celular === celular)
+          await set(ref(database, `gymai_requests/${requestId}/tokenKey`), tokenKey)
+        }
+        
         console.log('✅ [LOGIN] Usuário aprovado, tentando login automático')
-        const result = await login(existing.tokenKey, { nome: existing.nome })
+        const result = await login(tokenKey, { nome: existing.nome })
         console.log('🔍 [LOGIN] Resultado login:', result)
         if (result.success) {
-          await logLogin(existing.tokenKey, { nome: existing.nome })
+          await logLogin(tokenKey, { nome: existing.nome })
           console.log('✅ [LOGIN] Login sucesso, navegando para /')
           navigate('/')
         } else {
