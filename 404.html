@@ -4,8 +4,15 @@
   <meta charset="utf-8">
   <title>Redirecting...</title>
   <script>
-    sessionStorage.setItem('redirect', location.pathname)
-    location.href = '/PeakOS/'
+    var path = window.location.pathname;
+    // Se já estiver no path correto, não redirecionar
+    if (path.startsWith('/PeakOS') || path === '/PeakOS/') {
+      // Já está no path correto, redirecionar para o index
+      window.location.replace('/PeakOS/');
+    } else {
+      sessionStorage.setItem('redirect', location.pathname)
+      location.href = '/PeakOS/'
+    }
   </script>
 </head>
 <body>
