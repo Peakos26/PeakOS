@@ -18,19 +18,23 @@ export const performanceService = {
       const diasSnapshot = await get(ref(database, `gymai_dias_treino/${encodedKey}`))
       const dias = diasSnapshot.val() || {}
 
-      // Buscar metas
+      // Buscar metas (Sprint 0.4: para cardio score)
       const metasSnapshot = await get(ref(database, `gymai_metas/${encodedKey}`))
       const metas = metasSnapshot.val() || {}
+
+      // Buscar jejum_sono (Sprint 0.4: para sono score)
+      const jejumSonoSnapshot = await get(ref(database, `gymai_jejum_sono/${encodedKey}`))
+      const jejumSono = jejumSonoSnapshot.val() || {}
 
       // Buscar medidas
       const medidasSnapshot = await get(ref(database, `gymai_medidas/${encodedKey}`))
       const medidas = medidasSnapshot.val() || {}
 
-      // Calcular componentes do score
+      // Calcular componentes do score (Sprint 0.4: passar metas e jejumSono corretos)
       const treinoScore = this.calculateTreinoScore(logs, dias)
-      const sonoScore = this.calculateSonoScore(metas)
+      const sonoScore = this.calculateSonoScore(jejumSono) // Sprint 0.4: usar gymai_jejum_sono
       const nutricaoScore = this.calculateNutricaoScore(metas)
-      const cardioScore = this.calculateCardioScore(logs)
+      const cardioScore = this.calculateCardioScore(metas) // Sprint 0.4: usar gymai_metas para passos
       const consistenciaScore = this.calculateConsistenciaScore(dias)
 
       // Score composto (peso: treino 30%, sono 20%, nutrição 20%, cardio 15%, consistência 15%)
@@ -100,17 +104,15 @@ export const performanceService = {
     return Math.round(score)
   },
 
-  calculateSonoScore(metas) {
+  calculateSonoScore(jejumSono) {
+    // Sprint 0.4: Sono score = min(100, horas_dormidas / meta_sono × 100)
+    // [buscar de gymai_jejum_sono/{tokenKey}.sonoHoras]
     let score = 0
-    const sonoHoras = metas.sonoHoras || 0
-    const sonoMeta = metas.sonoMeta || 8
+    const sonoHoras = jejumSono.sonoHoras || 0
+    const metaSono = jejumSono.metaSono || 8
 
     // Score baseado em horas de sono (máximo 100)
-    if (sonoHoras >= sonoMeta) {
-      score = 100
-    } else {
-      score = (sonoHoras / sonoMeta) * 100
-    }
+    score = Math.min(100, (sonoHoras / metaSono) * 100)
 
     return Math.round(score)
   },
@@ -134,26 +136,15 @@ export const performanceService = {
     return Math.round(score)
   },
 
-  calculateCardioScore(logs) {
+  calculateCardioScore(metas) {
+    // Sprint 0.4: Cardio score = min(100, passos_atuais / meta_passos × 100)
+    // [buscar de gymai_metas/{tokenKey}.passos]
     let score = 0
-    const logsArray = Object.values(logs)
+    const passosAtuais = metas.passos || 0
+    const metaPassos = metas.metaPassos || 10000
 
-    // Contar exercícios cardio
-    let cardioCount = 0
-    logsArray.forEach(log => {
-      if (log.series) {
-        log.series.forEach(serie => {
-          if (serie.nome && serie.nome.toLowerCase().includes('cardio') ||
-              serie.nome && serie.nome.toLowerCase().includes('corrida') ||
-              serie.nome && serie.nome.toLowerCase().includes('caminhada')) {
-            cardioCount++
-          }
-        })
-      }
-    })
-
-    // Score baseado em sessões de cardio (máximo 100)
-    score = Math.min(100, cardioCount * 10)
+    // Score baseado em passos (máximo 100)
+    score = Math.min(100, (passosAtuais / metaPassos) * 100)
 
     return Math.round(score)
   },
@@ -190,11 +181,12 @@ export const performanceService = {
     }
   },
 
-  getSonoDetails(metas) {
+  getSonoDetails(jejumSono) {
+    // Sprint 0.4: usar gymai_jejum_sono
     return {
-      horas: metas.sonoHoras || 0,
-      meta: metas.sonoMeta || 8,
-      qualidade: metas.sonoQualidade || 'boa'
+      horas: jejumSono.sonoHoras || 0,
+      meta: jejumSono.metaSono || 8,
+      qualidade: jejumSono.qualidade || 'boa'
     }
   },
 
@@ -209,24 +201,12 @@ export const performanceService = {
     }
   },
 
-  getCardioDetails(logs) {
-    const logsArray = Object.values(logs)
-    let cardioCount = 0
-
-    logsArray.forEach(log => {
-      if (log.series) {
-        log.series.forEach(serie => {
-          if (serie.nome && serie.nome.toLowerCase().includes('cardio') ||
-              serie.nome && serie.nome.toLowerCase().includes('corrida') ||
-              serie.nome && serie.nome.toLowerCase().includes('caminhada')) {
-            cardioCount++
-          }
-        })
-      }
-    })
-
+  getCardioDetails(metas) {
+    // Sprint 0.4: usar gymai_metas para passos
     return {
-      sessoesCardio: cardioCount
+      passos: metas.passos || 0,
+      metaPassos: metas.metaPassos || 10000,
+      porcentagem: Math.round(((metas.passos || 0) / (metas.metaPassos || 10000)) * 100)
     }
   },
 

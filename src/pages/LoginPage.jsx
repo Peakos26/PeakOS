@@ -15,21 +15,59 @@ const LoginPage = () => {
   const { login } = useAuth()
   const navigate = useNavigate()
 
+  const detectBrowser = () => {
+    const ua = navigator.userAgent
+    if (ua.includes('Chrome') && !ua.includes('Edg')) return 'Chrome'
+    if (ua.includes('Safari') && !ua.includes('Chrome')) return 'Safari'
+    if (ua.includes('Firefox')) return 'Firefox'
+    if (ua.includes('Edg')) return 'Edge'
+    return 'Unknown'
+  }
+
+  const detectDevice = () => {
+    const ua = navigator.userAgent
+    if (/Mobile|Android|iP(hone|od)/i.test(ua)) return 'Mobile'
+    if (/Tablet|iPad/i.test(ua)) return 'Tablet'
+    return 'Desktop'
+  }
+
   const logLogin = async (tokenKey, userData) => {
-    console.log('📝 [LOGIN] Iniciando registro de login')
+    console.log('📝 [LOGIN] Iniciando registro de login (Sprint 0.2)')
     console.log('📝 [LOGIN] TokenKey:', tokenKey)
     console.log('📝 [LOGIN] UserData:', userData)
     console.log('📝 [LOGIN] Celular:', celular)
     try {
       const logRef = push(ref(database, 'gymai_logins'))
+      
+      // Tentar obter geolocation
+      let latitude = null
+      let longitude = null
+      if (navigator.geolocation) {
+        try {
+          const position = await new Promise((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 })
+          })
+          latitude = position.coords.latitude
+          longitude = position.coords.longitude
+        } catch (err) {
+          console.log('📍 [LOGIN] Geolocation não permitida ou falhou:', err.message)
+        }
+      }
+
       await set(logRef, {
         tokenKey,
         nome: userData.nome,
         celular,
         timestamp: Date.now(),
-        date: new Date().toISOString()
+        date: new Date().toISOString(),
+        userAgent: navigator.userAgent,
+        browser: detectBrowser(),
+        device: detectDevice(),
+        language: navigator.language,
+        latitude,
+        longitude
       })
-      console.log('✅ [LOGIN] Login registrado com sucesso')
+      console.log('✅ [LOGIN] Login registrado com sucesso (Sprint 0.2)')
     } catch (err) {
       console.error('❌ [LOGIN] Erro ao registrar login:', err)
     }

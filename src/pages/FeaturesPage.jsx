@@ -13,46 +13,76 @@ const encodeTokenKey = (tokenKey) => {
 
 const FEATURES = [
   {
-    id: 'scanner_corporal',
-    name: 'Scanner Corporal IA',
-    description: 'Análise de fotos para estimar composição corporal',
-    price: 0,
-    icon: '📷',
-    unlockMessage: '✅ Scanner Corporal IA (PeakOS) desbloqueado!\n\nVocê agora pode:\n• Fazer upload de fotos do seu corpo\n• A IA analisa as fotos para estimar composição corporal\n• Ver histórico de análises e evolução ao longo do tempo\n• Receber recomendações baseadas na análise'
-  },
-  {
-    id: 'metas_inteligentes',
-    name: 'Metas Inteligentes',
-    description: 'IA gera metas personalizadas baseadas no seu perfil',
+    id: 'metas_diarias',
+    name: 'Metas Diárias',
+    description: 'Acompanhe suas metas diárias de treino e nutrição',
     price: 0,
     icon: '🎯',
-    unlockMessage: '✅ Metas Inteligentes (PeakOS) desbloqueado!\n\nVocê agora pode:\n• Receber metas personalizadas geradas por IA\n• Metas adaptadas ao seu perfil e objetivos\n• Acompanhar progresso em tempo real\n• Ajustar metas conforme sua evolução'
+    unlockMessage: '✅ Metas Diárias (PeakOS) desbloqueado!\n\nVocê agora pode:\n• Definir e acompanhar metas diárias\n• Visualizar progresso em tempo real\n• Receber notificações de conquistas'
   },
   {
-    id: 'performance_score',
-    name: 'Performance Score',
-    description: 'Dashboard com score de performance em tempo real',
+    id: 'medidas_corporais',
+    name: 'Medidas Corporais',
+    description: 'Registre e acompanhe suas medidas corporais',
     price: 0,
-    icon: '📊',
-    unlockMessage: '✅ Performance Score (PeakOS) desbloqueado!\n\nVocê agora pode:\n• Ver seu score de performance em tempo real\n• Analisar métricas detalhadas de treino\n• Comparar performance ao longo do tempo\n• Receber insights para melhorar seus resultados'
+    icon: '📏',
+    unlockMessage: '✅ Medidas Corporais (PeakOS) desbloqueado!\n\nVocê agora pode:\n• Registrar medidas corporais\n• Acompanhar evolução ao longo do tempo\n• Ver gráficos de progresso'
   },
   {
-    id: 'coach_avancado',
-    name: 'Coach Avançado',
-    description: 'IA com análise avançada e recomendações personalizadas',
-    price: 11.99,
-    duration: 90,
-    icon: '🤖',
-    unlockMessage: '✅ Coach Avançado (PeakOS) desbloqueado!\n\nVocê agora tem acesso a:\n• Análise avançada com IA\n• Recomendações personalizadas\n• Dicas exclusivas de treino\n• Sugestões de suplementação\n• Planos de alimentação\n• Dicas de sono e recuperação'
+    id: 'jejum_sono',
+    name: 'Jejum e Sono',
+    description: 'Controle de jejum intermitente e registro de sono',
+    price: 0,
+    icon: '🌙',
+    unlockMessage: '✅ Jejum e Sono (PeakOS) desbloqueado!\n\nVocê agora pode:\n• Controlar jejum intermitente\n• Registrar horas de sono\n• Acompanhar qualidade do sono'
+  },
+  {
+    id: 'apple_health',
+    name: 'Apple Health',
+    description: 'Integração com Apple Health para dados de saúde',
+    price: 0,
+    icon: '🍎',
+    unlockMessage: '✅ Apple Health (PeakOS) desbloqueado!\n\nVocê agora pode:\n• Sincronizar dados do Apple Health\n• Integrar passos, sono e peso\n• Acompanhar métricas de saúde'
   },
   {
     id: 'treinos_personalizados',
     name: 'Treinos Personalizados',
     description: 'Treinos gerados especificamente para o seu objetivo',
-    price: 24.32,
-    duration: 180,
+    price: 6,
     icon: '💪',
-    unlockMessage: '✅ Treinos Personalizados (PeakOS) desbloqueado!\n\nTodas as features foram liberadas automaticamente!\n\nVocê agora tem acesso completo a:\n• Treinos personalizados gerados por IA\n• Scanner Corporal IA\n• Metas Inteligentes\n• Performance Score\n• Coach Avançado\n• E muito mais!'
+    unlockMessage: '✅ Treinos Personalizados (PeakOS) desbloqueado!\n\nVocê agora tem acesso a:\n• Treinos personalizados gerados por IA\n• Planos de treino adaptados ao seu objetivo\n• Progressão automática de carga'
+  },
+  {
+    id: 'dieta_personalizada',
+    name: 'Dieta Personalizada',
+    description: 'Planos alimentares personalizados por IA',
+    price: 6,
+    icon: '�',
+    unlockMessage: '✅ Dieta Personalizada (PeakOS) desbloqueado!\n\nVocê agora tem acesso a:\n• Planos alimentares personalizados\n• Receitas adaptadas ao seu objetivo\n• Cálculo de macros e calorias'
+  },
+  {
+    id: 'cardio_suplementos',
+    name: 'Cardio e Suplementos',
+    description: 'Guia de cardio e suplementação personalizada',
+    price: 6,
+    icon: '🏃',
+    unlockMessage: '✅ Cardio e Suplementos (PeakOS) desbloqueado!\n\nVocê agora tem acesso a:\n• Planos de cardio personalizados\n• Guia de suplementação\n• Recomendações baseadas no seu objetivo'
+  },
+  {
+    id: 'analise_foto',
+    name: 'Análise de Foto',
+    description: 'IA analisa fotos para estimar composição corporal',
+    price: 6,
+    icon: '�',
+    unlockMessage: '✅ Análise de Foto (PeakOS) desbloqueado!\n\nVocê agora tem acesso a:\n• Upload de fotos para análise\n• Estimativa de composição corporal\n• Histórico de evolução'
+  },
+  {
+    id: 'perfil_completo',
+    name: 'Perfil Completo',
+    description: 'Perfil detalhado com métricas avançadas',
+    price: 6,
+    icon: '👤',
+    unlockMessage: '✅ Perfil Completo (PeakOS) desbloqueado!\n\nVocê agora tem acesso a:\n• Perfil detalhado com métricas avançadas\n• Análise completa de composição\n• Recomendações personalizadas'
   }
 ]
 
@@ -60,6 +90,8 @@ const FeaturesPage = () => {
   const { session, hasFeature } = useAuth()
   const [userFeatures, setUserFeatures] = useState([])
   const [loading, setLoading] = useState(false)
+  const [showPixModal, setShowPixModal] = useState(false)
+  const [selectedFeature, setSelectedFeature] = useState(null)
 
   useEffect(() => {
     loadUserFeatures()
@@ -69,97 +101,82 @@ const FeaturesPage = () => {
     if (!session) return
     try {
       const encodedKey = encodeTokenKey(session.tokenKey)
-      const snapshot = await get(ref(database, `gymai_tokens/${encodedKey}/features`))
-      const features = snapshot.val() || []
+      // Sprint 0.3: Ler features de gymai_features/{tokenKey}/{featureId}
+      const snapshot = await get(ref(database, `gymai_features/${encodedKey}`))
+      const featuresData = snapshot.val() || {}
+      const features = Object.keys(featuresData).filter(key => featuresData[key] === true)
       setUserFeatures(features)
     } catch (error) {
       console.error('Erro ao carregar features:', error)
     }
   }
 
-  const toggleFeature = async (featureId) => {
+  const activateFreeFeature = async (featureId) => {
     if (!session) return
     setLoading(true)
 
     try {
-      let newFeatures
-
-      // Se ativar treinos_personalizados, ativar todas as features
-      if (featureId === 'treinos_personalizados' && !userFeatures.includes(featureId)) {
-        newFeatures = FEATURES.map(f => f.id)
-      } else if (featureId === 'treinos_personalizados' && userFeatures.includes(featureId)) {
-        // Se desativar treinos_personalizados, desativar todas
-        newFeatures = []
-      } else {
-        newFeatures = userFeatures.includes(featureId)
-          ? userFeatures.filter(f => f !== featureId)
-          : [...userFeatures, featureId]
-      }
-
       const encodedKey = encodeTokenKey(session.tokenKey)
-      await set(ref(database, `gymai_tokens/${encodedKey}/features`), newFeatures)
+      // Sprint 0.3: Features GRATUITAS → set gymai_features/{tk}/{featureId} = true
+      await set(ref(database, `gymai_features/${encodedKey}/${featureId}`), true)
+      
+      const newFeatures = [...userFeatures, featureId]
       setUserFeatures(newFeatures)
-
-      // Calcular nova data de expiração baseada no pacote ativado
-      let newExpirationDate = null
-      if (newFeatures.includes('treinos_personalizados')) {
-        // Treinos Personalizados: 180 dias
-        newExpirationDate = new Date()
-        newExpirationDate.setDate(newExpirationDate.getDate() + 180)
-      } else if (newFeatures.includes('coach_avancado') && !newFeatures.includes('treinos_personalizados')) {
-        // Coach Avançado: 90 dias (apenas se não tiver Treinos Personalizados)
-        newExpirationDate = new Date()
-        newExpirationDate.setDate(newExpirationDate.getDate() + 90)
-      }
-
-      // Salvar data de expiração no Firebase
-      if (newExpirationDate) {
-        await set(ref(database, `gymai_tokens/${encodedKey}/expiresAt`), newExpirationDate.getTime())
-      } else if (newFeatures.length === 0) {
-        // Se desativou todas as features, remover expiração
-        await set(ref(database, `gymai_tokens/${encodedKey}/expiresAt`), null)
-      }
 
       // Atualizar sessão local
       const sessionData = JSON.parse(localStorage.getItem('gymai_session'))
       sessionData.features = newFeatures
-      sessionData.expiresAt = newExpirationDate ? newExpirationDate.getTime() : null
       localStorage.setItem('gymai_session', JSON.stringify(sessionData))
-
-      // Salvar no Firebase para pesquisa social
-      if (newFeatures.includes('treinos_personalizados')) {
-        await set(ref(database, `gymai_social/${encodedKey}`), {
-          nome: session.nome,
-          features: newFeatures,
-          activatedAt: Date.now(),
-          expiresAt: newExpirationDate ? newExpirationDate.getTime() : null
-        })
-      } else {
-        await set(ref(database, `gymai_social/${encodedKey}`), null)
-      }
 
       // Mostrar notificação
       const feature = FEATURES.find(f => f.id === featureId)
-      if (!userFeatures.includes(featureId)) {
-        alert(feature.unlockMessage || `✅ ${feature.name} (PeakOS) desbloqueado com sucesso!`)
-      } else {
-        if (featureId === 'treinos_personalizados') {
-          alert(`ℹ️ ${feature.name} desativado. Todas as features foram removidas.`)
-        } else {
-          alert(`ℹ️ ${feature.name} desativado.`)
-        }
-      }
+      alert(feature.unlockMessage || `✅ ${feature.name} (PeakOS) desbloqueado com sucesso!`)
     } catch (error) {
-      console.error('Erro ao atualizar feature:', error)
-      alert('Erro ao atualizar feature')
+      console.error('Erro ao ativar feature:', error)
+      alert('Erro ao ativar feature')
     }
 
     setLoading(false)
   }
 
-  const formatPrice = (price, duration) => {
+  const buyFeature = async (feature) => {
+    setSelectedFeature(feature)
+    setShowPixModal(true)
+  }
+
+  const confirmPurchase = async () => {
+    if (!session || !selectedFeature) return
+    setLoading(true)
+
+    try {
+      const encodedKey = encodeTokenKey(session.tokenKey)
+      const purchaseId = 'purchase_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8)
+      
+      // Sprint 0.3: Features PAGAS → grava gymai_purchases/{purchaseId}
+      await set(ref(database, `gymai_purchases/${purchaseId}`), {
+        tokenKey: session.tokenKey,
+        featureId: selectedFeature.id,
+        featureName: selectedFeature.name,
+        price: selectedFeature.price,
+        status: 'pending',
+        createdAt: Date.now(),
+        pixKey: '14cc72c1-f0d5-4522-a745-3af6c31a13f1'
+      })
+
+      setShowPixModal(false)
+      alert(`✅ Solicitação de compra enviada!\n\nChave PIX: 14cc72c1-f0d5-4522-a745-3af6c31a13f1\n\nApós o pagamento, o administrador ativará a feature ${selectedFeature.name} manualmente.`)
+    } catch (error) {
+      console.error('Erro ao processar compra:', error)
+      alert('Erro ao processar compra')
+    }
+
+    setLoading(false)
+    setSelectedFeature(null)
+  }
+
+  const formatPrice = (price) => {
     if (price === 0) return 'Grátis'
-    return `R$ ${price.toFixed(2)} / ${duration} dias`
+    return `R$ ${price.toFixed(2)}`
   }
 
   return (
@@ -173,6 +190,7 @@ const FeaturesPage = () => {
         <div className="space-y-4">
           {FEATURES.map(feature => {
             const isActive = userFeatures.includes(feature.id)
+            const isFree = feature.price === 0
             return (
               <Card key={feature.id} className={isActive ? 'border-primary-500' : ''}>
                 <div className="flex items-start justify-between">
@@ -183,15 +201,22 @@ const FeaturesPage = () => {
                     </div>
                     <p className="text-sm text-[var(--color-muted)] mb-3">{feature.description}</p>
                     <div className="text-sm font-medium">
-                      {formatPrice(feature.price, feature.duration)}
+                      {formatPrice(feature.price)}
                     </div>
                   </div>
                   <Button
                     variant={isActive ? 'outline' : 'default'}
-                    onClick={() => toggleFeature(feature.id)}
-                    disabled={loading}
+                    onClick={() => {
+                      if (isActive) return
+                      if (isFree) {
+                        activateFreeFeature(feature.id)
+                      } else {
+                        buyFeature(feature)
+                      }
+                    }}
+                    disabled={loading || isActive}
                   >
-                    {isActive ? 'Desativar' : 'Ativar'}
+                    {isActive ? 'Ativado' : isFree ? 'Ativar' : 'Comprar'}
                   </Button>
                 </div>
               </Card>
@@ -201,6 +226,43 @@ const FeaturesPage = () => {
       </main>
 
       <Navigation />
+
+      {/* Modal PIX para features pagas */}
+      {showPixModal && selectedFeature && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <Card className="w-full max-w-md p-6">
+            <h2 className="text-xl font-bold mb-4">Comprar {selectedFeature.name}</h2>
+            <p className="text-[var(--color-muted)] mb-4">
+              Valor: <span className="font-semibold">{formatPrice(selectedFeature.price)}</span>
+            </p>
+            <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg mb-4">
+              <p className="text-sm font-medium mb-2">Chave PIX:</p>
+              <p className="text-lg font-mono break-all">14cc72c1-f0d5-4522-a745-3af6c31a13f1</p>
+            </div>
+            <p className="text-sm text-[var(--color-muted)] mb-6">
+              Após o pagamento, o administrador ativará a feature manualmente.
+            </p>
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowPixModal(false)
+                  setSelectedFeature(null)
+                }}
+                disabled={loading}
+              >
+                Cancelar
+              </Button>
+              <Button
+                onClick={confirmPurchase}
+                disabled={loading}
+              >
+                {loading ? 'Processando...' : 'Confirmar Compra'}
+              </Button>
+            </div>
+          </Card>
+        </div>
+      )}
     </div>
   )
 }
