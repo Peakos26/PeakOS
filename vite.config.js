@@ -23,6 +23,16 @@ export default defineConfig({
   base: '/PeakOS/',
   build: {
     outDir: 'dist',
-    sourcemap: true
+    sourcemap: false,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+          firebase: ['firebase/app', 'firebase/database'],
+          charts: ['chart.js', 'react-chartjs-2'],
+          maps: ['leaflet', 'react-leaflet'],
+        }
+      }
+    }
   }
 })
