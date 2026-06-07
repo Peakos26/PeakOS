@@ -4,7 +4,7 @@
 
 **URL de produção:** https://peakos26.github.io/PeakOS/
 
-**Versão atual:** 1.0.9
+**Versão atual:** 1.0.10
 
 ---
 

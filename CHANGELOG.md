@@ -5,6 +5,15 @@ Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
 e este projeto adere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.10] - 2026-06-07
+
+### Adicionado
+- Reorganização do menu lateral em grupos com títulos de seção
+- Grupos: Treino, Nutrição, Saúde, Corpo, Inteligência, Conta, Extras
+- Títulos de seção com estilo visual (uppercase, tracking-widest, muted)
+- Separadores visuais entre grupos
+- Melhor organização e hierarquia visual no menu de navegação
+
 ## [1.0.9] - 2026-06-07
 
 ### Adicionado
