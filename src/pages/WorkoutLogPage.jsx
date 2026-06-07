@@ -8,6 +8,11 @@ import Button from '@components/ui/Button'
 import Input from '@components/ui/Input'
 import { trainingService } from '@services/trainingService'
 
+// Função para codificar tokenKey para paths válidos do Firebase
+const encodeTokenKey = (tokenKey) => {
+  return tokenKey.replace(/[.#$\[\]]/g, '_')
+}
+
 const WorkoutLogPage = () => {
   const { session } = useAuth()
   const navigate = useNavigate()
@@ -17,6 +22,12 @@ const WorkoutLogPage = () => {
   const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0)
   const [series, setSeries] = useState([])
   const [selectedDay, setSelectedDay] = useState(null)
+  
+  // Sprint 1.1: Log de Treino Avançado
+  const [restTimer, setRestTimer] = useState(null)
+  const [restTimerSeconds, setRestTimerSeconds] = useState(0)
+  const [totalVolume, setTotalVolume] = useState(0)
+  const [suggestedWeight, setSuggestedWeight] = useState(0)
 
   useEffect(() => {
     loadTrainingPlan()
@@ -27,18 +38,52 @@ const WorkoutLogPage = () => {
     }
   }, [session, location.state])
 
+  // Sprint 1.1: Calcular volume total em tempo real
+  useEffect(() => {
+    const volume = series.reduce((total, serie) => total + (serie.peso * serie.reps), 0)
+    setTotalVolume(volume)
+  }, [series])
+
+  // Sprint 1.1: Rest timer
+  useEffect(() => {
+    if (restTimerSeconds > 0) {
+      const timer = setTimeout(() => {
+        setRestTimerSeconds(restTimerSeconds - 1)
+      }, 1000)
+      return () => clearTimeout(timer)
+    }
+  }, [restTimerSeconds])
+
   const loadTrainingPlan = async () => {
     if (!session) return
     const result = await trainingService.getTrainingPlan(session.tokenKey)
     if (result.success) {
       setTrainingPlan(result.data)
+      // Sprint 1.1: Carregar sugestão de carga da última sessão
+      loadSuggestedWeight(result.data)
+    }
+  }
+
+  // Sprint 1.1: Carregar sugestão de carga baseada na última sessão (progressive overload)
+  const loadSuggestedWeight = async (plan) => {
+    if (!session || !plan) return
+    const result = await trainingService.getLastWorkoutLog(session.tokenKey)
+    if (result.success && result.data) {
+      const lastExercise = result.data.exercicios?.find(ex => ex.nome === currentExercise?.nome)
+      if (lastExercise && lastExercise.series && lastExercise.series.length > 0) {
+        const lastWeight = lastExercise.series[lastExercise.series.length - 1].peso
+        setSuggestedWeight(lastWeight)
+      }
     }
   }
 
   const handleAddSerie = () => {
+    // Sprint 1.1: Adicionar tags de tipo de série (warm-up, working, drop, failure)
     const newSerie = {
-      peso: 0,
-      reps: 0
+      peso: suggestedWeight || 0,
+      reps: 0,
+      tipo: 'working', // warm-up, working, drop, failure
+      completed: false
     }
     setSeries([...series, newSerie])
   }
@@ -49,10 +94,24 @@ const WorkoutLogPage = () => {
     setSeries(updatedSeries)
   }
 
+  // Sprint 1.1: Iniciar rest timer após completar série
+  const handleCompleteSerie = (index) => {
+    const updatedSeries = [...series]
+    updatedSeries[index].completed = true
+    setSeries(updatedSeries)
+    
+    // Iniciar rest timer de 90 segundos (configurável por exercício)
+    setRestTimerSeconds(90)
+  }
+
   const handleNextExercise = () => {
     if (currentExerciseIndex < currentExercisesList.length - 1) {
       setCurrentExerciseIndex(currentExerciseIndex + 1)
       setSeries([])
+      setTotalVolume(0)
+      setSuggestedWeight(0)
+      // Carregar sugestão de carga para o próximo exercício
+      loadSuggestedWeight(trainingPlan)
     }
   }
 
@@ -60,28 +119,48 @@ const WorkoutLogPage = () => {
     if (currentExerciseIndex > 0) {
       setCurrentExerciseIndex(currentExerciseIndex - 1)
       setSeries([])
+      setTotalVolume(0)
+      setSuggestedWeight(0)
+      // Carregar sugestão de carga para o exercício anterior
+      loadSuggestedWeight(trainingPlan)
     }
   }
 
   const handleFinishWorkout = async () => {
     if (!session || !trainingPlan) return
 
+    // Sprint 1.1: Salvar com tags de série e volume total
     const workoutData = {
       dia: selectedDay !== null ? selectedDay : new Date().getDay(),
       exercicios: currentExercisesList.map((exercicio, index) => ({
         nome: exercicio.nome,
-        series: index === currentExerciseIndex ? series : []
+        series: index === currentExerciseIndex ? series : [],
+        grupoMuscular: exercicio.grupoMuscular || 'Geral'
       })),
+      volumeTotal: totalVolume,
       createdAt: Date.now()
     }
 
     const result = await trainingService.saveWorkoutLog(session.tokenKey, workoutData)
     if (result.success) {
+      // Sprint 1.3: Salvar PRs automaticamente
+      for (const serie of series) {
+        if (serie.peso > 0 && serie.reps > 0) {
+          const oneRM = calculate1RM(serie.peso, serie.reps)
+          await trainingService.savePR(session.tokenKey, currentExercise?.nome, oneRM)
+        }
+      }
       alert('Treino salvo com sucesso!')
       navigate('/')
     } else {
       alert('Erro ao salvar treino')
     }
+  }
+
+  // Sprint 1.1: Calcular 1RM usando fórmula Epley
+  const calculate1RM = (peso, reps) => {
+    if (reps === 0) return 0
+    return Math.round(peso * (1 + reps / 30))
   }
 
   const currentExercise = selectedDay !== null && trainingPlan?.planoSemanal
@@ -114,40 +193,95 @@ const WorkoutLogPage = () => {
           </Card>
         ) : (
           <>
+            {/* Sprint 1.1: Volume total em tempo real */}
+            <Card className="mb-4 bg-primary-50 dark:bg-primary-900/20">
+              <div className="flex justify-between items-center">
+                <div>
+                  <span className="text-sm text-[var(--color-muted)]">Volume Total:</span>
+                  <span className="text-2xl font-bold ml-2">{totalVolume} kg</span>
+                </div>
+                {/* Sprint 1.1: Rest timer */}
+                {restTimerSeconds > 0 && (
+                  <div className="text-right">
+                    <span className="text-sm text-[var(--color-muted)]">Descanso:</span>
+                    <span className="text-2xl font-bold ml-2 text-primary-600">{restTimerSeconds}s</span>
+                  </div>
+                )}
+              </div>
+            </Card>
+
             <Card className="mb-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-semibold">{currentExercise?.nome}</h2>
                 <div className="text-sm text-[var(--color-muted)]">
-                  {currentExerciseIndex + 1} / {trainingPlan.exercicios.length}
+                  {currentExerciseIndex + 1} / {currentExercisesList.length}
                 </div>
               </div>
               <div className="text-sm text-[var(--color-muted)] mb-4">
                 {currentExercise?.series} séries × {currentExercise?.repeticoes}
               </div>
 
+              {/* Sprint 1.1: Sugestão de carga */}
+              {suggestedWeight > 0 && (
+                <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg mb-4">
+                  <span className="text-sm text-blue-600 dark:text-blue-400">
+                    💡 Sugestão de carga (última sessão): {suggestedWeight} kg
+                  </span>
+                </div>
+              )}
+
               <div className="space-y-3">
                 {series.map((serie, index) => (
-                  <div key={index} className="flex items-center gap-3">
-                    <div className="flex-1">
-                      <Input
-                        type="number"
-                        id={`peso-${index}`}
-                        name={`peso-${index}`}
-                        placeholder="Peso (kg)"
-                        value={serie.peso}
-                        onChange={(e) => handleUpdateSerie(index, 'peso', parseFloat(e.target.value) || 0)}
-                      />
+                  <div key={index} className="border border-[var(--color-border)] rounded-lg p-3">
+                    <div className="flex items-center gap-3 mb-2">
+                      {/* Sprint 1.1: Tag de tipo de série */}
+                      <select
+                        id={`tipo-${index}`}
+                        name={`tipo-${index}`}
+                        value={serie.tipo}
+                        onChange={(e) => handleUpdateSerie(index, 'tipo', e.target.value)}
+                        className="text-xs px-2 py-1 rounded bg-[var(--color-border)] text-[var(--color-text)]"
+                      >
+                        <option value="warm-up">Warm-up</option>
+                        <option value="working">Working</option>
+                        <option value="drop">Drop</option>
+                        <option value="failure">Failure</option>
+                      </select>
+                      <div className="flex-1">
+                        <Input
+                          type="number"
+                          id={`peso-${index}`}
+                          name={`peso-${index}`}
+                          placeholder="Peso (kg)"
+                          value={serie.peso}
+                          onChange={(e) => handleUpdateSerie(index, 'peso', parseFloat(e.target.value) || 0)}
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <Input
+                          type="number"
+                          id={`reps-${index}`}
+                          name={`reps-${index}`}
+                          placeholder="Reps"
+                          value={serie.reps}
+                          onChange={(e) => handleUpdateSerie(index, 'reps', parseInt(e.target.value) || 0)}
+                        />
+                      </div>
+                      {/* Sprint 1.1: Botão para completar série e iniciar rest timer */}
+                      <Button
+                        onClick={() => handleCompleteSerie(index)}
+                        variant={serie.completed ? "outline" : "default"}
+                        size="sm"
+                      >
+                        {serie.completed ? "✓" : "OK"}
+                      </Button>
                     </div>
-                    <div className="flex-1">
-                      <Input
-                        type="number"
-                        id={`reps-${index}`}
-                        name={`reps-${index}`}
-                        placeholder="Reps"
-                        value={serie.reps}
-                        onChange={(e) => handleUpdateSerie(index, 'reps', parseInt(e.target.value) || 0)}
-                      />
-                    </div>
+                    {/* Sprint 1.1: Estimativa de 1RM */}
+                    {serie.peso > 0 && serie.reps > 0 && (
+                      <div className="text-xs text-[var(--color-muted)]">
+                        1RM estimado: {calculate1RM(serie.peso, serie.reps)} kg
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -166,7 +300,7 @@ const WorkoutLogPage = () => {
               >
                 Anterior
               </Button>
-              {currentExerciseIndex === trainingPlan.exercicios.length - 1 ? (
+              {currentExerciseIndex === currentExercisesList.length - 1 ? (
                 <Button onClick={handleFinishWorkout} className="flex-1">
                   Finalizar Treino
                 </Button>

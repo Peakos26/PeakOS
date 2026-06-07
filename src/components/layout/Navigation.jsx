@@ -1,7 +1,7 @@
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useTheme } from '@context/ThemeContext'
 import { useAuth } from '@context/AuthContext'
-import { Home, Dumbbell, TrendingUp, Bot, Star, User, LogOut } from 'lucide-react'
+import { Home, Dumbbell, TrendingUp, Bot, Star, User, LogOut, BookOpen, Layout } from 'lucide-react'
 
 const Navigation = () => {
   const { theme } = useTheme()
@@ -12,6 +12,8 @@ const Navigation = () => {
   const navItems = [
     { id: 'home', label: 'Início', icon: Home, path: '/' },
     { id: 'treinos', label: 'Treinos', icon: Dumbbell, path: '/treinos' },
+    { id: 'exercicios', label: 'Exercícios', icon: BookOpen, path: '/exercicios' },
+    { id: 'programas', label: 'Programas', icon: Layout, path: '/programas' },
     { id: 'evolucao', label: 'Evolução', icon: TrendingUp, path: '/evolucao' },
     { id: 'ia', label: 'IA', icon: Bot, path: '/ia' },
     { id: 'features', label: 'Features', icon: Star, path: '/features' },

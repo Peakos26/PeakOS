@@ -12,6 +12,8 @@ import BodyScannerPage from '@pages/BodyScannerPage'
 import CoachAvancadoPage from '@pages/CoachAvancadoPage'
 import SocialSearchPage from '@pages/SocialSearchPage'
 import AdminPage from '@pages/AdminPage'
+import ExercisesLibraryPage from '@pages/ExercisesLibraryPage'
+import WorkoutProgramsPage from '@pages/WorkoutProgramsPage'
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth()
@@ -59,6 +61,16 @@ const AppRouter = () => {
         <Route path="/log-treino" element={
           <ProtectedRoute>
             <WorkoutLogPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/exercicios" element={
+          <ProtectedRoute>
+            <ExercisesLibraryPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/programas" element={
+          <ProtectedRoute>
+            <WorkoutProgramsPage />
           </ProtectedRoute>
         } />
         <Route path="/evolucao" element={
