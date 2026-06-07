@@ -4,21 +4,8 @@
     <meta charset="utf-8">
     <title>PeakOS</title>
     <script>
-      var pathSegmentsToKeep = 1;
-      var l = window.location;
-      var segmentedPath = l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/');
-      var remainingPath = l.pathname.slice(1).split('/').slice(pathSegmentsToKeep).join('/').replace(/&/g, '~and~');
-      var search = l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '';
-      
-      sessionStorage.redirect = l.pathname + l.search + l.hash;
-      
-      l.replace(
-        l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
-        segmentedPath + '/?/' +
-        remainingPath +
-        search +
-        l.hash
-      );
+      sessionStorage.redirect = location.href;
+      window.location.replace('/PeakOS/');
     </script>
   </head>
 </html>
