@@ -23,6 +23,10 @@ import MindsetPage from '@pages/MindsetPage'
 import FastingPage from '@pages/FastingPage'
 import CardioPage from '@pages/CardioPage'
 import BodyMeasurementsPage from '@pages/BodyMeasurementsPage'
+import WorkoutGeneratorPage from '@pages/WorkoutGeneratorPage'
+import FoodAnalysisPage from '@pages/FoodAnalysisPage'
+import WeeklyInsightsPage from '@pages/WeeklyInsightsPage'
+import SmartGoalsPage from '@pages/SmartGoalsPage'
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth()
@@ -125,6 +129,26 @@ const AppRouter = () => {
         <Route path="/medidas" element={
           <ProtectedRoute>
             <BodyMeasurementsPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/gerador-treino" element={
+          <ProtectedRoute>
+            <WorkoutGeneratorPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/analise-alimento" element={
+          <ProtectedRoute>
+            <FoodAnalysisPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/insights" element={
+          <ProtectedRoute>
+            <WeeklyInsightsPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/metas-inteligentes" element={
+          <ProtectedRoute>
+            <SmartGoalsPage />
           </ProtectedRoute>
         } />
         <Route path="/evolucao" element={

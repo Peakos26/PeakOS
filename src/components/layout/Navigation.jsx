@@ -1,7 +1,7 @@
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useTheme } from '@context/ThemeContext'
 import { useAuth } from '@context/AuthContext'
-import { Home, Dumbbell, TrendingUp, Bot, Star, User, LogOut, BookOpen, Layout, Utensils, Droplets, Calculator, Moon, Battery, Brain, Clock, Activity, Ruler } from 'lucide-react'
+import { Home, Dumbbell, TrendingUp, Bot, Star, User, LogOut, BookOpen, Layout, Utensils, Droplets, Calculator, Moon, Battery, Brain, Clock, Activity, Ruler, Zap, Camera, Calendar, Target } from 'lucide-react'
 
 const Navigation = () => {
   const { theme } = useTheme()
@@ -21,6 +21,10 @@ const Navigation = () => {
     { id: 'jejum', label: 'Jejum', icon: Clock, path: '/jejum' },
     { id: 'cardio', label: 'Cardio', icon: Activity, path: '/cardio' },
     { id: 'medidas', label: 'Medidas', icon: Ruler, path: '/medidas' },
+    { id: 'gerador-treino', label: 'Gerador IA', icon: Zap, path: '/gerador-treino' },
+    { id: 'analise-alimento', label: 'Foto IA', icon: Camera, path: '/analise-alimento' },
+    { id: 'insights', label: 'Insights', icon: Calendar, path: '/insights' },
+    { id: 'metas-inteligentes', label: 'Metas IA', icon: Target, path: '/metas-inteligentes' },
     { id: 'exercicios', label: 'Exercícios', icon: BookOpen, path: '/exercicios' },
     { id: 'programas', label: 'Programas', icon: Layout, path: '/programas' },
     { id: 'evolucao', label: 'Evolução', icon: TrendingUp, path: '/evolucao' },
