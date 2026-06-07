@@ -1,0 +1,49 @@
+{
+  "name": "PeakOS - Fitness Tracker",
+  "short_name": "PeakOS",
+  "description": "Aplicativo completo de fitness e nutrição com IA",
+  "start_url": "/PeakOS/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#3b82f6",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/PeakOS/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/PeakOS/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["fitness", "health", "lifestyle"],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Log Treino",
+      "short_name": "Treino",
+      "description": "Logar um novo treino",
+      "url": "/PeakOS/treinos",
+      "icons": [{ "src": "/PeakOS/icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Diário Alimentar",
+      "short_name": "Diário",
+      "description": "Registrar refeições",
+      "url": "/PeakOS/diario-alimentar",
+      "icons": [{ "src": "/PeakOS/icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "IA Coach",
+      "short_name": "IA",
+      "description": "Conversar com IA Coach",
+      "url": "/PeakOS/ia",
+      "icons": [{ "src": "/PeakOS/icon-192x192.png", "sizes": "192x192" }]
+    }
+  ]
+}
