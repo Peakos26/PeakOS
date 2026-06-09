@@ -1,14 +1,85 @@
 import { useEffect, useState } from 'react'
+import { useAuth } from '@context/AuthContext'
+import { database, ref, get } from '@config/firebase.config'
 
-const PeakRings = ({
-  movimento = { atual: 0, meta: 10000 },
-  nutricao = { atual: 0, meta: 2200 },
-  recuperacao = { atual: 0, meta: 8 },
-  calorias = 850,
-  passos = 6877,
-  agua = 2.4,
-  sono = '7h12min'
-}) => {
+const PeakRings = () => {
+  const { session } = useAuth()
+  const [movimento, setMovimento] = useState({ atual: 0, meta: 10000 })
+  const [nutricao, setNutricao] = useState({ atual: 0, meta: 2200 })
+  const [recuperacao, setRecuperacao] = useState({ atual: 0, meta: 8 })
+  const [calorias, setCalorias] = useState(0)
+  const [passos, setPassos] = useState(0)
+  const [agua, setAgua] = useState(0)
+  const [sono, setSono] = useState(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const loadRealData = async () => {
+      if (!session) return
+
+      try {
+        const today = new Date().toISOString().split('T')[0] // YYYY-MM-DD
+        const encodedKey = session.tokenKey.replace(/[.#$\[\]]/g, '_')
+
+        // Carregar dados do Firebase
+        const [logSnap, diasSnap, alimentarSnap, hidratacaoSnap, sonoSnap, cardioSnap] = await Promise.all([
+          get(ref(database, `gymai_log/${encodedKey}/${today}`)),
+          get(ref(database, `gymai_dias_treino/${encodedKey}`)),
+          get(ref(database, `gymai_diario_alimentar/${encodedKey}/${today}`)),
+          get(ref(database, `gymai_hidratacao/${encodedKey}/${today}`)),
+          get(ref(database, `gymai_sono/${encodedKey}/${today}`)),
+          get(ref(database, `gymai_cardio/${encodedKey}/${today}`))
+        ])
+
+        const logData = logSnap.val() || {}
+        const diasData = diasSnap.val() || {}
+        const alimentarData = alimentarSnap.val() || {}
+        const hidratacaoData = hidratacaoSnap.val() || {}
+        const sonoData = sonoSnap.val() || {}
+        const cardioData = cardioSnap.val() || {}
+
+        // MOVIMENTO: calcular séries do dia
+        let seriesHoje = 0
+        Object.values(logData).forEach((log) => {
+          if (log.exercicios) {
+            log.exercicios.forEach((ex) => {
+              if (ex.series) {
+                seriesHoje += ex.series.length
+              }
+            })
+          }
+        })
+        const metaSeries = 20 // meta padrão de séries por dia
+        setMovimento({ atual: seriesHoje, meta: metaSeries })
+
+        // NUTRIÇÃO: calcular calorias e água
+        const caloriasTotais = Object.values(alimentarData).reduce((sum, refeicao) => sum + (refeicao.calorias || 0), 0)
+        const aguaIntake = hidratacaoData.intake || 0
+        const metaAgua = hidratacaoData.goal || 2000
+        const metaCalorias = 2200
+        const nutricaoScore = ((caloriasTotais / metaCalorias) + (aguaIntake / metaAgua)) / 2 * 100
+        setNutricao({ atual: nutricaoScore, meta: 100 })
+        setCalorias(caloriasTotais)
+        setAgua(aguaIntake / 1000) // converter para litros
+
+        // RECUPERAÇÃO: sono
+        const sonoDuration = sonoData.duration || 0
+        const metaSono = 8
+        setRecuperacao({ atual: sonoDuration, meta: metaSono })
+        setSono(sonoDuration > 0 ? `${Math.floor(sonoDuration)}h${Math.round((sonoDuration % 1) * 60)}min` : '-- h')
+
+        // PASSOS: se houver integração
+        setPassos(cardioData.passos || 0)
+
+        setLoading(false)
+      } catch (error) {
+        console.error('Erro ao carregar dados dos Peak Rings:', error)
+        setLoading(false)
+      }
+    }
+
+    loadRealData()
+  }, [session])
   // Calcular percentuais (máximo 110% para efeito visual)
   const pMovimento = Math.min(110, (movimento.atual / movimento.meta) * 100)
   const pNutricao = Math.min(110, (nutricao.atual / nutricao.meta) * 100)
@@ -171,31 +242,33 @@ const PeakRings = ({
         <h3 className="text-lg font-semibold mb-2">Hoje</h3>
 
         <div className="flex items-center gap-2">
-          <MiniIndicator percent={85} color="#ff2d55" size={24} />
+          <MiniIndicator percent={Math.min(100, (calorias / 2200) * 100)} color="#ff2d55" size={24} />
           <div>
             <div className="text-lg font-bold">{calorias.toLocaleString()} kcal</div>
             <div className="text-xs opacity-60">Calorias</div>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-3">
-          <MiniIndicator percent={72} color="#30d158" size={28} />
-          <div>
-            <div className="text-lg sm:text-xl md:text-2xl font-bold">{passos.toLocaleString()} passos</div>
-            <div className="text-xs opacity-60">Passos</div>
+        {passos > 0 && (
+          <div className="flex items-center gap-2 sm:gap-3">
+            <MiniIndicator percent={Math.min(100, (passos / 10000) * 100)} color="#30d158" size={28} />
+            <div>
+              <div className="text-lg sm:text-xl md:text-2xl font-bold">{passos.toLocaleString()} passos</div>
+              <div className="text-xs opacity-60">Passos</div>
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="flex items-center gap-2 sm:gap-3">
-          <MiniIndicator percent={80} color="#0a84ff" size={28} />
+          <MiniIndicator percent={Math.min(100, (agua / 2) * 100)} color="#0a84ff" size={28} />
           <div>
-            <div className="text-lg sm:text-xl md:text-2xl font-bold">{agua} L</div>
+            <div className="text-lg sm:text-xl md:text-2xl font-bold">{agua.toFixed(1)} L</div>
             <div className="text-xs opacity-60">Água</div>
           </div>
         </div>
 
         <div className="flex items-center gap-2 sm:gap-3">
-          <MiniIndicator percent={90} color="#64d2ff" size={28} />
+          <MiniIndicator percent={Math.min(100, (recuperacao.atual / recuperacao.meta) * 100)} color="#64d2ff" size={28} />
           <div>
             <div className="text-lg sm:text-xl md:text-2xl font-bold">{sono}</div>
             <div className="text-xs opacity-60">Sono</div>

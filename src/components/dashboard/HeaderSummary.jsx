@@ -100,7 +100,8 @@ const HeaderSummary = ({ showActions = true }) => {
 
   return (
     <>
-      <div className="flex items-center justify-between mb-3 sm:mb-4">
+      <div className="sticky top-0 z-50 bg-card/95 backdrop-blur-sm border-b border-border px-4 py-3 mb-3 sm:mb-4">
+        <div className="flex items-center justify-between">
         {/* Avatar — apenas mobile — abre drawer */}
         <button
           className="md:hidden w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-[#84CC16] to-[#65A30D] flex items-center justify-center text-white font-bold text-xs sm:text-sm"
@@ -160,6 +161,7 @@ const HeaderSummary = ({ showActions = true }) => {
             <Menu size={18} />
           </button>
         )}
+        </div>
       </div>
 
       {/* Sabedoria do Dia — mobile */}

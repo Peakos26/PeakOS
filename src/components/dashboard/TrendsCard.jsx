@@ -1,5 +1,7 @@
-import { useMemo } from 'react'
+import { useMemo, useEffect, useState } from 'react'
 import { TrendingUp, TrendingDown } from 'lucide-react'
+import { useAuth } from '@context/AuthContext'
+import { database, ref, get } from '@config/firebase.config'
 
 const Sparkline = ({ data, color, height = 40 }) => {
   const max = Math.max(...data)
@@ -31,45 +33,134 @@ const Sparkline = ({ data, color, height = 40 }) => {
   )
 }
 
+const calcTrend = (atual, anterior) => {
+  if (!anterior || anterior === 0) return { percent: 0, direction: 'stable', label: '0%', color: '#6b6b80' }
+  const diff = ((atual - anterior) / anterior) * 100
+  return {
+    percent: Math.abs(diff).toFixed(0),
+    direction: diff > 5 ? 'up' : diff < -5 ? 'down' : 'stable',
+    label: diff > 0 ? `+${diff.toFixed(0)}%` : `${diff.toFixed(0)}%`,
+    color: diff > 0 ? '#4ade80' : diff < 0 ? '#ff4d6d' : '#6b6b80'
+  }
+}
+
 const TrendsCard = () => {
-  // Dados mockados - em produção viriam do Firebase
-  const trends = useMemo(() => [
-    {
-      label: 'Movimento',
-      value: '+12%',
-      positive: true,
-      data: [65, 72, 68, 75, 80, 78, 85],
-      color: '#ff2d55'
-    },
-    {
-      label: 'Exercício',
-      value: '+8%',
-      positive: true,
-      data: [45, 50, 48, 55, 52, 58, 60],
-      color: '#30d158'
-    },
-    {
-      label: 'Água',
-      value: '+15%',
-      positive: true,
-      data: [2.0, 2.2, 2.1, 2.4, 2.3, 2.5, 2.6],
-      color: '#0a84ff'
-    },
-    {
-      label: 'Peso',
-      value: '-1.2kg',
-      positive: true,
-      data: [82, 81.8, 81.5, 81.2, 81.0, 80.8, 80.5],
-      color: '#ff9f0a'
-    },
-    {
-      label: 'Sono',
-      value: '+6%',
-      positive: true,
-      data: [6.5, 6.8, 7.0, 6.7, 7.2, 7.5, 7.8],
-      color: '#64d2ff'
-    },
-  ], [])
+  const { session } = useAuth()
+  const [trends, setTrends] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const loadRealTrends = async () => {
+      if (!session) return
+
+      try {
+        const encodedKey = session.tokenKey.replace(/[.#$\[\]]/g, '_')
+        
+        // Carregar dados dos últimos 7 dias
+        const last7Days = []
+        for (let i = 6; i >= 0; i--) {
+          const date = new Date()
+          date.setDate(date.getDate() - i)
+          last7Days.push(date.toISOString().split('T')[0])
+        }
+
+        const [logSnap, alimentarSnap, hidratacaoSnap, sonoSnap] = await Promise.all([
+          get(ref(database, `gymai_log/${encodedKey}`)),
+          get(ref(database, `gymai_diario_alimentar/${encodedKey}`)),
+          get(ref(database, `gymai_hidratacao/${encodedKey}`)),
+          get(ref(database, `gymai_sono/${encodedKey}`))
+        ])
+
+        const logData = logSnap.val() || {}
+        const alimentarData = alimentarSnap.val() || {}
+        const hidratacaoData = hidratacaoSnap.val() || {}
+        const sonoData = sonoSnap.val() || {}
+
+        // Calcular dados por dia
+        const movimentoData = last7Days.map(date => {
+          const dayLogs = logData[date] || {}
+          let seriesCount = 0
+          Object.values(dayLogs).forEach((log) => {
+            if (log.exercicios) {
+              log.exercicios.forEach((ex) => {
+                if (ex.series) seriesCount += ex.series.length
+              })
+            }
+          })
+          return seriesCount
+        })
+
+        const nutricaoData = last7Days.map(date => {
+          const dayAlimentar = alimentarData[date] || {}
+          return Object.values(dayAlimentar).reduce((sum, refeicao) => sum + (refeicao.calorias || 0), 0)
+        })
+
+        const aguaData = last7Days.map(date => {
+          const dayHidratacao = hidratacaoData[date] || {}
+          return (dayHidratacao.intake || 0) / 1000 // converter para litros
+        })
+
+        const sonoDataArray = last7Days.map(date => {
+          const daySono = sonoData[date] || {}
+          return daySono.duration || 0
+        })
+
+        // Calcular tendências (últimos 7 dias vs 7 dias anteriores)
+        const movimentoAtual = movimentoData.slice(-7).reduce((a, b) => a + b, 0)
+        const movimentoAnterior = movimentoData.slice(0, 7).reduce((a, b) => a + b, 0)
+        const movimentoTrend = calcTrend(movimentoAtual, movimentoAnterior)
+
+        const nutricaoAtual = nutricaoData.slice(-7).reduce((a, b) => a + b, 0) / 7
+        const nutricaoAnterior = nutricaoData.slice(0, 7).reduce((a, b) => a + b, 0) / 7
+        const nutricaoTrend = calcTrend(nutricaoAtual, nutricaoAnterior)
+
+        const aguaAtual = aguaData.slice(-7).reduce((a, b) => a + b, 0) / 7
+        const aguaAnterior = aguaData.slice(0, 7).reduce((a, b) => a + b, 0) / 7
+        const aguaTrend = calcTrend(aguaAtual, aguaAnterior)
+
+        const sonoAtual = sonoDataArray.slice(-7).reduce((a, b) => a + b, 0) / 7
+        const sonoAnterior = sonoDataArray.slice(0, 7).reduce((a, b) => a + b, 0) / 7
+        const sonoTrend = calcTrend(sonoAtual, sonoAnterior)
+
+        setTrends([
+          {
+            label: 'Movimento',
+            value: movimentoTrend.label,
+            positive: movimentoTrend.direction === 'up',
+            data: movimentoData,
+            color: '#ff2d55'
+          },
+          {
+            label: 'Nutrição',
+            value: nutricaoTrend.label,
+            positive: nutricaoTrend.direction === 'up',
+            data: nutricaoData,
+            color: '#30d158'
+          },
+          {
+            label: 'Água',
+            value: aguaTrend.label,
+            positive: aguaTrend.direction === 'up',
+            data: aguaData,
+            color: '#0a84ff'
+          },
+          {
+            label: 'Sono',
+            value: sonoTrend.label,
+            positive: sonoTrend.direction === 'up',
+            data: sonoDataArray,
+            color: '#64d2ff'
+          },
+        ])
+        setLoading(false)
+      } catch (error) {
+        console.error('Erro ao carregar tendências:', error)
+        setLoading(false)
+      }
+    }
+
+    loadRealTrends()
+  }, [session])
 
   return (
     <div className="premium-card">

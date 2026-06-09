@@ -1,6 +1,67 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '@context/AuthContext'
-import { LogOut } from 'lucide-react'
+import {
+  Home, Dumbbell, Zap, Trophy, TrendingUp,
+  UtensilsCrossed, Droplets, BarChart3, Camera,
+  Moon, Heart, Brain, Clock, Activity,
+  Ruler, Scan, Bot, Lightbulb, Target,
+  Crown, Users, Settings, LogOut
+} from 'lucide-react'
+
+const MENU_ITEMS = [
+  {
+    group: 'TREINO',
+    items: [
+      { icon: Home, label: 'Início', to: '/' },
+      { icon: Dumbbell, label: 'Treinos', to: '/treinos' },
+      { icon: Zap, label: 'Gerador IA', to: '/gerador-treino' },
+      { icon: Trophy, label: 'Tá Feito!', to: '/ta-feito' },
+      { icon: TrendingUp, label: 'Evolução', to: '/evolucao' },
+    ]
+  },
+  {
+    group: 'NUTRIÇÃO',
+    items: [
+      { icon: UtensilsCrossed, label: 'Diário Alimentar', to: '/diario-alimentar' },
+      { icon: Droplets, label: 'Água', to: '/hidratacao' },
+      { icon: BarChart3, label: 'Macros', to: '/macros' },
+      { icon: Camera, label: 'Foto IA', to: '/analise-alimento' },
+    ]
+  },
+  {
+    group: 'SAÚDE',
+    items: [
+      { icon: Moon, label: 'Sono', to: '/sono' },
+      { icon: Heart, label: 'Recuperação', to: '/recuperacao' },
+      { icon: Brain, label: 'Mindset', to: '/mindset' },
+      { icon: Clock, label: 'Jejum', to: '/jejum' },
+      { icon: Activity, label: 'Cardio', to: '/cardio' },
+    ]
+  },
+  {
+    group: 'CORPO',
+    items: [
+      { icon: Ruler, label: 'Medidas', to: '/medidas' },
+      { icon: Scan, label: 'Scanner Corporal', to: '/scanner' },
+    ]
+  },
+  {
+    group: 'INTELIGÊNCIA',
+    items: [
+      { icon: Bot, label: 'Coach IA', to: '/ia' },
+      { icon: Lightbulb, label: 'Insights Semanais', to: '/insights' },
+      { icon: Target, label: 'Metas Inteligentes', to: '/metas-inteligentes' },
+    ]
+  },
+  {
+    group: 'CONTA',
+    items: [
+      { icon: Crown, label: 'Apoie o PeakOS', to: '/apoie' },
+      { icon: Users, label: 'Comunidade', to: '/comunidade' },
+      { icon: Settings, label: 'Configurações', to: '/perfil' },
+    ]
+  }
+]
 
 const Sidebar = ({ onClose }) => {
   const { logout } = useAuth()
@@ -33,43 +94,18 @@ const Sidebar = ({ onClose }) => {
       </div>
 
       {/* Grupos de menu */}
-      <SidebarGroup title="TREINO">
-        <SidebarItem to="/" icon="🏠" label="Início" />
-        <SidebarItem to="/treinos" icon="🏋️" label="Treinos" />
-        <SidebarItem to="/gerador-treino" icon="⚡" label="Gerador IA" />
-        <SidebarItem to="/ta-feito" icon="💪" label="Tá Feito!" />
-        <SidebarItem to="/evolucao" icon="📈" label="Evolução" />
-      </SidebarGroup>
-
-      <SidebarGroup title="NUTRIÇÃO">
-        <SidebarItem to="/diario-alimentar" icon="🍽️" label="Diário" />
-        <SidebarItem to="/hidratacao" icon="💧" label="Água" />
-        <SidebarItem to="/macros" icon="📊" label="Macros" />
-      </SidebarGroup>
-
-      <SidebarGroup title="SAÚDE">
-        <SidebarItem to="/sono" icon="🌙" label="Sono" />
-        <SidebarItem to="/recuperacao" icon="💪" label="Recuperação" />
-        <SidebarItem to="/mindset" icon="🧘" label="Mindset" />
-        <SidebarItem to="/jejum" icon="⏱️" label="Jejum" />
-        <SidebarItem to="/cardio" icon="❤️" label="Cardio" />
-      </SidebarGroup>
-
-      <SidebarGroup title="CORPO">
-        <SidebarItem to="/medidas" icon="📏" label="Medidas" />
-        <SidebarItem to="/scanner" icon="📸" label="Scanner" />
-      </SidebarGroup>
-
-      <SidebarGroup title="INTELIGÊNCIA">
-        <SidebarItem to="/ia" icon="🤖" label="Coach IA" />
-        <SidebarItem to="/insights" icon="💡" label="Insights" />
-        <SidebarItem to="/metas-inteligentes" icon="🎯" label="Metas IA" />
-      </SidebarGroup>
-
-      <SidebarGroup title="CONTA">
-        <SidebarItem to="/features" icon="👑" label="Features" />
-        <SidebarItem to="/comunidade" icon="👥" label="Comunidade" />
-      </SidebarGroup>
+      {MENU_ITEMS.map((group) => (
+        <SidebarGroup key={group.group} title={group.group}>
+          {group.items.map((item) => (
+            <SidebarItem
+              key={item.to}
+              to={item.to}
+              icon={item.icon}
+              label={item.label}
+            />
+          ))}
+        </SidebarGroup>
+      ))}
 
       {/* Botão Sair */}
       <div className="mt-auto pt-4 border-t border-[var(--color-border)]">
@@ -97,7 +133,7 @@ const SidebarGroup = ({ title, children }) => {
   )
 }
 
-const SidebarItem = ({ to, icon, label }) => {
+const SidebarItem = ({ to, icon: Icon, label }) => {
   return (
     <NavLink
       to={to}
@@ -109,7 +145,7 @@ const SidebarItem = ({ to, icon, label }) => {
         }`
       }
     >
-      <span>{icon}</span>
+      <Icon size={20} />
       <span className="text-sm">{label}</span>
     </NavLink>
   )
