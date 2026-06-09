@@ -94,9 +94,11 @@ export const healthService = {
       const tokenClient = google.accounts.oauth2.initTokenClient({
         client_id: clientId,
         scope: scope,
-        callback: (response) => {
+        callback: async (response) => {
           if (response.access_token) {
-            localStorage.setItem('google_fit_token', response.access_token)
+            // Sprint 0 ITEM 2: Salvar token no Firebase em vez de localStorage
+            const encodedKey = encodeTokenKey(tokenKey)
+            await set(ref(database, `gymai_settings/${encodedKey}/google_fit_token`), response.access_token)
             return { success: true, token: response.access_token }
           }
         }
@@ -110,9 +112,13 @@ export const healthService = {
     }
   },
 
-  async getGoogleFitData() {
+  async getGoogleFitData(tokenKey) {
     try {
-      const accessToken = localStorage.getItem('google_fit_token')
+      // Sprint 0 ITEM 2: Buscar token do Firebase em vez de localStorage
+      const encodedKey = encodeTokenKey(tokenKey)
+      const snapshot = await get(ref(database, `gymai_settings/${encodedKey}/google_fit_token`))
+      const accessToken = snapshot.val()
+      
       if (!accessToken) {
         return { success: false, error: 'Token não encontrado' }
       }

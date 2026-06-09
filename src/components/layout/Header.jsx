@@ -1,24 +1,24 @@
 import { useTheme } from '@context/ThemeContext'
 import { useAuth } from '@context/AuthContext'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Sun, Moon, Menu, X } from 'lucide-react'
+import { Sun, Moon, Menu } from 'lucide-react'
 import { useState } from 'react'
+import ProfileDrawer from './ProfileDrawer'
 
 const APP_VERSION = '1.0.10'
 
 const Header = () => {
   const { theme, toggleTheme } = useTheme()
-  const { logout } = useAuth()
+  const { session } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [drawerOpen, setDrawerOpen] = useState(false)
 
   const navItems = [
     { id: 'home', label: 'Início', icon: '🏠', path: '/' },
     { id: 'treinos', label: 'Treinos', icon: '💪', path: '/treinos' },
     { id: 'evolucao', label: 'Evolução', icon: '📈', path: '/evolucao' },
     { id: 'ia', label: 'IA', icon: '🤖', path: '/ia' },
-    { id: 'features', label: 'Features', icon: '⭐', path: '/features' },
     { id: 'perfil', label: 'Perfil', icon: '👤', path: '/perfil' },
   ]
 
@@ -29,29 +29,43 @@ const Header = () => {
     if (location.pathname === '/log-treino') return 'treinos'
     return currentPage
   }
-  
+
   const activeItem = getActiveItem()
 
   const handleNavClick = (path) => {
     navigate(path)
-    setMobileMenuOpen(false)
   }
 
+  // Iniciais do nome para avatar
+  const initials = session?.nome
+    ?.split(' ')
+    .map(n => n[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase() || 'U'
+
   return (
-    <header className="sticky top-0 z-50 bg-[var(--color-card)] border-b border-[var(--color-border)]">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo */}
+    <>
+      <header className="sticky top-0 z-30 bg-[var(--color-card)] border-b border-[var(--color-border)]">
+        <div className="flex items-center justify-between px-4 h-14">
+
+          {/* Avatar — apenas mobile — abre drawer */}
+          <button
+            className="md:hidden w-9 h-9 rounded-full bg-primary flex items-center justify-center text-sm font-bold text-primary-foreground"
+            onClick={() => setDrawerOpen(true)}
+          >
+            {initials}
+          </button>
+
+          {/* Logo — centralizado no mobile, à esquerda no desktop */}
           <div className="flex items-center gap-2">
-            <div>
-              <h1 className="text-2xl font-bold font-display">
-                Peak<span className="font-bold text-primary-600">OS</span>
-              </h1>
-              <p className="text-xs text-[var(--color-muted)]">v{APP_VERSION}</p>
-            </div>
+            <span className="font-bold text-lg">
+              Peak<span className="text-primary">OS</span>
+            </span>
+            <span className="text-xs text-[var(--color-muted)] hidden md:block">v{APP_VERSION}</span>
           </div>
 
-          {/* Desktop Navigation */}
+          {/* Nav horizontal — apenas desktop */}
           <nav className="hidden md:flex items-center gap-1">
             {navItems.map(item => (
               <button
@@ -68,7 +82,7 @@ const Header = () => {
             ))}
           </nav>
 
-          {/* Actions */}
+          {/* Ações direita */}
           <div className="flex items-center gap-2">
             <button
               onClick={toggleTheme}
@@ -76,36 +90,19 @@ const Header = () => {
             >
               {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
             </button>
-            
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-lg hover:bg-[var(--color-border)] transition-colors"
-            >
-              {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
-            </button>
           </div>
-        </div>
 
-        {/* Mobile Navigation */}
-        {mobileMenuOpen && (
-          <nav className="md:hidden py-4 border-t border-[var(--color-border)]">
-            {navItems.map(item => (
-              <button
-                key={item.id}
-                onClick={() => handleNavClick(item.path)}
-                className={`w-full px-4 py-3 rounded-lg transition-colors text-left ${
-                  activeItem === item.id
-                    ? 'bg-primary-600 text-white'
-                    : 'text-[var(--color-muted)] hover:text-[var(--color-text)]'
-                }`}
-              >
-                {item.icon} {item.label}
-              </button>
-            ))}
-          </nav>
-        )}
+        </div>
+      </header>
+
+      {/* Profile Drawer — apenas mobile */}
+      <div className="md:hidden">
+        <ProfileDrawer
+          isOpen={drawerOpen}
+          onClose={() => setDrawerOpen(false)}
+        />
       </div>
-    </header>
+    </>
   )
 }
 

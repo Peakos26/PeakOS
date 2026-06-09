@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from '@context/AuthContext'
+import Layout from './Layout'
 import LoginPage from '@pages/LoginPage'
 import HomePage from '@pages/HomePage'
 import TrainingPage from '@pages/TrainingPage'
@@ -24,6 +25,7 @@ import FastingPage from '@pages/FastingPage'
 import CardioPage from '@pages/CardioPage'
 import BodyMeasurementsPage from '@pages/BodyMeasurementsPage'
 import WorkoutGeneratorPage from '@pages/WorkoutGeneratorPage'
+import WorkoutWizardPage from '@pages/WorkoutWizardPage'
 import FoodAnalysisPage from '@pages/FoodAnalysisPage'
 import WeeklyInsightsPage from '@pages/WeeklyInsightsPage'
 import SmartGoalsPage from '@pages/SmartGoalsPage'
@@ -32,6 +34,7 @@ import GamificationPage from '@pages/GamificationPage'
 import EvolutionDashboardPage from '@pages/EvolutionDashboardPage'
 import SupplementationPage from '@pages/SupplementationPage'
 import IntegrationsPage from '@pages/IntegrationsPage'
+import TaFeitoPage from '@pages/TaFeitoPage'
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth()
@@ -68,152 +71,226 @@ const AppRouter = () => {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/" element={
           <ProtectedRoute>
-            <HomePage />
+            <Layout>
+              <HomePage />
+            </Layout>
           </ProtectedRoute>
         } />
         <Route path="/treinos" element={
           <ProtectedRoute>
-            <TrainingPage />
+            <Layout>
+              <TrainingPage />
+            </Layout>
           </ProtectedRoute>
         } />
         <Route path="/log-treino" element={
           <ProtectedRoute>
-            <WorkoutLogPage />
+            <Layout>
+              <WorkoutLogPage />
+            </Layout>
           </ProtectedRoute>
         } />
         <Route path="/exercicios" element={
           <ProtectedRoute>
-            <ExercisesLibraryPage />
+            <Layout>
+              <ExercisesLibraryPage />
+            </Layout>
           </ProtectedRoute>
         } />
         <Route path="/programas" element={
           <ProtectedRoute>
-            <WorkoutProgramsPage />
+            <Layout>
+              <WorkoutProgramsPage />
+            </Layout>
           </ProtectedRoute>
         } />
         <Route path="/diario-alimentar" element={
           <ProtectedRoute>
-            <FoodDiaryPage />
+            <Layout>
+              <FoodDiaryPage />
+            </Layout>
           </ProtectedRoute>
         } />
         <Route path="/hidratacao" element={
           <ProtectedRoute>
-            <HydrationPage />
+            <Layout>
+              <HydrationPage />
+            </Layout>
           </ProtectedRoute>
         } />
         <Route path="/macros" element={
           <ProtectedRoute>
-            <MacrosPage />
+            <Layout>
+              <MacrosPage />
+            </Layout>
           </ProtectedRoute>
         } />
         <Route path="/sono" element={
           <ProtectedRoute>
-            <SleepPage />
+            <Layout>
+              <SleepPage />
+            </Layout>
           </ProtectedRoute>
         } />
         <Route path="/recuperacao" element={
           <ProtectedRoute>
-            <RecoveryPage />
+            <Layout>
+              <RecoveryPage />
+            </Layout>
           </ProtectedRoute>
         } />
         <Route path="/mindset" element={
           <ProtectedRoute>
-            <MindsetPage />
+            <Layout>
+              <MindsetPage />
+            </Layout>
           </ProtectedRoute>
         } />
         <Route path="/jejum" element={
           <ProtectedRoute>
-            <FastingPage />
+            <Layout>
+              <FastingPage />
+            </Layout>
           </ProtectedRoute>
         } />
         <Route path="/cardio" element={
           <ProtectedRoute>
-            <CardioPage />
+            <Layout>
+              <CardioPage />
+            </Layout>
           </ProtectedRoute>
         } />
         <Route path="/medidas" element={
           <ProtectedRoute>
-            <BodyMeasurementsPage />
+            <Layout>
+              <BodyMeasurementsPage />
+            </Layout>
           </ProtectedRoute>
         } />
         <Route path="/gerador-treino" element={
           <ProtectedRoute>
-            <WorkoutGeneratorPage />
+            <Layout>
+              <WorkoutGeneratorPage />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/wizard-treino" element={
+          <ProtectedRoute>
+            <Layout>
+              <WorkoutWizardPage />
+            </Layout>
           </ProtectedRoute>
         } />
         <Route path="/analise-alimento" element={
           <ProtectedRoute>
-            <FoodAnalysisPage />
+            <Layout>
+              <FoodAnalysisPage />
+            </Layout>
           </ProtectedRoute>
         } />
         <Route path="/insights" element={
           <ProtectedRoute>
-            <WeeklyInsightsPage />
+            <Layout>
+              <WeeklyInsightsPage />
+            </Layout>
           </ProtectedRoute>
         } />
         <Route path="/metas-inteligentes" element={
           <ProtectedRoute>
-            <SmartGoalsPage />
+            <Layout>
+              <SmartGoalsPage />
+            </Layout>
           </ProtectedRoute>
         } />
         <Route path="/conquistas" element={
           <ProtectedRoute>
-            <AchievementsPage />
+            <Layout>
+              <AchievementsPage />
+            </Layout>
           </ProtectedRoute>
         } />
         <Route path="/gamificacao" element={
           <ProtectedRoute>
-            <GamificationPage />
+            <Layout>
+              <GamificationPage />
+            </Layout>
           </ProtectedRoute>
         } />
         <Route path="/dashboard-evolucao" element={
           <ProtectedRoute>
-            <EvolutionDashboardPage />
+            <Layout>
+              <EvolutionDashboardPage />
+            </Layout>
           </ProtectedRoute>
         } />
         <Route path="/suplementacao" element={
           <ProtectedRoute>
-            <SupplementationPage />
+            <Layout>
+              <SupplementationPage />
+            </Layout>
           </ProtectedRoute>
         } />
         <Route path="/integracoes" element={
           <ProtectedRoute>
-            <IntegrationsPage />
+            <Layout>
+              <IntegrationsPage />
+            </Layout>
           </ProtectedRoute>
         } />
         <Route path="/evolucao" element={
           <ProtectedRoute>
-            <EvolutionPage />
+            <Layout>
+              <EvolutionPage />
+            </Layout>
           </ProtectedRoute>
         } />
         <Route path="/ia" element={
           <ProtectedRoute>
-            <AIPage />
+            <Layout>
+              <AIPage />
+            </Layout>
           </ProtectedRoute>
         } />
         <Route path="/perfil" element={
           <ProtectedRoute>
-            <ProfilePage />
+            <Layout>
+              <ProfilePage />
+            </Layout>
           </ProtectedRoute>
         } />
         <Route path="/features" element={
           <ProtectedRoute>
-            <FeaturesPage />
+            <Layout>
+              <FeaturesPage />
+            </Layout>
           </ProtectedRoute>
         } />
         <Route path="/scanner" element={
           <ProtectedRoute>
-            <BodyScannerPage />
+            <Layout>
+              <BodyScannerPage />
+            </Layout>
           </ProtectedRoute>
         } />
         <Route path="/coach-avancado" element={
           <ProtectedRoute>
-            <CoachAvancadoPage />
+            <Layout>
+              <CoachAvancadoPage />
+            </Layout>
           </ProtectedRoute>
         } />
         <Route path="/comunidade" element={
           <ProtectedRoute>
-            <SocialSearchPage />
+            <Layout>
+              <SocialSearchPage />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/ta-feito" element={
+          <ProtectedRoute>
+            <Layout>
+              <TaFeitoPage />
+            </Layout>
           </ProtectedRoute>
         } />
         <Route path="/admin" element={

@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@context/AuthContext'
+import { useNavigate } from 'react-router-dom'
 import { database, ref, get } from '@config/firebase.config'
-import Header from '@components/layout/Header'
-import Navigation from '@components/layout/Navigation'
 import Card from '@components/ui/Card'
 import Button from '@components/ui/Button'
 
 const SocialSearchPage = () => {
   const { session, hasFeature } = useAuth()
+  const navigate = useNavigate()
   const [socialUsers, setSocialUsers] = useState([])
   const [loading, setLoading] = useState(false)
 
@@ -49,27 +49,21 @@ const SocialSearchPage = () => {
 
   if (!hasFeature('treinos_personalizados')) {
     return (
-      <div className="min-h-screen pb-20 md:pb-0 md:pl-64">
-        <Header />
-        <main className="container mx-auto px-4 py-8">
-          <Card className="text-center p-8">
-            <h1 className="text-2xl font-bold mb-4">Comunidade PeakOS</h1>
-            <p className="text-[var(--color-muted)] mb-6">
-              Ative o pacote "Treinos Personalizados" para acessar a comunidade e ver outros usuários que também adquiriram o pacote.
-            </p>
-            <Button onClick={() => window.location.href = '/features'}>
-              Ver Features
-            </Button>
-          </Card>
-        </main>
-        <Navigation />
-      </div>
+      <main className="container mx-auto px-4 py-8">
+        <Card className="text-center p-8">
+          <h1 className="text-2xl font-bold mb-4">Comunidade PeakOS</h1>
+          <p className="text-[var(--color-muted)] mb-6">
+            Ative o pacote "Treinos Personalizados" para acessar a comunidade e ver outros usuários que também adquiriram o pacote.
+          </p>
+          <Button onClick={() => navigate('/features')}>
+            Ver Features
+          </Button>
+        </Card>
+      </main>
     )
   }
 
   return (
-    <div className="min-h-screen pb-20 md:pb-0 md:pl-64">
-      <Header />
       
       <main className="container mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold font-display mb-2">Comunidade PeakOS</h1>
@@ -128,9 +122,6 @@ const SocialSearchPage = () => {
           </div>
         )}
       </main>
-
-      <Navigation />
-    </div>
   )
 }
 

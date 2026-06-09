@@ -1,13 +1,19 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useAuth } from '@context/AuthContext'
 import { useNavigate } from 'react-router-dom'
-import Header from '@components/layout/Header'
-import Navigation from '@components/layout/Navigation'
 import Card from '@components/ui/Card'
 import Button from '@components/ui/Button'
 import { DIAS_LABEL } from '@constants/trainingConstants'
 import { trainingService } from '@services/trainingService'
 import { reportService } from '@services/reportService'
+import HeaderSummary from '@components/dashboard/HeaderSummary'
+import PeakRings from '@components/dashboard/PeakRings'
+import TrendsCard from '@components/dashboard/TrendsCard'
+import TodayCard from '@components/dashboard/TodayCard'
+import LatestWorkoutCard from '@components/dashboard/LatestWorkoutCard'
+import AchievementsCard from '@components/dashboard/AchievementsCard'
+import CoachCard from '@components/dashboard/CoachCard'
+import WorkoutMusicCard from '@components/dashboard/WorkoutMusicCard'
 
 const HomePage = () => {
   const { session } = useAuth()
@@ -20,17 +26,26 @@ const HomePage = () => {
   })
   const [trainingPlan, setTrainingPlan] = useState(null)
   const [nextWorkout, setNextWorkout] = useState(null)
+  const [iaWorkouts, setIaWorkouts] = useState([])
 
   useEffect(() => {
     loadDiasFeitos()
     loadTrainingPlan()
+    loadIaWorkouts()
   }, [session])
 
   const loadDiasFeitos = async () => {
     if (!session) return
-    const result = await trainingService.getCheckIns(session.tokenKey)
+    
+    const now = new Date()
+    const year = now.getFullYear()
+    const weekNumber = getWeekNumber(now)
+    const weekKey = `${year}-${weekNumber}`
+    
+    // Carregar apenas check-ins da semana atual
+    const result = await trainingService.getCheckInsByWeek(session.tokenKey, weekKey)
     if (result.success && result.data) {
-      const dias = Object.values(result.data).map(d => d.dia)
+      const dias = Object.values(result.data).map(d => d.day)
       setDiasFeitos(dias)
       // Calcular sequência após carregar dias feitos
       loadStats(dias)
@@ -77,6 +92,32 @@ const HomePage = () => {
     }
   }
 
+  const loadIaWorkouts = async () => {
+    if (!session) return
+    const result = await trainingService.getWorkouts(session.tokenKey)
+    if (result.success && result.data) {
+      const workoutsArray = Object.entries(result.data).map(([id, workout]) => ({
+        id,
+        ...workout
+      }))
+      setIaWorkouts(workoutsArray)
+      
+      // Se não há próximo treino do plano, usar o primeiro treino IA
+      if (!nextWorkout && workoutsArray.length > 0) {
+        const latestWorkout = workoutsArray[0]
+        setNextWorkout({
+          dia: null,
+          nomeDia: 'Treino IA',
+          nome: latestWorkout.nome,
+          exercicios: latestWorkout.exercicios,
+          totalExercicios: latestWorkout.exercicios.length,
+          duracaoEstimada: latestWorkout.duracao,
+          workoutId: latestWorkout.id
+        })
+      }
+    }
+  }
+
   const calculateNextWorkout = (plan) => {
     if (!plan || !plan.planoSemanal) return
     
@@ -99,13 +140,25 @@ const HomePage = () => {
 
   const handleStartNextWorkout = () => {
     if (!nextWorkout) return
-    navigate('/treinos', { state: { selectedDay: nextWorkout.dia } })
+    if (nextWorkout.workoutId) {
+      // É um treino IA gerado
+      navigate('/log-treino', { state: { workoutId: nextWorkout.workoutId } })
+    } else {
+      // É um treino do plano semanal
+      navigate('/treinos', { state: { selectedDay: nextWorkout.dia } })
+    }
   }
 
   const handleCheckIn = async () => {
     if (!session) return
     
     const hoje = new Date().getDay()
+    const now = new Date()
+    
+    // Calcular ano-semana (YYYY-WW)
+    const year = now.getFullYear()
+    const weekNumber = getWeekNumber(now)
+    const weekKey = `${year}-${weekNumber}`
     
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -115,7 +168,8 @@ const HomePage = () => {
             longitude: position.coords.longitude
           }
           
-          const result = await trainingService.saveCheckIn(session.tokenKey, hoje, location)
+          // Salvar com formato gymai_dias_treino/{tokenKey}/{YYYY-WW}/{dia}
+          const result = await trainingService.saveCheckInWithWeek(session.tokenKey, weekKey, hoje, location)
           if (result.success) {
             setDiasFeitos([...diasFeitos, hoje])
             alert('Check-in realizado com sucesso!')
@@ -133,12 +187,30 @@ const HomePage = () => {
     }
   }
 
+  // Função para calcular o número da semana (ISO 8601)
+  const getWeekNumber = (date) => {
+    const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()))
+    const dayNum = d.getUTCDay() || 7
+    d.setUTCDate(d.getUTCDate() + 4 - dayNum)
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1))
+    const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7)
+    return weekNo
+  }
+
   const renderDias = () => {
     const hoje = new Date().getDay()
+    const now = new Date()
     
     return DIAS_LABEL.map((dia, index) => {
       const isHoje = index === hoje
       const isFeito = diasFeitos.includes(index)
+      
+      // Calcular a data para este dia da semana
+      const currentDayOfWeek = now.getDay()
+      const diff = index - currentDayOfWeek
+      const targetDate = new Date(now)
+      targetDate.setDate(now.getDate() + diff)
+      const dateString = targetDate.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
       
       let className = 'flex flex-col items-center justify-center p-3 rounded-lg transition-colors'
       
@@ -155,10 +227,11 @@ const HomePage = () => {
           key={index}
           className={className}
           onClick={isHoje && !isFeito ? handleCheckIn : undefined}
+          title={`${dia} - ${dateString}`}
         >
           <span className="text-lg font-bold">{dia}</span>
           <span className="text-xs">
-            {isHoje && !isFeito ? 'Check-in' : isHoje ? 'Hj' : ''}
+            {isHoje && !isFeito ? 'Check-in' : dateString}
           </span>
         </div>
       )
@@ -175,81 +248,55 @@ const HomePage = () => {
   }
 
   return (
-    <div className="min-h-screen pb-20 md:pb-0 md:pl-64">
-      <Header />
-      
-      <main className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold font-display mb-2">Olá, {session?.nome || 'Usuário'}</h1>
-          <p className="text-[var(--color-muted)]">Bem-vindo de volta ao Peak<span className="font-bold text-primary-600">OS</span></p>
-        </div>
+    <main className="w-full px-3 py-4 sm:px-4 sm:py-6 md:py-8">
+      {/* Header Summary */}
+      <HeaderSummary />
 
-        {/* Validade de Acesso */}
-        {session?.expiresAt && (
-          <Card className="mb-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-lg font-semibold">Validade de Acesso</h2>
-                <p className="text-sm text-[var(--color-muted)]">Sua licença expira em breve</p>
-              </div>
-              <div className="text-right">
-                <div className="text-2xl font-bold text-primary-600">{formatExpirationDate(session.expiresAt)}</div>
-              </div>
+      {/* Peak Rings + Hoje */}
+      <div className="premium-card mb-3 sm:mb-4 card-entry" style={{ animationDelay: '0ms' }}>
+        <PeakRings />
+      </div>
+
+      {/* Tendências */}
+      <div className="premium-card mb-3 sm:mb-4 card-entry" style={{ animationDelay: '100ms' }}>
+        <TrendsCard />
+      </div>
+
+      {/* Último Treino */}
+      <div className="premium-card mb-3 sm:mb-4 card-entry" style={{ animationDelay: '200ms' }}>
+        <LatestWorkoutCard />
+      </div>
+
+      {/* Músicas */}
+      <div className="premium-card mb-3 sm:mb-4 card-entry" style={{ animationDelay: '300ms' }}>
+        <WorkoutMusicCard />
+      </div>
+
+      {/* Conquistas */}
+      <div className="premium-card mb-3 sm:mb-4 card-entry" style={{ animationDelay: '400ms' }}>
+        <AchievementsCard />
+      </div>
+
+      {/* Coach IA */}
+      <div className="premium-card mb-3 sm:mb-4 card-entry" style={{ animationDelay: '500ms' }}>
+        <CoachCard />
+      </div>
+
+      {/* Validade de Acesso */}
+      {session?.expiresAt && (
+        <div className="premium-card card-entry" style={{ animationDelay: '600ms' }}>
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-semibold">Validade de Acesso</h2>
+              <p className="text-sm opacity-60">Sua licença expira em breve</p>
             </div>
-          </Card>
-        )}
-
-        {/* Dias da semana */}
-        <Card className="mb-6">
-          <h2 className="text-lg font-semibold mb-4">Dias de Treino</h2>
-          <div className="grid grid-cols-7 gap-2">
-            {renderDias()}
+            <div className="text-right">
+              <div className="text-2xl font-bold text-primary-600">{formatExpirationDate(session.expiresAt)}</div>
+            </div>
           </div>
-        </Card>
-
-        {/* Estatísticas */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <Card>
-            <div className="text-sm text-[var(--color-muted)]">Séries Hoje</div>
-            <div className="text-2xl font-bold">{stats.seriesHoje}</div>
-          </Card>
-          <Card>
-            <div className="text-sm text-[var(--color-muted)]">Volume Hoje</div>
-            <div className="text-2xl font-bold">{stats.volumeHoje} kg</div>
-          </Card>
-          <Card>
-            <div className="text-sm text-[var(--color-muted)]">Sequência</div>
-            <div className="text-2xl font-bold">{stats.sequencia} dias</div>
-          </Card>
-          <Card>
-            <div className="text-sm text-[var(--color-muted)]">Esta Semana</div>
-            <div className="text-2xl font-bold">{diasFeitos.length} / 5</div>
-          </Card>
         </div>
-
-        {/* Próximo treino */}
-        <Card className="mb-6">
-          <h2 className="text-lg font-semibold mb-4">Próximo Treino</h2>
-          {nextWorkout ? (
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="font-semibold">{nextWorkout.nome} — {nextWorkout.nomeDia}</div>
-                <div className="text-sm text-[var(--color-muted)]">
-                  {nextWorkout.totalExercicios} exercícios · ~{nextWorkout.duracaoEstimada || '50'} min
-                </div>
-              </div>
-              <Button onClick={handleStartNextWorkout}>Iniciar</Button>
-            </div>
-          ) : (
-            <div className="text-sm text-[var(--color-muted)]">
-              Nenhum treino agendado. Crie seu plano de treino na aba Treinos.
-            </div>
-          )}
-        </Card>
-      </main>
-
-      <Navigation />
-    </div>
+      )}
+    </main>
   )
 }
 

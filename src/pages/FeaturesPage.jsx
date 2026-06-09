@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@context/AuthContext'
 import { database, ref, get, set } from '@config/firebase.config'
-import Header from '@components/layout/Header'
-import Navigation from '@components/layout/Navigation'
 import Card from '@components/ui/Card'
 import Button from '@components/ui/Button'
 
@@ -123,10 +121,8 @@ const FeaturesPage = () => {
       const newFeatures = [...userFeatures, featureId]
       setUserFeatures(newFeatures)
 
-      // Atualizar sessão local
-      const sessionData = JSON.parse(localStorage.getItem('gymai_session'))
-      sessionData.features = newFeatures
-      localStorage.setItem('gymai_session', JSON.stringify(sessionData))
+      // A sessão será atualizada automaticamente pelo AuthContext
+      // Não é mais necessário manipular localStorage diretamente
 
       // Mostrar notificação
       const feature = FEATURES.find(f => f.id === featureId)
@@ -180,9 +176,7 @@ const FeaturesPage = () => {
   }
 
   return (
-    <div className="min-h-screen pb-20 md:pb-0 md:pl-64">
-      <Header />
-      
+    <>
       <main className="container mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold font-display mb-2">Features do Usuário</h1>
         <p className="text-[var(--color-muted)] mb-6">Gerencie as funcionalidades disponíveis para sua conta</p>
@@ -225,8 +219,6 @@ const FeaturesPage = () => {
         </div>
       </main>
 
-      <Navigation />
-
       {/* Modal PIX para features pagas */}
       {showPixModal && selectedFeature && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -263,7 +255,7 @@ const FeaturesPage = () => {
           </Card>
         </div>
       )}
-    </div>
+    </>
   )
 }
 

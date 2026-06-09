@@ -6,11 +6,11 @@ import AppRouter from './components/layout/AppRouter'
 function App() {
   return (
     <FirebaseProvider>
-      <ThemeProvider>
-        <AuthProvider>
+      <AuthProvider>
+        <ThemeProvider>
           <AppRouter />
-        </AuthProvider>
-      </ThemeProvider>
+        </ThemeProvider>
+      </AuthProvider>
     </FirebaseProvider>
   )
 }

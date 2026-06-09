@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@context/AuthContext'
 import { useNavigate, useLocation } from 'react-router-dom'
-import Header from '@components/layout/Header'
-import Navigation from '@components/layout/Navigation'
 import Card from '@components/ui/Card'
 import Button from '@components/ui/Button'
 import Input from '@components/ui/Input'
+import HeaderSummary from '@components/dashboard/HeaderSummary'
 import { TREINOS_POR_OBJETIVO, EXERCICIOS_DISPONIVEIS, MUSCLE_WIKI_LINKS, MUSCLE_IMAGES } from '@constants/trainingConstants'
 import { trainingService } from '@services/trainingService'
 import { ChevronRight, Eye, Edit2, Trash2 } from 'lucide-react'
@@ -17,6 +16,7 @@ const TrainingPage = () => {
   const [currentPage, setCurrentPage] = useState('treinos')
   const [trainingPlan, setTrainingPlan] = useState(null)
   const [workoutSheets, setWorkoutSheets] = useState([])
+  const [iaWorkouts, setIaWorkouts] = useState([])
   const [selectedObjective, setSelectedObjective] = useState('')
   const [selectedDays, setSelectedDays] = useState(4)
   const [showNewSheet, setShowNewSheet] = useState(false)
@@ -28,6 +28,7 @@ const TrainingPage = () => {
   useEffect(() => {
     loadTrainingPlan()
     loadWorkoutSheets()
+    loadIaWorkouts()
     
     // Verificar se veio da HomePage com selectedDay
     if (location.state?.selectedDay) {
@@ -48,6 +49,18 @@ const TrainingPage = () => {
     const result = await trainingService.getWorkoutSheets(session.tokenKey)
     if (result.success && result.data) {
       setWorkoutSheets(Object.values(result.data))
+    }
+  }
+
+  const loadIaWorkouts = async () => {
+    if (!session) return
+    const result = await trainingService.getWorkouts(session.tokenKey)
+    if (result.success && result.data) {
+      const workoutsArray = Object.entries(result.data).map(([id, workout]) => ({
+        id,
+        ...workout
+      }))
+      setIaWorkouts(workoutsArray)
     }
   }
 
@@ -162,7 +175,10 @@ const TrainingPage = () => {
   }
 
   const handleStartWorkout = (sheetId = null, selectedDay = null) => {
-    if (selectedDay !== null) {
+    if (typeof sheetId === 'string' && sheetId.startsWith('workout_')) {
+      // É um treino IA gerado
+      navigate('/log-treino', { state: { workoutId: sheetId } })
+    } else if (selectedDay !== null) {
       // Se foi passado um dia específico, navega com o dia selecionado
       navigate('/log-treino', { state: { useTrainingPlan: true, selectedDay } })
     } else if (sheetId) {
@@ -209,16 +225,13 @@ const TrainingPage = () => {
   }
 
   return (
-    <div className="min-h-screen pb-20 md:pb-0 md:pl-64">
-      <Header />
-      
       <main className="container mx-auto px-4 py-8">
+        <HeaderSummary showActions={false} />
         <h1 className="text-2xl font-bold font-display mb-6">Treinos</h1>
 
         {/* Gerar Treino Personalizado */}
-        {hasFeature('treinos_personalizados') && (
-          <Card className="mb-6">
-            <h2 className="text-lg font-semibold mb-4">Gerar Treino Personalizado</h2>
+        <Card className="mb-6">
+          <h2 className="text-lg font-semibold mb-4">Gerar Treino Personalizado</h2>
             <div className="space-y-4">
               <div>
                 <label htmlFor="objetivo" className="block text-sm font-medium mb-2">Objetivo</label>
@@ -261,7 +274,6 @@ const TrainingPage = () => {
               </Button>
             </div>
           </Card>
-        )}
 
         {/* Plano Atual */}
         {trainingPlan && (
@@ -332,7 +344,7 @@ const TrainingPage = () => {
               </div>
             ) : (
               <div className="space-y-2 mb-4">
-                {trainingPlan.exercicios.map((exercicio, index) => (
+                {trainingPlan.exercicios?.map((exercicio, index) => (
                   <div key={index} className="flex items-center justify-between p-3 bg-[var(--color-border)] rounded-lg">
                     <div>
                       <div className="font-medium">{exercicio.nome}</div>
@@ -347,6 +359,52 @@ const TrainingPage = () => {
             )}
             <Button onClick={() => handleStartWorkout()} className="w-full">Iniciar Treino</Button>
           </Card>
+        )}
+
+        {/* Treinos IA Gerados */}
+        {iaWorkouts.length > 0 && (
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold">Treinos IA</h2>
+              <Button onClick={() => navigate('/gerador-treino')}>Gerar Novo</Button>
+            </div>
+            <div className="space-y-4">
+              {iaWorkouts.map((workout) => (
+                <Card key={workout.id}>
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <div className="font-semibold">{workout.nome}</div>
+                      <div className="text-sm text-[var(--color-muted)]">
+                        {workout.equipamento} • {workout.duracao} min
+                      </div>
+                    </div>
+                    <Button 
+                      size="sm" 
+                      onClick={() => handleStartWorkout(workout.id)}
+                      className="flex items-center gap-1"
+                    >
+                      Iniciar <ChevronRight size={14} />
+                    </Button>
+                  </div>
+                  <div className="space-y-2">
+                    {workout.exercicios?.map((exercicio, index) => (
+                      <div key={index} className="flex items-center justify-between p-3 bg-[var(--color-border)] rounded">
+                        <div className="flex-1">
+                          <div className="font-medium text-sm">{exercicio.name}</div>
+                          <div className="text-xs text-[var(--color-muted)]">
+                            {exercicio.sets} séries × {exercicio.reps}
+                          </div>
+                        </div>
+                        <div className="text-xs text-[var(--color-muted)] ml-4">
+                          {exercicio.rest}s descanso
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
         )}
 
         {/* Fichas de Treino */}
@@ -487,9 +545,6 @@ const TrainingPage = () => {
           )}
         </div>
       </main>
-
-      <Navigation />
-    </div>
   )
 }
 

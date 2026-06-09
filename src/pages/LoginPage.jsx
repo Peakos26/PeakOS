@@ -95,18 +95,31 @@ const LoginPage = () => {
       const existing = Object.values(requests).find(r => r.celular === celular)
       console.log('🔍 [LOGIN] Usuário existente:', existing)
 
+      if (existing && existing.status === 'rejected') {
+        console.log('❌ [LOGIN] Usuário rejeitado pelo AdminOS')
+        setError('Acesso negado. Entre em contato com o administrador.')
+        setLoading(false)
+        return
+      }
+
       if (existing && existing.status === 'approved') {
         console.log('✅ [LOGIN] Usuário aprovado, verificando token')
-        // Se não tiver tokenKey, criar automaticamente
-        const tokenKey = existing.tokenKey || existing.celular
-        
+        // Buscar tokenKey do request
+        let tokenKey = existing.tokenKey
+
+        // Se não tiver tokenKey, usar o celular como tokenKey
+        if (!tokenKey) {
+          console.log('📝 [LOGIN] Usuário aprovado mas sem tokenKey, usando celular como tokenKey')
+          tokenKey = existing.celular
+        }
+
         // Verificar se o token existe em gymai_tokens
         const encodedKey = tokenKey.replace(/[.#$\[\]]/g, '_')
         const tokenSnapshot = await get(ref(database, `gymai_tokens/${encodedKey}`))
         const tokenData = tokenSnapshot.val()
-        
+
         if (!tokenData) {
-          console.log('📝 [LOGIN] Token não existe, criando automaticamente')
+          console.log('❌ [LOGIN] Token não existe em gymai_tokens, criando automaticamente')
           const newTokenData = {
             nome: existing.nome,
             features: [],
@@ -114,12 +127,10 @@ const LoginPage = () => {
             expiresAt: null
           }
           await set(ref(database, `gymai_tokens/${encodedKey}`), newTokenData)
-          
-          // Atualizar request com tokenKey
-          await set(ref(database, `gymai_requests/${Object.keys(requests).find(k => requests[k].celular === celular)}/tokenKey`), tokenKey)
+          console.log('✅ [LOGIN] Token criado automaticamente')
         }
-        
-        console.log('✅ [LOGIN] Usuário aprovado, tentando login automático')
+
+        console.log('✅ [LOGIN] Usuário aprovado com token válido, tentando login automático')
         // Login automático com token (STEP 1 do ROADMAP)
         const result = await login(tokenKey, { nome: existing.nome })
         console.log('🔍 [LOGIN] Resultado login automático:', result)
@@ -177,6 +188,12 @@ const LoginPage = () => {
 
       if (existing) {
         console.log('🔍 [LOGIN] Usuário já existe, status:', existing.status)
+        if (existing.status === 'rejected') {
+          console.log('❌ [LOGIN] Usuário rejeitado pelo AdminOS')
+          setError('Acesso negado. Entre em contato com o administrador.')
+          setLoading(false)
+          return
+        }
         if (existing.status === 'pending') {
           console.log('📝 [LOGIN] Usuário pendente, indo para tela "Aguardando aprovação"')
           setStep(3)
@@ -185,16 +202,22 @@ const LoginPage = () => {
         }
         if (existing.status === 'approved') {
           console.log('✅ [LOGIN] Usuário aprovado, verificando token')
-          // Se não tiver tokenKey, criar automaticamente
-          const tokenKey = existing.tokenKey || existing.celular
-          
+          // Buscar tokenKey do request
+          let tokenKey = existing.tokenKey
+
+          // Se não tiver tokenKey, usar o celular como tokenKey
+          if (!tokenKey) {
+            console.log('📝 [LOGIN] Usuário aprovado mas sem tokenKey, usando celular como tokenKey')
+            tokenKey = existing.celular
+          }
+
           // Verificar se o token existe em gymai_tokens
           const encodedKey = tokenKey.replace(/[.#$\[\]]/g, '_')
           const tokenSnapshot = await get(ref(database, `gymai_tokens/${encodedKey}`))
           const tokenData = tokenSnapshot.val()
-          
+
           if (!tokenData) {
-            console.log('📝 [LOGIN] Token não existe, criando automaticamente')
+            console.log('❌ [LOGIN] Token não existe em gymai_tokens, criando automaticamente')
             const newTokenData = {
               nome: existing.nome,
               features: [],
@@ -202,13 +225,10 @@ const LoginPage = () => {
               expiresAt: null
             }
             await set(ref(database, `gymai_tokens/${encodedKey}`), newTokenData)
-            
-            // Atualizar request com tokenKey
-            const requestId = Object.keys(requests).find(k => requests[k].celular === celular)
-            await set(ref(database, `gymai_requests/${requestId}/tokenKey`), tokenKey)
+            console.log('✅ [LOGIN] Token criado automaticamente')
           }
-          
-          console.log('✅ [LOGIN] Usuário aprovado, tentando login automático')
+
+          console.log('✅ [LOGIN] Usuário aprovado com token válido, tentando login automático')
           const result = await login(tokenKey, { nome: existing.nome })
           console.log('🔍 [LOGIN] Resultado login automático:', result)
           if (result.success) {
@@ -266,6 +286,13 @@ const LoginPage = () => {
       }
 
       console.log('🔍 [LOGIN] Status do usuário:', existing.status)
+      if (existing.status === 'rejected') {
+        console.log('❌ [LOGIN] Usuário rejeitado pelo AdminOS')
+        setError('Acesso negado. Entre em contato com o administrador.')
+        setLoading(false)
+        return
+      }
+
       if (existing.status === 'pending') {
         console.log('⏳ [LOGIN] Usuário ainda pendente')
         setError('Ainda pendente. Aguarde aprovação do administrador')
@@ -275,16 +302,22 @@ const LoginPage = () => {
 
       if (existing.status === 'approved') {
         console.log('✅ [LOGIN] Usuário aprovado, verificando token')
-        // Se não tiver tokenKey, criar automaticamente
-        const tokenKey = existing.tokenKey || existing.celular
-        
+        // Buscar tokenKey do request
+        let tokenKey = existing.tokenKey
+
+        // Se não tiver tokenKey, usar o celular como tokenKey
+        if (!tokenKey) {
+          console.log('📝 [LOGIN] Usuário aprovado mas sem tokenKey, usando celular como tokenKey')
+          tokenKey = existing.celular
+        }
+
         // Verificar se o token existe em gymai_tokens
         const encodedKey = tokenKey.replace(/[.#$\[\]]/g, '_')
         const tokenSnapshot = await get(ref(database, `gymai_tokens/${encodedKey}`))
         const tokenData = tokenSnapshot.val()
-        
+
         if (!tokenData) {
-          console.log('📝 [LOGIN] Token não existe, criando automaticamente')
+          console.log('❌ [LOGIN] Token não existe em gymai_tokens, criando automaticamente')
           const newTokenData = {
             nome: existing.nome,
             features: [],
@@ -292,13 +325,10 @@ const LoginPage = () => {
             expiresAt: null
           }
           await set(ref(database, `gymai_tokens/${encodedKey}`), newTokenData)
-          
-          // Atualizar request com tokenKey
-          const requestId = Object.keys(requests).find(k => requests[k].celular === celular)
-          await set(ref(database, `gymai_requests/${requestId}/tokenKey`), tokenKey)
+          console.log('✅ [LOGIN] Token criado automaticamente')
         }
-        
-        console.log('✅ [LOGIN] Usuário aprovado, tentando login automático')
+
+        console.log('✅ [LOGIN] Usuário aprovado com token válido, tentando login automático')
         const result = await login(tokenKey, { nome: existing.nome })
         console.log('🔍 [LOGIN] Resultado login:', result)
         if (result.success) {
@@ -309,9 +339,6 @@ const LoginPage = () => {
           console.log('❌ [LOGIN] Erro ao fazer login')
           setError('Erro ao fazer login')
         }
-      } else {
-        console.log('❌ [LOGIN] Solicitação rejeitada')
-        setError('Solicitação rejeitada')
       }
     } catch (err) {
       console.error('❌ [LOGIN] Erro ao verificar aprovação:', err)

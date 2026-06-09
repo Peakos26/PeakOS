@@ -1,11 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@context/AuthContext'
 import { database, ref, get, set } from '@config/firebase.config'
-import Header from '@components/layout/Header'
-import Navigation from '@components/layout/Navigation'
 import Card from '@components/ui/Card'
 import Button from '@components/ui/Button'
-import { Calendar, TrendingUp, CheckCircle, AlertTriangle, BarChart3, Clock } from 'lucide-react'
+import { Calendar, TrendingUp, CheckCircle, AlertTriangle, BarChart3, Clock, Dumbbell, Utensils } from 'lucide-react'
 
 const WeeklyInsightsPage = () => {
   const { session } = useAuth()
@@ -227,8 +225,6 @@ const WeeklyInsightsPage = () => {
   }
 
   return (
-    <div className="min-h-screen pb-20 md:pb-0 md:pl-64">
-      <Header />
       
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8">
@@ -356,9 +352,6 @@ const WeeklyInsightsPage = () => {
           )}
         </div>
       </main>
-
-      <Navigation />
-    </div>
   )
 }
 

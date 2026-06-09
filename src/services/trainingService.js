@@ -106,6 +106,24 @@ export const trainingService = {
     }
   },
 
+  // Sprint 0 ITEM 8: Salvar check-in com formato YYYY-WW (ano-semana)
+  async saveCheckInWithWeek(tokenKey, weekKey, day, location) {
+    try {
+      const encodedKey = encodeTokenKey(tokenKey)
+      const diaData = {
+        day,
+        timestamp: Date.now(),
+        location,
+        date: new Date().toISOString()
+      }
+      await set(ref(database, `gymai_dias_treino/${encodedKey}/${weekKey}/${day}`), diaData)
+      return { success: true }
+    } catch (error) {
+      console.error('Erro ao salvar check-in:', error)
+      return { success: false, error: error.message }
+    }
+  },
+
   async getCheckIns(tokenKey) {
     try {
       const encodedKey = encodeTokenKey(tokenKey)
@@ -114,6 +132,19 @@ export const trainingService = {
       return { success: true, data: checkIns }
     } catch (error) {
       console.error('Erro ao buscar check-ins:', error)
+      return { success: false, error: error.message }
+    }
+  },
+
+  // Sprint 0 ITEM 8: Buscar check-ins apenas da semana atual
+  async getCheckInsByWeek(tokenKey, weekKey) {
+    try {
+      const encodedKey = encodeTokenKey(tokenKey)
+      const snapshot = await get(ref(database, `gymai_dias_treino/${encodedKey}/${weekKey}`))
+      const checkIns = snapshot.val()
+      return { success: true, data: checkIns }
+    } catch (error) {
+      console.error('Erro ao buscar check-ins da semana:', error)
       return { success: false, error: error.message }
     }
   },
@@ -168,6 +199,19 @@ export const trainingService = {
       return { success: true, data: prs }
     } catch (error) {
       console.error('Erro ao buscar PRs:', error)
+      return { success: false, error: error.message }
+    }
+  },
+
+  // Sprint 0: Buscar treinos individuais de gymai_treinos (gerados pela IA)
+  async getWorkouts(tokenKey) {
+    try {
+      const encodedKey = encodeTokenKey(tokenKey)
+      const snapshot = await get(ref(database, `gymai_treinos/${encodedKey}`))
+      const workouts = snapshot.val()
+      return { success: true, data: workouts }
+    } catch (error) {
+      console.error('Erro ao buscar treinos:', error)
       return { success: false, error: error.message }
     }
   }

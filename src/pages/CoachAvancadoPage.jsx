@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@context/AuthContext'
 import { database, ref, get, set, push } from '@config/firebase.config'
-import Header from '@components/layout/Header'
-import Navigation from '@components/layout/Navigation'
 import Card from '@components/ui/Card'
 import Button from '@components/ui/Button'
 import Input from '@components/ui/Input'
@@ -237,8 +235,6 @@ const CoachAvancadoPage = () => {
   }
 
   return (
-    <div className="min-h-screen pb-20 md:pb-0 md:pl-64">
-      <Header />
       
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8">
@@ -385,9 +381,6 @@ const CoachAvancadoPage = () => {
           </Card>
         )}
       </main>
-
-      <Navigation />
-    </div>
   )
 }
 

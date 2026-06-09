@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@context/AuthContext'
 import { database, ref, get, set, push } from '@config/firebase.config'
-import Header from '@components/layout/Header'
-import Navigation from '@components/layout/Navigation'
 import Card from '@components/ui/Card'
 import Button from '@components/ui/Button'
 import { Trophy, Star, Zap, Flame, Target, Calendar, TrendingUp, Medal, Crown, Shield, Share2, Award } from 'lucide-react'
@@ -330,8 +328,6 @@ const GamificationPage = () => {
   const currentLevelData = levels[userLevel - 1]
 
   return (
-    <div className="min-h-screen pb-20 md:pb-0 md:pl-64">
-      <Header />
       
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8">
@@ -678,9 +674,6 @@ const GamificationPage = () => {
           </div>
         )}
       </main>
-
-      <Navigation />
-    </div>
   )
 }
 

@@ -5,6 +5,29 @@
 
 ---
 
+## 📌 AdminOS — Backoffice Independente
+
+> **AdminOS é um projeto separado do PeakOS.**
+> Repositório independente: https://github.com/Peakos26/AdminOS
+> Firebase compartilhado com PeakOS
+> Tecnologia: HTML standalone + Firebase Compat SDK (v9 compat)
+
+**Status do AdminOS:**
+- FASE 1: Dashboard Executivo (pendente)
+- FASE 2: Gestão de Usuários (pendente)
+- FASE 3: User 360 (pendente)
+- FASE 4: Central Financeira (pendente)
+- FASE 5: Gestão de Features (pendente)
+- FASE 6: Analytics do Produto (pendente)
+- FASE 7: IA Operations (pendente)
+- FASE 8: Comunicação/Broadcast (pendente)
+- FASE 9: Auditoria (pendente)
+- FASE 10: Business Dashboard (pendente)
+
+**Documentação completa do AdminOS:** Ver arquivo `ADMINOS_ROADMAP.md` no repositório AdminOS
+
+---
+
 ## ⚠️ REGRAS TÉCNICAS OBRIGATÓRIAS (nunca violar)
 
 ```

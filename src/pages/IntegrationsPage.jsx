@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@context/AuthContext'
-import Header from '@components/layout/Header'
-import Navigation from '@components/layout/Navigation'
 import Card from '@components/ui/Card'
 import Button from '@components/ui/Button'
 import { Smartphone, Watch, Heart, Activity, Moon, Scale, RefreshCw, CheckCircle, XCircle, AlertTriangle } from 'lucide-react'
@@ -102,8 +100,6 @@ const IntegrationsPage = () => {
   }
 
   return (
-    <div className="min-h-screen pb-20 md:pb-0 md:pl-64">
-      <Header />
       
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8">
@@ -387,9 +383,6 @@ const IntegrationsPage = () => {
           </div>
         )}
       </main>
-
-      <Navigation />
-    </div>
   )
 }
 

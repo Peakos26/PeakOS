@@ -5,6 +5,39 @@ Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
 e este projeto adere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.11] - 2026-06-09
+
+### Adicionado
+- Feature "Tá Feito! 💪" - Submenu de conclusão de treino com Story compartilhável
+- WorkoutStory.jsx - Componente para gerar story com câmera e canvas
+- Câmera nativa com getUserMedia API (facingMode: environment para câmera traseira)
+- Canvas API para gerar story 9:16 (1080×1920px) para Instagram Stories
+- Marca d'água PeakOS automática no bottom center da story
+- Web Share API para compartilhar story (nativo iOS/Android)
+- Fallback download se Web Share não disponível
+- AchievementBadge.jsx - Componente para hexágonos neon com efeito glow
+- Conquistas hexagonais com cores neon por tipo (streak, calorias, água, treinos, performance, frequência, sono, foco)
+- CoachInsights.jsx - Componente para insights do Coach IA
+- Análise da semana com métricas coloridas (verde para positivo, vermelho para negativo)
+- Sabedoria do dia com citação motivacional
+- LastWorkoutCard.jsx - Card do último treino com métricas (kcal, minutos)
+- MusicSection.jsx - Botões Spotify e Apple Music para playlists de treino
+- TaFeitoPage.jsx - Página que integra todas as seções da feature
+- Rota /ta-feito no AppRouter com ProtectedRoute
+- HeaderSummary com prop showActions para controlar exibição de ações (sininho, check-in)
+- HeaderSummary adicionado em EvolutionPage, TrainingPage, WorkoutGeneratorPage com showActions={false}
+- Check-in movido para HeaderSummary (lado do sininho)
+- Check-in navega para /evolução após registrar
+
+### Alterado
+- HeaderSummary agora aceita prop showActions (default: true)
+- Quando showActions={false}: mostra apenas hamburger menu
+- Quando showActions={true}: mostra sininho, check-in, notificação e hamburger
+
+### Corrigido
+- ProfileDrawer não fecha ao navegar pelos itens
+- Overlay do ProfileDrawer não fecha ao clicar
+
 ## [1.0.10] - 2026-06-07
 
 ### Adicionado

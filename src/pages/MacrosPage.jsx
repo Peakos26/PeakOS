@@ -4,11 +4,8 @@ import { database, ref, get, set } from '@config/firebase.config'
 import Card from '@components/ui/Card'
 import Button from '@components/ui/Button'
 import Input from '@components/ui/Input'
-import { Calculator, PieChart, Target, AlertTriangle } from 'lucide-react'
-import { Pie } from 'react-chartjs-2'
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
-
-ChartJS.register(ArcElement, Tooltip, Legend)
+import MacroRings from '@components/ui/MacroRings'
+import { Calculator, Target, AlertTriangle } from 'lucide-react'
 
 const MacrosPage = () => {
   const { session } = useAuth()
@@ -239,27 +236,6 @@ const MacrosPage = () => {
 
   const currentGoals = isWorkoutDay ? workoutDayGoals : restDayGoals
 
-  const pieData = {
-    labels: ['Proteína', 'Carboidratos', 'Gorduras'],
-    datasets: [
-      {
-        data: [currentIntake.protein, currentIntake.carbs, currentIntake.fat],
-        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b'],
-        borderColor: ['#1d4ed8', '#059669', '#d97706'],
-        borderWidth: 1,
-      },
-    ],
-  }
-
-  const pieOptions = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: 'bottom',
-      },
-    },
-  }
-
   const getProgressColor = (current, goal) => {
     const percentage = (current / goal) * 100
     if (percentage >= 100) return 'bg-green-500'
@@ -357,14 +333,18 @@ const MacrosPage = () => {
         </div>
       </Card>
 
-      {/* Gráfico de Macros */}
+      {/* Gráfico de Macros - Anéis Conêntricos */}
       <Card className="mb-6">
         <div className="flex items-center gap-2 mb-4">
-          <PieChart size={24} className="text-primary-600" />
+          <Target size={24} className="text-primary-600" />
           <h2 className="text-xl font-bold">Distribuição de Macros</h2>
         </div>
-        <div className="max-w-md mx-auto">
-          <Pie data={pieData} options={pieOptions} />
+        <div className="flex justify-center">
+          <MacroRings
+            proteina={{ atual: currentIntake.protein, meta: currentGoals.protein }}
+            carboidratos={{ atual: currentIntake.carbs, meta: currentGoals.carbs }}
+            gorduras={{ atual: currentIntake.fat, meta: currentGoals.fat }}
+          />
         </div>
       </Card>
 

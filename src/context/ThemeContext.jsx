@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useEffect } from 'react'
 
 const ThemeContext = createContext()
 
@@ -11,29 +11,15 @@ export const useTheme = () => {
 }
 
 export const ThemeProvider = ({ children }) => {
-  const [theme, setTheme] = useState(() => {
-    const savedTheme = localStorage.getItem('theme')
-    if (savedTheme) return savedTheme
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-  })
-
+  // PeakOS v2.0 - Dark Mode Premium Only
   useEffect(() => {
     const root = window.document.documentElement
-    root.classList.remove('light', 'dark')
-    root.classList.add(theme)
-    localStorage.setItem('theme', theme)
-  }, [theme])
-
-  const toggleTheme = () => {
-    setTheme(prev => prev === 'light' ? 'dark' : 'light')
-  }
-
-  const setThemeMode = (mode) => {
-    setTheme(mode)
-  }
+    root.classList.remove('light')
+    root.classList.add('dark')
+  }, [])
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, setThemeMode }}>
+    <ThemeContext.Provider value={{ theme: 'dark' }}>
       {children}
     </ThemeContext.Provider>
   )

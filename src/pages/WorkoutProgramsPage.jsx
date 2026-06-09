@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@context/AuthContext'
 import { useNavigate } from 'react-router-dom'
-import Header from '@components/layout/Header'
-import Navigation from '@components/layout/Navigation'
 import Card from '@components/ui/Card'
 import Button from '@components/ui/Button'
 import { database, ref, get, set } from '@config/firebase.config'
@@ -334,8 +332,6 @@ const WorkoutProgramsPage = () => {
   }
 
   return (
-    <div className="min-h-screen pb-20 md:pb-0 md:pl-64">
-      <Header />
       
       <main className="container mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold font-display mb-6">Programas de Treino</h1>
@@ -422,9 +418,6 @@ const WorkoutProgramsPage = () => {
           </Card>
         )}
       </main>
-
-      <Navigation />
-    </div>
   )
 }
 

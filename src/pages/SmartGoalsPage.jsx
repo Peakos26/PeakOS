@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@context/AuthContext'
 import { database, ref, get, set } from '@config/firebase.config'
-import Header from '@components/layout/Header'
-import Navigation from '@components/layout/Navigation'
 import Card from '@components/ui/Card'
 import Button from '@components/ui/Button'
 import Input from '@components/ui/Input'
@@ -300,8 +298,6 @@ const SmartGoalsPage = () => {
   }
 
   return (
-    <div className="min-h-screen pb-20 md:pb-0 md:pl-64">
-      <Header />
       
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8">
@@ -348,8 +344,8 @@ const SmartGoalsPage = () => {
                 <Target size={24} className="text-primary-600" />
                 <h2 className="text-xl font-bold">Metas Atuais</h2>
               </div>
-              <Button onClick={reevaluateGoals} disabled={isReevaluating}>
-                {isReevaluating ? 'Reavaliando...' : 'Reavaliar Metas'}
+              <Button onClick={reevaluateGoals} disabled={isReevaluating || !shouldReevaluate()}>
+                {isReevaluating ? 'Reavaliando...' : shouldReevaluate() ? 'Reavaliar Metas' : 'Aguardar 4 semanas'}
               </Button>
             </div>
 
@@ -441,9 +437,6 @@ const SmartGoalsPage = () => {
           </Card>
         </div>
       </main>
-
-      <Navigation />
-    </div>
   )
 }
 
