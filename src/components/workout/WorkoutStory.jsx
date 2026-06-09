@@ -1,6 +1,9 @@
 import { useRef, useState, useEffect } from 'react'
+import { useAuth } from '@context/AuthContext'
+import { database, ref, set, push } from '@config/firebase.config'
 
 const WorkoutStory = ({ workout }) => {
+  const { session } = useAuth()
   const canvasRef = useRef(null)
   const [photo, setPhoto] = useState(null)
   const [stream, setStream] = useState(null)
@@ -125,12 +128,42 @@ const WorkoutStory = ({ workout }) => {
     ctx.fillText('OS', canvas.width * 0.57, canvas.height * 0.95)
   }
 
+  // Salvar story no Firebase
+  const saveStoryToFirebase = async (imageData) => {
+    if (!session || !workout) return
+
+    try {
+      const encodedKey = session.tokenKey.replace(/[.#$\[\]]/g, '_')
+      const storiesRef = ref(database, `gymai_stories/${encodedKey}`)
+      const newStoryRef = push(storiesRef)
+      
+      await set(newStoryRef, {
+        workoutId: workout.id || Date.now(),
+        workoutNome: workout.nome,
+        workoutKcal: workout.kcal,
+        workoutDuration: workout.duration,
+        imageData: imageData,
+        createdAt: Date.now(),
+        tokenKey: session.tokenKey
+      })
+      
+      console.log('Story salva no Firebase com sucesso')
+    } catch (error) {
+      console.error('Erro ao salvar story no Firebase:', error)
+    }
+  }
+
   // Compartilhar
   const shareStory = async () => {
     renderStory()
     setTimeout(async () => {
       canvasRef.current.toBlob(async (blob) => {
         const file = new File([blob], 'peakos-treino.jpg', { type: 'image/jpeg' })
+        
+        // Salvar story no Firebase
+        const imageData = canvasRef.current.toDataURL('image/jpeg', 0.9)
+        await saveStoryToFirebase(imageData)
+        
         if (navigator.share && navigator.canShare({ files: [file] })) {
           await navigator.share({
             title: 'Treino Concluído! 💪',

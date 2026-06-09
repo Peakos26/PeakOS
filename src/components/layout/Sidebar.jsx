@@ -37,6 +37,7 @@ const Sidebar = ({ onClose }) => {
         <SidebarItem to="/" icon="🏠" label="Início" />
         <SidebarItem to="/treinos" icon="🏋️" label="Treinos" />
         <SidebarItem to="/gerador-treino" icon="⚡" label="Gerador IA" />
+        <SidebarItem to="/ta-feito" icon="💪" label="Tá Feito!" />
         <SidebarItem to="/evolucao" icon="📈" label="Evolução" />
       </SidebarGroup>
 

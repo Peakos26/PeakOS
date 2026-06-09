@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { groqService } from '@services/groqService'
 
 const CoachInsights = () => {
   const [insights, setInsights] = useState({
@@ -9,17 +10,45 @@ const CoachInsights = () => {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Simular insights (em produção, chamar Groq API)
-    const mockInsights = {
-      analise: 'Você treinou 3 vezes esta semana. Seu volume aumentou 18%. Seu sono caiu 12%. Sua consistência está evoluindo bem.',
-      citacao: 'Disciplina é escolher entre o que você quer agora e o que você mais quer.',
-      autor: 'Abraham Lincoln'
+    const loadInsights = async () => {
+      try {
+        // Dados da semana (em produção, carregar do Firebase)
+        const weekData = {
+          weekWorkouts: 3,
+          totalVolume: 15000,
+          avgSleep: 7.5,
+          consistency: 85
+        }
+
+        // Tentar chamar Groq API
+        const groqInsights = await groqService.generateWorkoutInsights(weekData)
+        
+        if (groqInsights) {
+          setInsights(groqInsights)
+        } else {
+          // Fallback para insights simulados
+          const mockInsights = {
+            analise: 'Você treinou 3 vezes esta semana. Seu volume aumentou 18%. Seu sono caiu 12%. Sua consistência está evoluindo bem.',
+            citacao: 'Disciplina é escolher entre o que você quer agora e o que você mais quer.',
+            autor: 'Abraham Lincoln'
+          }
+          setInsights(mockInsights)
+        }
+      } catch (error) {
+        console.error('Erro ao carregar insights:', error)
+        // Fallback para insights simulados
+        const mockInsights = {
+          analise: 'Você treinou 3 vezes esta semana. Seu volume aumentou 18%. Seu sono caiu 12%. Sua consistência está evoluindo bem.',
+          citacao: 'Disciplina é escolher entre o que você quer agora e o que você mais quer.',
+          autor: 'Abraham Lincoln'
+        }
+        setInsights(mockInsights)
+      } finally {
+        setLoading(false)
+      }
     }
-    
-    setTimeout(() => {
-      setInsights(mockInsights)
-      setLoading(false)
-    }, 1000)
+
+    loadInsights()
   }, [])
 
   const highlightMetrics = (text) => {

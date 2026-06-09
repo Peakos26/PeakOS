@@ -190,8 +190,17 @@ const WorkoutLogPage = () => {
           await trainingService.savePR(session.tokenKey, currentExercise?.nome, oneRM)
         }
       }
-      alert('Treino salvo com sucesso!')
-      navigate('/')
+      
+      // Feature Tá Feito: Redirecionar para tela de conclusão
+      const workoutForTaFeito = {
+        nome: currentDayName,
+        kcal: Math.round(totalVolume * 0.5), // Estimativa de kcal baseada no volume
+        duration: Math.round((Date.now() - (workoutData.createdAt || Date.now())) / 60000) || 60, // Estimativa de duração em minutos
+        completedAt: Date.now(),
+        exercicios: workoutData.exercicios
+      }
+      
+      navigate('/ta-feito', { state: { workout: workoutForTaFeito } })
     } else {
       alert('Erro ao salvar treino')
     }
