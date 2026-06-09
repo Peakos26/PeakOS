@@ -24,6 +24,11 @@ e este projeto adere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 - MusicSection.jsx - Botões Spotify e Apple Music para playlists de treino
 - TaFeitoPage.jsx - Página que integra todas as seções da feature
 - Rota /ta-feito no AppRouter com ProtectedRoute
+- Trigger no WorkoutLogPage - Ao finalizar treino, navega para /ta-feito com dados do treino
+- Menu lateral "Tá Feito! 💪" no Sidebar (grupo TREINO)
+- groqService.js - Serviço para chamada da Groq API
+- Integração Groq API no CoachInsights com fallback para insights simulados
+- Salvar story gerada em gymai_stories no Firebase
 - HeaderSummary com prop showActions para controlar exibição de ações (sininho, check-in)
 - HeaderSummary adicionado em EvolutionPage, TrainingPage, WorkoutGeneratorPage com showActions={false}
 - Check-in movido para HeaderSummary (lado do sininho)
@@ -33,6 +38,7 @@ e este projeto adere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 - HeaderSummary agora aceita prop showActions (default: true)
 - Quando showActions={false}: mostra apenas hamburger menu
 - Quando showActions={true}: mostra sininho, check-in, notificação e hamburger
+- CoachInsights agora chama Groq API para insights personalizados com fallback
 
 ### Corrigido
 - ProfileDrawer não fecha ao navegar pelos itens
