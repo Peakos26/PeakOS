@@ -5,13 +5,15 @@ import { database, ref, get, set, push } from '@config/firebase.config'
 import Button from '@components/ui/Button'
 import Card from '@components/ui/Card'
 import Input from '@components/ui/Input'
+import TwoFactorLogin from '@components/security/TwoFactorLogin'
 
 const LoginPage = () => {
   const [celular, setCelular] = useState('')
   const [nome, setNome] = useState('')
-  const [step, setStep] = useState(1) // 1: verificar celular, 2: solicitar acesso, 3: pendente
+  const [step, setStep] = useState(1) // 1: verificar celular, 2: solicitar acesso, 3: pendente, 4: 2FA
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [pendingTokenKey, setPendingTokenKey] = useState(null)
   const { login } = useAuth()
   const navigate = useNavigate()
 
@@ -131,6 +133,16 @@ const LoginPage = () => {
         }
 
         console.log('✅ [LOGIN] Usuário aprovado com token válido, tentando login automático')
+        
+        // Verificar se o usuário tem 2FA habilitado
+        if (tokenData && tokenData.twoFactorEnabled) {
+          console.log('🔒 [LOGIN] Usuário tem 2FA habilitado, solicitando senha')
+          setPendingTokenKey(tokenKey)
+          setStep(4)
+          setLoading(false)
+          return
+        }
+        
         // Login automático com token (STEP 1 do ROADMAP)
         const result = await login(tokenKey, { nome: existing.nome })
         console.log('🔍 [LOGIN] Resultado login automático:', result)
@@ -348,6 +360,23 @@ const LoginPage = () => {
     setLoading(false)
   }
 
+  const handle2FASuccess = async () => {
+    console.log('🔒 [LOGIN] 2FA verificado com sucesso, fazendo login')
+    const result = await login(pendingTokenKey, { nome: session?.nome })
+    if (result.success) {
+      await logLogin(pendingTokenKey, { nome: session?.nome })
+      navigate('/')
+    } else {
+      setError('Erro ao fazer login após 2FA')
+      setStep(1)
+    }
+  }
+
+  const handle2FACancel = () => {
+    setStep(1)
+    setPendingTokenKey(null)
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
@@ -356,7 +385,7 @@ const LoginPage = () => {
             Peak<span className="font-bold text-primary-600">OS</span>
           </h1>
           <p className="text-[var(--color-muted)]">
-            {step === 1 ? 'Acessar aplicativo' : step === 2 ? 'Solicitar acesso' : 'Solicitação enviada'}
+            {step === 1 ? 'Acessar aplicativo' : step === 2 ? 'Solicitar acesso' : step === 3 ? 'Solicitação enviada' : 'Autenticação em 2 Fatores'}
           </p>
         </div>
 
@@ -422,6 +451,10 @@ const LoginPage = () => {
               {loading ? 'Verificando...' : 'Verificar aprovação'}
             </Button>
           </div>
+        )}
+
+        {step === 4 && (
+          <TwoFactorLogin onSuccess={handle2FASuccess} onCancel={handle2FACancel} />
         )}
       </Card>
     </div>

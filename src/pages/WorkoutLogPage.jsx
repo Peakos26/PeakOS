@@ -413,6 +413,18 @@ const WorkoutLogPage = () => {
                 </Button>
               )}
             </div>
+
+            {/* Botão fixo de finalizar treino - sempre visível durante treino */}
+            {currentWorkout && (
+              <div className="fixed bottom-20 left-0 right-0 px-4 z-40 md:hidden">
+                <button
+                  onClick={handleFinishWorkout}
+                  className="w-full py-4 bg-[#84CC16] text-black font-bold text-lg rounded-2xl shadow-2xl flex items-center justify-center gap-2"
+                >
+                  💪 Finalizar Treino
+                </button>
+              </div>
+            )}
           </>
         )}
       </main>

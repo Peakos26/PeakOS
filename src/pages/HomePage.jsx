@@ -14,6 +14,7 @@ import LatestWorkoutCard from '@components/dashboard/LatestWorkoutCard'
 import AchievementsCard from '@components/dashboard/AchievementsCard'
 import CoachCard from '@components/dashboard/CoachCard'
 import WorkoutMusicCard from '@components/dashboard/WorkoutMusicCard'
+import QuickWaterButton from '@components/ui/QuickWaterButton'
 
 const HomePage = () => {
   const { session } = useAuth()
@@ -251,6 +252,11 @@ const HomePage = () => {
     <main className="w-full px-3 py-4 sm:px-4 sm:py-6 md:py-8">
       {/* Header Summary */}
       <HeaderSummary />
+
+      {/* Quick Water Button */}
+      <div className="mb-3 sm:mb-4">
+        <QuickWaterButton />
+      </div>
 
       {/* Peak Rings + Hoje */}
       <div className="premium-card mb-3 sm:mb-4 card-entry" style={{ animationDelay: '0ms' }}>

@@ -1,5 +1,6 @@
 import Sidebar from './Sidebar'
 import BottomNav from './BottomNav'
+import CoachFAB from '@components/ui/CoachFAB'
 
 const Layout = ({ children }) => {
   return (
@@ -23,6 +24,9 @@ const Layout = ({ children }) => {
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40">
         <BottomNav />
       </nav>
+
+      {/* Coach FAB — aparece em todas as páginas exceto /ia */}
+      <CoachFAB />
 
     </div>
   )

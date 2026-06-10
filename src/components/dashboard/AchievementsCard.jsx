@@ -1,18 +1,79 @@
-import { useMemo } from 'react'
+import { useMemo, useEffect, useState } from 'react'
+import { useAuth } from '@context/AuthContext'
 import { Flame, Zap, Droplets, Moon, Trophy, Rocket, Target, TrendingUp } from 'lucide-react'
+import { calculateAchievements } from '@services/achievementsService'
 
 const AchievementsCard = () => {
-  // Dados mockados - em produção viriam do Firebase
+  const { session } = useAuth()
+  const [achievementsData, setAchievementsData] = useState({
+    streak: 0,
+    totalTreinos: 0,
+    aguaMeta: false,
+    sonoMeta: false,
+  })
+
+  useEffect(() => {
+    const loadAchievements = async () => {
+      if (!session) return
+      const data = await calculateAchievements(session.tokenKey)
+      setAchievementsData(data)
+    }
+    loadAchievements()
+  }, [session])
+
   const achievements = useMemo(() => [
-    { id: 1, name: 'Sequência', description: '7 dias seguidos', unlocked: true, icon: Flame },
-    { id: 2, name: 'Performance', description: 'Meta de calorias', unlocked: true, icon: Zap },
-    { id: 3, name: 'Hidratação', description: 'Meta de água', unlocked: true, icon: Droplets },
-    { id: 4, name: 'Treinos', description: '50 treinos', unlocked: true, icon: Trophy },
-    { id: 5, name: 'Sono', description: 'Sono perfeito', unlocked: false, icon: Moon },
-    { id: 6, name: 'Evolução', description: 'Performance', unlocked: false, icon: Rocket },
-    { id: 7, name: 'Metas', description: 'Objetivos', unlocked: false, icon: Target },
-    { id: 8, name: 'Progresso', description: 'Tendência', unlocked: false, icon: TrendingUp },
-  ], [])
+    { 
+      id: 1, 
+      name: 'Sequência', 
+      description: `${achievementsData.streak} dias seguidos`, 
+      unlocked: achievementsData.streak >= 7, 
+      icon: Flame,
+      value: achievementsData.streak
+    },
+    { 
+      id: 2, 
+      name: 'Treinos', 
+      description: `${achievementsData.totalTreinos} treinos`, 
+      unlocked: achievementsData.totalTreinos >= 50, 
+      icon: Trophy,
+      value: achievementsData.totalTreinos
+    },
+    { 
+      id: 3, 
+      name: 'Hidratação', 
+      description: 'Meta de água', 
+      unlocked: achievementsData.aguaMeta, 
+      icon: Droplets
+    },
+    { 
+      id: 4, 
+      name: 'Sono', 
+      description: 'Sono perfeito', 
+      unlocked: achievementsData.sonoMeta, 
+      icon: Moon
+    },
+    { 
+      id: 5, 
+      name: 'Evolução', 
+      description: 'Performance', 
+      unlocked: false, 
+      icon: Rocket
+    },
+    { 
+      id: 6, 
+      name: 'Metas', 
+      description: 'Objetivos', 
+      unlocked: false, 
+      icon: Target
+    },
+    { 
+      id: 7, 
+      name: 'Progresso', 
+      description: 'Tendência', 
+      unlocked: false, 
+      icon: TrendingUp
+    },
+  ], [achievementsData])
 
   return (
     <div className="premium-card">

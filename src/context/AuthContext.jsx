@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import { database } from '@config/firebase.config'
 import { ref, get } from 'firebase/database'
+import { checkUserStatus, updateLastAccess } from '@services/securityService'
 
 const AuthContext = createContext()
 
@@ -14,8 +15,27 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const [session, setSession] = useState(null)
+  const [userActive, setUserActive] = useState(true)
 
   useEffect(() => { loadSession() }, [])
+
+  useEffect(() => {
+    // Verificação periódica de status do usuário (a cada 5 minutos)
+    if (session?.tokenKey) {
+      const statusCheck = setInterval(async () => {
+        const status = await checkUserStatus(session.tokenKey)
+        if (!status.active) {
+          setUserActive(false)
+          logout()
+        } else {
+          setUserActive(true)
+          await updateLastAccess(session.tokenKey)
+        }
+      }, 5 * 60 * 1000) // 5 minutos
+
+      return () => clearInterval(statusCheck)
+    }
+  }, [session])
 
   const loadSession = () => {
     const savedSession = localStorage.getItem('gymai_session')
@@ -75,7 +95,7 @@ export const AuthProvider = ({ children }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, login, logout, hasFeature }}>
+    <AuthContext.Provider value={{ user, session, loading, login, logout, hasFeature, userActive }}>
       {children}
     </AuthContext.Provider>
   )
