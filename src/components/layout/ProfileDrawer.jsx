@@ -20,7 +20,8 @@ import {
   Users, 
   Settings, 
   LogOut,
-  X 
+  X,
+  Trophy
 } from 'lucide-react'
 
 const ProfileDrawer = ({ isOpen, onClose }) => {
@@ -84,6 +85,7 @@ const ProfileDrawer = ({ isOpen, onClose }) => {
           <DrawerGroup title="TREINO">
             <DrawerItem icon={<Dumbbell size={20} />} label="Treinos" onClick={() => handleNavigate('/treinos')} />
             <DrawerItem icon={<Zap size={20} />} label="Gerador IA" onClick={() => handleNavigate('/gerador-treino')} />
+            <DrawerItem icon={<Trophy size={20} />} label="Tá Feito!" onClick={() => handleNavigate('/ta-feito')} />
             <DrawerItem icon={<TrendingUp size={20} />} label="Evolução" onClick={() => handleNavigate('/evolucao')} />
           </DrawerGroup>
 
@@ -91,6 +93,7 @@ const ProfileDrawer = ({ isOpen, onClose }) => {
             <DrawerItem icon={<Utensils size={20} />} label="Diário Alimentar" onClick={() => handleNavigate('/diario-alimentar')} />
             <DrawerItem icon={<Droplets size={20} />} label="Água" onClick={() => handleNavigate('/hidratacao')} />
             <DrawerItem icon={<BarChart3 size={20} />} label="Macros" onClick={() => handleNavigate('/macros')} />
+            <DrawerItem icon={<Camera size={20} />} label="Foto IA" onClick={() => handleNavigate('/analise-alimento')} />
           </DrawerGroup>
 
           <DrawerGroup title="SAÚDE">
@@ -113,7 +116,7 @@ const ProfileDrawer = ({ isOpen, onClose }) => {
           </DrawerGroup>
 
           <DrawerGroup title="CONTA">
-            <DrawerItem icon={<Crown size={20} />} label="Features Premium" onClick={() => handleNavigate('/features')} />
+            <DrawerItem icon={<Crown size={20} />} label="Apoie o PeakOS" onClick={() => handleNavigate('/apoie')} />
             <DrawerItem icon={<Users size={20} />} label="Comunidade" onClick={() => handleNavigate('/comunidade')} />
           </DrawerGroup>
 
