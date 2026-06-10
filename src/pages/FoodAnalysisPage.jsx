@@ -31,6 +31,30 @@ const FoodAnalysisPage = () => {
     }
   }
 
+  const handleCameraCapture = async () => {
+    try {
+      // Criar um input file temporário com capture="environment" para abrir a câmera traseira
+      const input = document.createElement('input')
+      input.type = 'file'
+      input.accept = 'image/*'
+      input.capture = 'environment'
+      
+      input.onchange = (e) => {
+        const file = e.target.files[0]
+        if (file) {
+          setSelectedFile(file)
+          setPreviewUrl(URL.createObjectURL(file))
+          setAnalysisResult(null)
+        }
+      }
+      
+      input.click()
+    } catch (error) {
+      console.error('Erro ao abrir câmera:', error)
+      alert('Não foi possível acessar a câmera. Tente selecionar uma foto da galeria.')
+    }
+  }
+
   const analyzeFood = async () => {
     if (!selectedFile || !session?.tokenKey) return
     
@@ -137,19 +161,25 @@ const FoodAnalysisPage = () => {
                 <div className="border-2 border-dashed border-[var(--color-border)] rounded-lg p-8">
                   <Camera size={48} className="mx-auto mb-4 text-[var(--color-muted)]" />
                   <p className="text-[var(--color-muted)] mb-4">Arraste uma foto ou clique para selecionar</p>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileSelect}
-                    className="hidden"
-                    id="file-upload"
-                  />
-                  <label htmlFor="file-upload">
-                    <Button variant="outline" as="span">
-                      <Upload size={20} className="mr-2" />
-                      Selecionar Foto
+                  <div className="flex gap-3 justify-center">
+                    <Button onClick={handleCameraCapture} className="flex-1">
+                      <Camera size={20} className="mr-2" />
+                      Tirar Foto
                     </Button>
-                  </label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileSelect}
+                      className="hidden"
+                      id="file-upload"
+                    />
+                    <label htmlFor="file-upload" className="flex-1">
+                      <Button variant="outline" as="span" className="w-full">
+                        <Upload size={20} className="mr-2" />
+                        Galeria
+                      </Button>
+                    </label>
+                  </div>
                 </div>
               ) : (
                 <div className="space-y-4">
