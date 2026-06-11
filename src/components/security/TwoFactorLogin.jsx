@@ -1,10 +1,9 @@
 import { useState } from 'react'
-import { useAuth } from '@context/AuthContext'
-import { verify2FA } from '@services/securityService'
+import { useNavigate } from 'react-router-dom'
 import { Lock, Shield, AlertCircle } from 'lucide-react'
 
-const TwoFactorLogin = ({ onSuccess, onCancel }) => {
-  const { session } = useAuth()
+const TwoFactorLogin = ({ onSuccess, onCancel, tokenKey }) => {
+  const navigate = useNavigate()
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -15,13 +14,8 @@ const TwoFactorLogin = ({ onSuccess, onCancel }) => {
     setError('')
 
     try {
-      const result = await verify2FA(session.tokenKey, password)
-      
-      if (result.success) {
-        onSuccess()
-      } else {
-        setError(result.message || 'Senha incorreta')
-      }
+      // Pass the password to the parent component for verification
+      await onSuccess(password)
     } catch (err) {
       setError('Erro ao verificar senha')
     } finally {
@@ -51,13 +45,16 @@ const TwoFactorLogin = ({ onSuccess, onCancel }) => {
           </div>
 
           <div>
-            <label className="block text-sm mb-2">Senha Pessoal</label>
+            <label className="block text-sm mb-2">Senha Pessoal (6-8 dígitos)</label>
             <input
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Digite sua senha"
-              className="w-full px-4 py-3 bg-bg3 border border-border rounded-xl text-white focus:border-accent outline-none"
+              onChange={(e) => setPassword(e.target.value.replace(/\D/g, '').slice(0, 8))}
+              placeholder="Digite 6-8 números"
+              maxLength={8}
+              pattern="\d{6,8}"
+              inputMode="numeric"
+              className="w-full px-4 py-3 bg-bg3 border border-border rounded-xl text-white focus:border-accent outline-none text-center text-2xl tracking-widest"
               required
               autoFocus
             />
@@ -86,6 +83,14 @@ const TwoFactorLogin = ({ onSuccess, onCancel }) => {
               {loading ? 'Verificando...' : 'Continuar'}
             </button>
           </div>
+
+          <button
+            type="button"
+            onClick={() => navigate('/recuperar-senha-pessoal')}
+            className="w-full text-sm text-[var(--color-muted)] hover:text-white transition-colors"
+          >
+            Esqueci minha senha pessoal
+          </button>
         </form>
       </div>
     </div>

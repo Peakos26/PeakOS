@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { Bell, Menu, Lightbulb, CheckCircle } from 'lucide-react'
 import { useState } from 'react'
 import ProfileDrawer from '@components/layout/ProfileDrawer'
+import { NotificationBell } from '@components/NotificationBell'
 import { database, ref, get, set } from '@config/firebase.config'
 
 const wisdomMessages = [
@@ -138,9 +139,7 @@ const HeaderSummary = ({ showActions = true }) => {
             </button>
 
             {/* Notificação */}
-            <button className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#2C2C2E] flex items-center justify-center text-white hover:bg-[#3C3C3E] transition-colors">
-              <Bell size={18} />
-            </button>
+            <NotificationBell />
 
             {/* Hamburger — apenas desktop */}
             <button

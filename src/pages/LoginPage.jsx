@@ -6,6 +6,7 @@ import Button from '@components/ui/Button'
 import Card from '@components/ui/Card'
 import Input from '@components/ui/Input'
 import TwoFactorLogin from '@components/security/TwoFactorLogin'
+import { checkPersonalPasswordSetup, verifyPersonalPassword, getPasswordLockoutInfo } from '@services/passwordService'
 
 const LoginPage = () => {
   const [celular, setCelular] = useState('')
@@ -14,6 +15,7 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [pendingTokenKey, setPendingTokenKey] = useState(null)
+  const [pendingCelular, setPendingCelular] = useState(null)
   const { login } = useAuth()
   const navigate = useNavigate()
 
@@ -134,10 +136,12 @@ const LoginPage = () => {
 
         console.log('✅ [LOGIN] Usuário aprovado com token válido, tentando login automático')
         
-        // Verificar se o usuário tem 2FA habilitado
-        if (tokenData && tokenData.twoFactorEnabled) {
-          console.log('🔒 [LOGIN] Usuário tem 2FA habilitado, solicitando senha')
+        // Verificar se o usuário tem senha pessoal configurada
+        const hasPersonalPassword = await checkPersonalPasswordSetup(tokenKey)
+        if (hasPersonalPassword) {
+          console.log('🔒 [LOGIN] Usuário tem senha pessoal configurada, solicitando 2FA')
           setPendingTokenKey(tokenKey)
+          setPendingCelular(celular)
           setStep(4)
           setLoading(false)
           return
@@ -149,7 +153,16 @@ const LoginPage = () => {
         if (result.success) {
           console.log('✅ [LOGIN] Login automático sucesso')
           await logLogin(tokenKey, { nome: existing.nome })
-          console.log('🔍 [LOGIN] Login automático sucesso, navegando para /')
+          
+          // Verificar se usuário precisa configurar senha pessoal
+          const hasPersonalPassword = await checkPersonalPasswordSetup(tokenKey)
+          if (!hasPersonalPassword) {
+            console.log('� [LOGIN] Usuário não tem senha pessoal, redirecionando para configuração')
+            navigate('/criar-senha-pessoal')
+            return
+          }
+          
+          console.log('�🔍 [LOGIN] Login automático sucesso, navegando para /')
           navigate('/')
         } else {
           console.log('❌ [LOGIN] Erro ao fazer login automático')
@@ -245,10 +258,20 @@ const LoginPage = () => {
           console.log('🔍 [LOGIN] Resultado login automático:', result)
           if (result.success) {
             await logLogin(tokenKey, { nome: existing.nome })
+            
+            // Verificar se usuário precisa configurar senha pessoal
+            const hasPersonalPassword = await checkPersonalPasswordSetup(tokenKey)
+            if (!hasPersonalPassword) {
+              console.log('🔒 [LOGIN] Usuário não tem senha pessoal, redirecionando para configuração')
+              navigate('/criar-senha-pessoal')
+              setLoading(false)
+              return
+            }
+            
             console.log('✅ [LOGIN] Login automático sucesso, navegando para /')
             navigate('/')
           } else {
-            console.log('❌ [LOGIN] Erro ao fazer login automático')
+            console.log('❌ [LOGIN] Erro ao fazer login')
             setError('Erro ao fazer login')
           }
           setLoading(false)
@@ -345,6 +368,16 @@ const LoginPage = () => {
         console.log('🔍 [LOGIN] Resultado login:', result)
         if (result.success) {
           await logLogin(tokenKey, { nome: existing.nome })
+          
+          // Verificar se usuário precisa configurar senha pessoal
+          const hasPersonalPassword = await checkPersonalPasswordSetup(tokenKey)
+          if (!hasPersonalPassword) {
+            console.log('🔒 [LOGIN] Usuário não tem senha pessoal, redirecionando para configuração')
+            navigate('/criar-senha-pessoal')
+            setLoading(false)
+            return
+          }
+          
           console.log('✅ [LOGIN] Login sucesso, navegando para /')
           navigate('/')
         } else {
@@ -360,15 +393,31 @@ const LoginPage = () => {
     setLoading(false)
   }
 
-  const handle2FASuccess = async () => {
-    console.log('🔒 [LOGIN] 2FA verificado com sucesso, fazendo login')
-    const result = await login(pendingTokenKey, { nome: session?.nome })
-    if (result.success) {
-      await logLogin(pendingTokenKey, { nome: session?.nome })
-      navigate('/')
-    } else {
-      setError('Erro ao fazer login após 2FA')
-      setStep(1)
+  const handle2FASuccess = async (password) => {
+    console.log('🔒 [LOGIN] Verificando senha pessoal')
+    setLoading(true)
+    setError('')
+
+    try {
+      const result = await verifyPersonalPassword(pendingTokenKey, password)
+      
+      if (result.success) {
+        console.log('✅ [LOGIN] Senha pessoal verificada, fazendo login')
+        const loginResult = await login(pendingTokenKey, { nome: session?.nome })
+        if (loginResult.success) {
+          await logLogin(pendingTokenKey, { nome: session?.nome, celular: pendingCelular })
+          navigate('/')
+        } else {
+          setError('Erro ao fazer login após 2FA')
+          setStep(1)
+        }
+      } else {
+        setError(result.message || 'Senha incorreta')
+      }
+    } catch (err) {
+      setError('Erro ao verificar senha pessoal')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -454,7 +503,11 @@ const LoginPage = () => {
         )}
 
         {step === 4 && (
-          <TwoFactorLogin onSuccess={handle2FASuccess} onCancel={handle2FACancel} />
+          <TwoFactorLogin 
+            onSuccess={handle2FASuccess} 
+            onCancel={handle2FACancel}
+            tokenKey={pendingTokenKey}
+          />
         )}
       </Card>
     </div>

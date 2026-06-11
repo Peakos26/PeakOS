@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react'
-import { database } from '@config/firebase.config'
-import { ref, get } from 'firebase/database'
-import { checkUserStatus, updateLastAccess } from '@services/securityService'
+import { database, ref, get } from '@config/firebase.config'
+import { checkAccountActive, recordLogin } from '@services/authService'
+import { useToast } from '@components/Toast'
 
 const AuthContext = createContext()
 
@@ -16,24 +16,39 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true)
   const [session, setSession] = useState(null)
   const [userActive, setUserActive] = useState(true)
+  const { showToast } = useToast()
 
   useEffect(() => { loadSession() }, [])
 
   useEffect(() => {
-    // Verificação periódica de status do usuário (a cada 5 minutos)
-    if (session?.tokenKey) {
-      const statusCheck = setInterval(async () => {
-        const status = await checkUserStatus(session.tokenKey)
-        if (!status.active) {
-          setUserActive(false)
-          logout()
-        } else {
-          setUserActive(true)
-          await updateLastAccess(session.tokenKey)
-        }
-      }, 5 * 60 * 1000) // 5 minutos
+    if (!session?.tokenKey) return
 
-      return () => clearInterval(statusCheck)
+    // Verificação imediata ao carregar
+    checkAccountActive(session.tokenKey, session.email)
+
+    // Configurar intervalo a cada 5 minutos
+    const interval = setInterval(() => {
+      checkAccountActive(session.tokenKey, session.email)
+    }, 5 * 60 * 1000) // 5 minutos
+
+    // Verificação ao focar a aba/janela
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        checkAccountActive(session.tokenKey, session.email)
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
+    // Verificação quando o app volta ao foreground (PWA)
+    const handleAppResume = () => {
+      checkAccountActive(session.tokenKey, session.email)
+    }
+    window.addEventListener('focus', handleAppResume)
+
+    return () => {
+      clearInterval(interval)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+      window.removeEventListener('focus', handleAppResume)
     }
   }, [session])
 
@@ -53,7 +68,8 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (tokenKey, userData = null) => {
     try {
-      const snapshot = await get(ref(database, `gymai_tokens/${tokenKey}`))
+      const encodedKey = tokenKey.replace(/[.#$\[\]]/g, '_')
+      const snapshot = await get(ref(database, `gymai_tokens/${encodedKey}`))
       const tokenData = snapshot.val() || userData
 
       if (!tokenData) throw new Error('Token inválido')
@@ -63,7 +79,7 @@ export const AuthProvider = ({ children }) => {
       }
 
       // Busca features
-      const featuresSnap = await get(ref(database, `gymai_features/${tokenKey}`))
+      const featuresSnap = await get(ref(database, `gymai_features/${encodedKey}`))
       const features = featuresSnap.val() || {}
 
       const sessionData = {
@@ -76,6 +92,14 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('gymai_session', JSON.stringify(sessionData))
       setSession(sessionData)
       setUser({ email: tokenKey, nome: sessionData.nome })
+
+      // Registrar login com timestamp completo
+      try {
+        await recordLogin(tokenKey, sessionData.nome)
+        showToast('success', `Bem-vindo de volta, ${sessionData.nome}!`)
+      } catch (error) {
+        console.error('Erro ao registrar login:', error)
+      }
 
       return { success: true }
     } catch (error) {

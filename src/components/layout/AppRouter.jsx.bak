@@ -38,7 +38,6 @@ import IntegrationsPage from '@pages/IntegrationsPage'
 import TaFeitoPage from '@pages/TaFeitoPage'
 import CreatePersonalPasswordPage from '@pages/CreatePersonalPasswordPage'
 import RecoverPersonalPasswordPage from '@pages/RecoverPersonalPasswordPage'
-import { WeeklyTrainingPage } from '../../pages/WeeklyTrainingPage';
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth()
@@ -310,8 +309,7 @@ const AppRouter = () => {
           </AdminRoute>
         } />
         <Route path="*" element={<Navigate to="/" />} />
-        <Route path="/treinos/semana" element={<WeeklyTrainingPage />} />
-</Routes>
+      </Routes>
     </BrowserRouter>
   )
 }

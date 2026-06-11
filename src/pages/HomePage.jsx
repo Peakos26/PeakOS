@@ -15,6 +15,8 @@ import AchievementsCard from '@components/dashboard/AchievementsCard'
 import CoachCard from '@components/dashboard/CoachCard'
 import WorkoutMusicCard from '@components/dashboard/WorkoutMusicCard'
 import QuickWaterButton from '@components/ui/QuickWaterButton'
+import { SabedoriaDoDia } from '@components/SabedoriaDoDia'
+import { PeakRing } from '@components/PeakRing'
 
 const HomePage = () => {
   const { session } = useAuth()
@@ -253,14 +255,19 @@ const HomePage = () => {
       {/* Header Summary */}
       <HeaderSummary />
 
+      {/* Sabedoria do Dia */}
+      <div className="mb-3 sm:mb-4">
+        <SabedoriaDoDia />
+      </div>
+
       {/* Quick Water Button */}
       <div className="mb-3 sm:mb-4">
         <QuickWaterButton />
       </div>
 
-      {/* Peak Rings + Hoje */}
+      {/* Peak Ring Unificado */}
       <div className="premium-card mb-3 sm:mb-4 card-entry" style={{ animationDelay: '0ms' }}>
-        <PeakRings />
+        <PeakRing />
       </div>
 
       {/* Tendências */}
