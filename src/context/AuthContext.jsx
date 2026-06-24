@@ -21,36 +21,68 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => { loadSession() }, [])
 
   useEffect(() => {
-    if (!session?.tokenKey) return
+    if (!session?.tokenKey) return;
 
-    // Verificação imediata ao carregar
-    checkAccountActive(session.tokenKey, session.email)
+    let isMounted = true;
+    let consecutiveErrors = 0;
 
-    // Configurar intervalo a cada 5 minutos
-    const interval = setInterval(() => {
-      checkAccountActive(session.tokenKey, session.email)
-    }, 5 * 60 * 1000) // 5 minutos
-
-    // Verificação ao focar a aba/janela
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        checkAccountActive(session.tokenKey, session.email)
+    const validateUser = async () => {
+      try {
+        const { tokenKey } = session;
+        
+        // Buscar em gymai_requests
+        const requestsRef = ref(database, 'gymai_requests');
+        const snapshot = await get(requestsRef);
+        
+        let userValid = false;
+        if (snapshot.exists()) {
+          snapshot.forEach(child => {
+            const data = child.val();
+            if (data.tokenKey === tokenKey && data.status === 'approved') {
+              userValid = true;
+            }
+          });
+        }
+        
+        if (!userValid && isMounted) {
+          // Sessão inválida
+          localStorage.removeItem('gymai_session');
+          localStorage.removeItem('gymai_token');
+          
+          const event = new CustomEvent('session-expired', { 
+            detail: { message: 'Sua conta foi desativada. Faça login novamente.' }
+          });
+          window.dispatchEvent(event);
+          
+          // Redirecionar se não estiver já na página de login
+          if (window.location.pathname !== '/login') {
+            window.location.href = '/login';
+          }
+        }
+        
+        consecutiveErrors = 0; // reset em caso de sucesso
+      } catch (error) {
+        console.error('Erro na validação periódica da conta:', error);
+        consecutiveErrors++;
+        
+        if (consecutiveErrors >= 3 && isMounted) {
+          // Notificar usuário que há problema de conexão, mas manter sessão
+          console.warn('Múltiplas falhas na validação da conta. Verifique sua internet.');
+        }
       }
-    }
-    document.addEventListener('visibilitychange', handleVisibilityChange)
+    };
 
-    // Verificação quando o app volta ao foreground (PWA)
-    const handleAppResume = () => {
-      checkAccountActive(session.tokenKey, session.email)
-    }
-    window.addEventListener('focus', handleAppResume)
-
+    // Primeira validação imediata
+    validateUser();
+    
+    // Intervalo a cada 30 segundos (30000 ms)
+    const intervalId = setInterval(validateUser, 30000);
+    
     return () => {
-      clearInterval(interval)
-      document.removeEventListener('visibilitychange', handleVisibilityChange)
-      window.removeEventListener('focus', handleAppResume)
-    }
-  }, [session])
+      isMounted = false;
+      clearInterval(intervalId);
+    };
+  }, [session]);
 
   const loadSession = () => {
     const savedSession = localStorage.getItem('gymai_session')
@@ -82,10 +114,28 @@ export const AuthProvider = ({ children }) => {
       const featuresSnap = await get(ref(database, `gymai_features/${encodedKey}`))
       const features = featuresSnap.val() || {}
 
+      // Busca celular do gymai_requests para incluir na sessão
+      let celular = ''
+      try {
+        const requestsRef = ref(database, 'gymai_requests')
+        const requestsSnap = await get(requestsRef)
+        if (requestsSnap.exists()) {
+          requestsSnap.forEach(child => {
+            const data = child.val()
+            if (data.tokenKey === tokenKey) {
+              celular = data.celular || ''
+            }
+          })
+        }
+      } catch (error) {
+        console.error('Erro ao buscar celular:', error)
+      }
+
       const sessionData = {
         tokenKey,
         email: tokenKey,
         nome: tokenData.nome || userData?.nome || 'Usuário',
+        celular,
         features: Object.keys(features).filter(k => features[k] === true)
       }
 

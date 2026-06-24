@@ -1,14 +1,12 @@
-import { useTheme } from '@context/ThemeContext'
 import { useAuth } from '@context/AuthContext'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Sun, Moon, Menu } from 'lucide-react'
+import { Menu } from 'lucide-react'
 import { useState } from 'react'
 import ProfileDrawer from './ProfileDrawer'
 
 const APP_VERSION = '1.0.10'
 
 const Header = () => {
-  const { theme, toggleTheme } = useTheme()
   const { session } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
@@ -46,7 +44,7 @@ const Header = () => {
 
   return (
     <>
-      <header className="sticky top-0 z-30 bg-[var(--color-card)] border-b border-[var(--color-border)]">
+      <header className="sticky top-0 z-30 bg-[var(--color-card)]/80 backdrop-blur-xl border-b border-[var(--color-border)]">
         <div className="flex items-center justify-between px-4 h-14">
 
           {/* Avatar — apenas mobile — abre drawer */}
@@ -81,16 +79,6 @@ const Header = () => {
               </button>
             ))}
           </nav>
-
-          {/* Ações direita */}
-          <div className="flex items-center gap-2">
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-lg hover:bg-[var(--color-border)] transition-colors"
-            >
-              {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
-            </button>
-          </div>
 
         </div>
       </header>

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '@context/AuthContext'
+import { useNavigate } from 'react-router-dom'
 import { database, ref, get, set, push, onValue } from '@config/firebase.config'
 import Card from '@components/ui/Card'
 import Button from '@components/ui/Button'
@@ -11,11 +12,18 @@ const encodeTokenKey = (tokenKey) => {
 }
 
 const AIPage = () => {
-  const { session, hasFeature } = useAuth()
+  const { session, hasFeature, loading } = useAuth()
+  const navigate = useNavigate()
+
+  if (loading) return <div className="container mx-auto px-4 py-8">Carregando...</div>
+  if (!session) {
+    navigate('/login')
+    return null
+  }
   const [currentPage, setCurrentPage] = useState('ia')
   const [message, setMessage] = useState('')
   const [chatHistory, setChatHistory] = useState([])
-  const [loading, setLoading] = useState(false)
+  const [chatLoading, setChatLoading] = useState(false)
   const [groqApiKey, setGroqApiKey] = useState('')
   const messagesEndRef = useRef(null)
 
@@ -98,7 +106,7 @@ const AIPage = () => {
       return
     }
 
-    setLoading(true)
+    setChatLoading(true)
     const userMessage = message
     setMessage('')
 
@@ -146,7 +154,7 @@ IMPORTANTE: Formate suas respostas de forma organizada:
       alert('Erro ao enviar mensagem')
     }
 
-    setLoading(false)
+    setChatLoading(false)
   }
 
   const formatMessage = (content) => {
@@ -238,7 +246,7 @@ IMPORTANTE: Formate suas respostas de forma organizada:
             )}
             
             {/* Indicador de digitando */}
-            {loading && (
+            {chatLoading && (
               <div className="bg-[var(--color-border)] mr-8 p-3 rounded-lg">
                 <div className="flex items-center gap-2">
                   <div className="flex gap-1">
@@ -261,10 +269,10 @@ IMPORTANTE: Formate suas respostas de forma organizada:
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Digite sua mensagem..."
               onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-              disabled={loading}
+              disabled={chatLoading}
             />
-            <Button onClick={handleSendMessage} disabled={loading || !message.trim()}>
-              {loading ? 'Enviando...' : 'Enviar'}
+            <Button onClick={handleSendMessage} disabled={chatLoading || !message.trim()}>
+              {chatLoading ? 'Enviando...' : 'Enviar'}
             </Button>
           </div>
         </Card>

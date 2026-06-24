@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@context/AuthContext'
+import { useNavigate } from 'react-router-dom'
 import { Pencil } from 'lucide-react'
 import Card from '@components/ui/Card'
 import Button from '@components/ui/Button'
@@ -8,7 +9,7 @@ import { profileService } from '@services/profileService'
 
 const ProfilePage = () => {
   const { session, logout } = useAuth()
-  const [currentPage, setCurrentPage] = useState('perfil')
+  const navigate = useNavigate()
   const [profile, setProfile] = useState({
     sexo: '',
     nascimento: '',
@@ -132,17 +133,6 @@ const ProfilePage = () => {
               )}
             </Button>
           </div>
-        </Card>
-
-        {/* Link para página de medidas */}
-        <Card className="mb-6">
-          <h2 className="text-lg font-semibold mb-4">Medidas Corporais</h2>
-          <p className="text-sm text-[var(--color-muted)] mb-4">
-            Acompanhe sua evolução com medidas detalhadas
-          </p>
-          <Button onClick={() => navigate('/medidas')} className="w-full">
-            Ir para Medidas
-          </Button>
         </Card>
       </main>
   )

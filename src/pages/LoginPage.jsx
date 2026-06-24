@@ -16,6 +16,7 @@ const LoginPage = () => {
   const [error, setError] = useState('')
   const [pendingTokenKey, setPendingTokenKey] = useState(null)
   const [pendingCelular, setPendingCelular] = useState(null)
+  const [isVerifying, setIsVerifying] = useState(false)
   const { login } = useAuth()
   const navigate = useNavigate()
 
@@ -394,19 +395,31 @@ const LoginPage = () => {
   }
 
   const handle2FASuccess = async (password) => {
+    if (isVerifying) return
+    
     console.log('🔒 [LOGIN] Verificando senha pessoal')
+    setIsVerifying(true)
     setLoading(true)
     setError('')
 
     try {
-      const result = await verifyPersonalPassword(pendingTokenKey, password)
+      const result = await verifyPersonalPassword(pendingTokenKey, password, pendingCelular)
       
       if (result.success) {
         console.log('✅ [LOGIN] Senha pessoal verificada, fazendo login')
-        const loginResult = await login(pendingTokenKey, { nome: session?.nome })
+        const loginResult = await login(pendingTokenKey, { nome: nome })
         if (loginResult.success) {
-          await logLogin(pendingTokenKey, { nome: session?.nome, celular: pendingCelular })
-          navigate('/')
+          try {
+            await logLogin(pendingTokenKey, { nome, celular: pendingCelular })
+          } catch (error) {
+            console.warn('Falha ao gravar login, mas continuando:', error)
+          }
+          try {
+            navigate('/')
+          } catch (e) {
+            console.warn('Navegação falhou, usando fallback:', e)
+            window.location.href = '/'
+          }
         } else {
           setError('Erro ao fazer login após 2FA')
           setStep(1)
@@ -415,9 +428,11 @@ const LoginPage = () => {
         setError(result.message || 'Senha incorreta')
       }
     } catch (err) {
+      console.error('Erro ao verificar senha pessoal:', err)
       setError('Erro ao verificar senha pessoal')
     } finally {
       setLoading(false)
+      setIsVerifying(false)
     }
   }
 

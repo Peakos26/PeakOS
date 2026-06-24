@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '@context/AuthContext'
 import { database, ref, get } from '@config/firebase.config'
+import MacrosDrilldown from './MacrosDrilldown'
 
 const PeakRings = () => {
   const { session } = useAuth()
@@ -12,6 +13,7 @@ const PeakRings = () => {
   const [agua, setAgua] = useState(0)
   const [sono, setSono] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [showMacrosDrilldown, setShowMacrosDrilldown] = useState(false)
 
   useEffect(() => {
     const loadRealData = async () => {
@@ -212,7 +214,10 @@ const PeakRings = () => {
           </svg>
 
           {/* Centro: total de pontos */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <div 
+            className="absolute inset-0 flex flex-col items-center justify-center cursor-pointer"
+            onClick={() => setShowMacrosDrilldown(true)}
+          >
             <span className="text-2xl sm:text-3xl md:text-4xl font-bold">
               {Math.round((pMovimento + pNutricao + pRecuperacao) / 3)}
             </span>
@@ -275,6 +280,14 @@ const PeakRings = () => {
           </div>
         </div>
       </div>
+
+      {/* Modal de Macros Drilldown */}
+      {showMacrosDrilldown && (
+        <MacrosDrilldown 
+          onClose={() => setShowMacrosDrilldown(false)}
+          tokenKey={session?.tokenKey}
+        />
+      )}
     </div>
   )
 }

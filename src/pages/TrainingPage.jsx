@@ -65,13 +65,15 @@ const TrainingPage = () => {
   }
 
   const generateWeeklyPlan = (objective, days) => {
-    const baseTreino = TREINOS_POR_OBJETIVO[objective]
-    if (!baseTreino) return null
+    // FIX 10: Não usar treino padrão - exigir fichas criadas pelo usuário
+    if (workoutSheets.length === 0) {
+      return null
+    }
 
-    // Verificar se há fichas de treino criadas e usar os exercícios da primeira ficha
-    let exerciciosBase = baseTreino.exercicios
-    if (workoutSheets.length > 0 && workoutSheets[0].exercicios) {
-      exerciciosBase = workoutSheets[0].exercicios
+    // Usar exercícios da primeira ficha criada pelo usuário
+    const exerciciosBase = workoutSheets[0].exercicios
+    if (!exerciciosBase || exerciciosBase.length === 0) {
+      return null
     }
 
     // Distribuição de dias da semana
@@ -111,11 +113,11 @@ const TrainingPage = () => {
 
     return {
       objetivo: objective,
-      nome: baseTreino.nome,
-      descricao: baseTreino.descricao,
-      duracao: baseTreino.duracao,
-      descanso: baseTreino.descanso,
-      intervalo: baseTreino.intervalo,
+      nome: workoutSheets[0].nome || 'Treino Personalizado',
+      descricao: workoutSheets[0].descricao || '',
+      duracao: workoutSheets[0].duracao || 60,
+      descanso: workoutSheets[0].descanso || 60,
+      intervalo: workoutSheets[0].intervalo || 90,
       diasSemana: days,
       planoSemanal: planoSemanal,
       createdAt: Date.now()
@@ -123,17 +125,56 @@ const TrainingPage = () => {
   }
 
   const handleGenerateTraining = async () => {
-    if (!selectedObjective || !session) return
+    if (!selectedObjective || !session) {
+      alert('Selecione um objetivo para gerar o treino')
+      return
+    }
 
+    console.log('[Treino] Gerando treino personalizado para objetivo:', selectedObjective)
+
+    // Tenta usar fichas existentes primeiro
     const planData = generateWeeklyPlan(selectedObjective, selectedDays)
-    if (!planData) return
-
-    const result = await trainingService.saveTrainingPlan(session.tokenKey, planData)
-    if (result.success) {
-      alert('Treino gerado com sucesso!')
-      loadTrainingPlan()
+    
+    if (planData) {
+      console.log('[Treino] Usando fichas existentes para gerar plano')
+      const result = await trainingService.saveTrainingPlan(session.tokenKey, planData)
+      if (result.success) {
+        alert('Treino gerado com sucesso!')
+        loadTrainingPlan()
+      } else {
+        console.error('[Treino] Erro ao salvar treino:', result.error)
+        alert('Erro ao gerar treino')
+      }
     } else {
-      alert('Erro ao gerar treino')
+      // Fallback: usar treino pré-definido baseado no objetivo
+      console.log('[Treino] Nenhuma ficha encontrada, usando fallback baseado no objetivo')
+      
+      const baseTreino = TREINOS_POR_OBJETIVO[selectedObjective]
+      if (baseTreino) {
+        const fallbackPlan = {
+          objetivo: selectedObjective,
+          nome: baseTreino.nome,
+          descricao: baseTreino.descricao,
+          duracao: baseTreino.duracao,
+          descanso: baseTreino.descanso,
+          intervalo: baseTreino.intervalo,
+          diasSemana: selectedDays,
+          exercicios: baseTreino.exercicios,
+          createdAt: Date.now()
+        }
+        
+        const result = await trainingService.saveTrainingPlan(session.tokenKey, fallbackPlan)
+        if (result.success) {
+          alert('Treino gerado com sucesso! (Crie fichas personalizadas para treinos mais específicos)')
+          loadTrainingPlan()
+        } else {
+          console.error('[Treino] Erro ao salvar treino fallback:', result.error)
+          alert('Erro ao gerar treino')
+        }
+      } else {
+        console.error('[Treino] Objetivo não encontrado em TREINOS_POR_OBJETIVO:', selectedObjective)
+        alert('Erro: Objetivo não suportado. Crie uma ficha de treino primeiro.')
+      }
     }
   }
 
@@ -142,15 +183,13 @@ const TrainingPage = () => {
 
     // Converter nomes de exercícios para objetos completos
     const exerciciosCompletos = selectedExercises.map(nome => {
-      // Tenta encontrar o exercício no plano atual ou usa valores padrão
+      // FIX 10: Não usar valores padrão - exigir que o exercício exista no plano
       const exercicioExistente = trainingPlan?.exercicios?.find(e => e.nome === nome)
-      return exercicioExistente || {
-        nome,
-        series: 3,
-        repeticoes: '10-12',
-        descanso: 60
+      if (!exercicioExistente) {
+        return null
       }
-    })
+      return exercicioExistente
+    }).filter(e => e !== null)
 
     const sheetId = editingSheet?.id || Date.now().toString()
     const sheetData = {

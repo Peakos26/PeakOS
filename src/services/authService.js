@@ -159,3 +159,63 @@ export const authService = {
     localStorage.setItem('gymai_session', JSON.stringify(sessionData))
   }
 }
+
+// Validar sessão - verificar se token ainda existe e conta está ativa
+export const validateSession = async () => {
+  try {
+    const session = authService.getSession()
+    if (!session) {
+      console.log('❌ [SESSION] Nenhuma sessão encontrada')
+      return false
+    }
+
+    const tokenKey = session.tokenKey
+    if (!tokenKey) {
+      console.log('❌ [SESSION] tokenKey não encontrado na sessão')
+      return false
+    }
+
+    // Verificar se token existe no Firebase
+    const encodedKey = encodeTokenKey(tokenKey)
+    const tokenSnapshot = await get(ref(database, `gymai_tokens/${encodedKey}`))
+    
+    if (!tokenSnapshot.exists()) {
+      console.log('❌ [SESSION] Token não encontrado no Firebase')
+      return false
+    }
+
+    // Verificar se conta está ativa
+    const isActive = await checkAccountActive(tokenKey, session.celular)
+    if (!isActive) {
+      console.log('❌ [SESSION] Conta não está ativa')
+      return false
+    }
+
+    console.log('✅ [SESSION] Sessão válida')
+    return true
+  } catch (error) {
+    console.error('❌ [SESSION] Erro ao validar sessão:', error)
+    // Em caso de erro de rede, manter sessão
+    return true
+  }
+}
+
+// Verificar se usuário ainda existe em gymai_requests com status approved
+export const checkUserStillExists = async (tokenKey) => {
+  try {
+    const requestsRef = ref(database, 'gymai_requests')
+    const snapshot = await get(requestsRef)
+    let userExists = false
+    if (snapshot.exists()) {
+      snapshot.forEach(child => {
+        if (child.val().tokenKey === tokenKey && child.val().status === 'approved') {
+          userExists = true
+        }
+      })
+    }
+    return userExists
+  } catch (error) {
+    console.error('Erro ao verificar existência do usuário:', error)
+    return true // Em caso de erro, assume que existe (evita logout falso)
+  }
+}

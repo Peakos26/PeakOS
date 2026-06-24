@@ -25,9 +25,8 @@ const CreatePersonalPasswordPage = () => {
   }, [session, navigate])
 
   const validatePassword = (pwd) => {
-    // Deve ser 6-8 dígitos numéricos
-    const regex = /^\d{6,8}$/
-    return regex.test(pwd)
+    // Mínimo 6 caracteres
+    return pwd && pwd.length >= 6
   }
 
   const handleSubmit = async (e) => {
@@ -36,7 +35,7 @@ const CreatePersonalPasswordPage = () => {
 
     // Validar senha
     if (!validatePassword(password)) {
-      setError('A senha deve ter 6-8 dígitos numéricos')
+      setError('A senha deve ter pelo menos 6 caracteres')
       return
     }
 
@@ -51,7 +50,7 @@ const CreatePersonalPasswordPage = () => {
     try {
       const result = await createPersonalPassword(
         session.tokenKey,
-        session.email,
+        session.celular,
         password
       )
 
@@ -109,7 +108,7 @@ const CreatePersonalPasswordPage = () => {
             Criar Senha Pessoal
           </h1>
           <p className="text-[var(--color-muted)]">
-            Configure uma senha pessoal de 6-8 dígitos para proteger sua conta
+            Configure uma senha pessoal de pelo menos 6 caracteres para proteger sua conta
           </p>
         </div>
 
@@ -128,22 +127,19 @@ const CreatePersonalPasswordPage = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="password" className="block text-sm font-medium mb-2">
-              Senha Pessoal (6-8 dígitos)
+              Senha Pessoal (mínimo 6 caracteres)
             </label>
             <Input
               type="password"
               id="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value.replace(/\D/g, '').slice(0, 8))}
-              placeholder="Digite 6-8 números"
-              maxLength={8}
-              pattern="\d{6,8}"
-              inputMode="numeric"
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Digite sua senha"
               autoFocus
             />
             {password && !validatePassword(password) && (
               <p className="text-red-500 text-sm mt-1">
-                A senha deve ter 6-8 dígitos numéricos
+                A senha deve ter pelo menos 6 caracteres
               </p>
             )}
           </div>
@@ -156,11 +152,8 @@ const CreatePersonalPasswordPage = () => {
               type="password"
               id="confirmPassword"
               value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value.replace(/\D/g, '').slice(0, 8))}
+              onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="Confirme sua senha"
-              maxLength={8}
-              pattern="\d{6,8}"
-              inputMode="numeric"
             />
             {confirmPassword && password !== confirmPassword && (
               <p className="text-red-500 text-sm mt-1">

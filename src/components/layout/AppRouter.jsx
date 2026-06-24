@@ -12,13 +12,12 @@ import ProfilePage from '@pages/ProfilePage'
 import FeaturesPage from '@pages/FeaturesPage'
 import BodyScannerPage from '@pages/BodyScannerPage'
 import CoachAvancadoPage from '@pages/CoachAvancadoPage'
-import SocialSearchPage from '@pages/SocialSearchPage'
+import CommunityPage from '@pages/CommunityPage'
 import AdminPage from '@pages/AdminPage'
 import ExercisesLibraryPage from '@pages/ExercisesLibraryPage'
 import WorkoutProgramsPage from '@pages/WorkoutProgramsPage'
 import FoodDiaryPage from '@pages/FoodDiaryPage'
 import HydrationPage from '@pages/HydrationPage'
-import MacrosPage from '@pages/MacrosPage'
 import SleepPage from '@pages/SleepPage'
 import RecoveryPage from '@pages/RecoveryPage'
 import MindsetPage from '@pages/MindsetPage'
@@ -126,13 +125,6 @@ const AppRouter = () => {
           <ProtectedRoute>
             <Layout>
               <HydrationPage />
-            </Layout>
-          </ProtectedRoute>
-        } />
-        <Route path="/macros" element={
-          <ProtectedRoute>
-            <Layout>
-              <MacrosPage />
             </Layout>
           </ProtectedRoute>
         } />
@@ -293,7 +285,7 @@ const AppRouter = () => {
         <Route path="/comunidade" element={
           <ProtectedRoute>
             <Layout>
-              <SocialSearchPage />
+              <CommunityPage />
             </Layout>
           </ProtectedRoute>
         } />

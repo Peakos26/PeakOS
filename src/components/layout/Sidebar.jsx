@@ -24,7 +24,6 @@ const MENU_ITEMS = [
     items: [
       { icon: UtensilsCrossed, label: 'Diário Alimentar', to: '/diario-alimentar' },
       { icon: Droplets, label: 'Água', to: '/hidratacao' },
-      { icon: BarChart3, label: 'Macros', to: '/macros' },
       { icon: Camera, label: 'Foto IA', to: '/analise-alimento' },
     ]
   },
@@ -58,7 +57,6 @@ const MENU_ITEMS = [
     items: [
       { icon: Crown, label: 'Apoie o PeakOS', to: '/apoie' },
       { icon: Users, label: 'Comunidade', to: '/comunidade' },
-      { icon: Settings, label: 'Configurações', to: '/perfil' },
     ]
   }
 ]

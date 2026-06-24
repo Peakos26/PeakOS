@@ -1,16 +1,20 @@
-const CACHE_NAME = 'peakos-v1.0.8'
+const CACHE_NAME = 'peakos-v1.0.10'
 const urlsToCache = [
   '/PeakOS/',
   '/PeakOS/index.html',
-  '/PeakOS/manifest.json',
-  '/PeakOS/assets/index-14de5d4f.css',
-  '/PeakOS/assets/index-0b5bd240.js'
+  '/PeakOS/manifest.json'
 ]
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(urlsToCache))
+      .then((cache) => {
+        return cache.addAll(urlsToCache).catch(err => {
+          console.warn('Cache addAll falhou (alguns arquivos podem não existir):', err)
+          // Continuar mesmo se alguns arquivos falharem
+          return Promise.resolve()
+        })
+      })
   )
 })
 

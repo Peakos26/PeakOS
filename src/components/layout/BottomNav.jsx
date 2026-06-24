@@ -3,7 +3,7 @@ import { Home, Dumbbell, TrendingUp, Bot, User } from 'lucide-react'
 
 const BottomNav = () => {
   return (
-    <div className="flex items-center justify-around bg-[var(--color-card)] border-t border-[var(--color-border)] h-16 px-2">
+    <div className="flex items-center justify-around bg-[var(--color-card)] border-t border-[var(--color-border)] h-16 px-2 pb-[env(safe-area-inset-bottom)]" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
       <BottomNavItem to="/" icon={<Home size={22} />} label="Início" />
       <BottomNavItem to="/treinos" icon={<Dumbbell size={22} />} label="Treinos" />
       <BottomNavItem to="/evolucao" icon={<TrendingUp size={22} />} label="Evolução" />

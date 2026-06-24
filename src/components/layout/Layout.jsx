@@ -1,4 +1,5 @@
 import Sidebar from './Sidebar'
+import Header from './Header'
 import BottomNav from './BottomNav'
 import CoachFAB from '@components/ui/CoachFAB'
 
@@ -14,7 +15,8 @@ const Layout = ({ children }) => {
         </aside>
 
         {/* Conteúdo principal */}
-        <main className="flex-1 pb-20 md:pb-0 min-h-screen w-full">
+        <main className="flex-1 pb-20 md:pb-0 min-h-screen w-full" style={{ paddingBottom: 'calc(4rem + env(safe-area-inset-bottom))' }}>
+          <Header />
           {children}
         </main>
 

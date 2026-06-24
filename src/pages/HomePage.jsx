@@ -13,10 +13,7 @@ import TodayCard from '@components/dashboard/TodayCard'
 import LatestWorkoutCard from '@components/dashboard/LatestWorkoutCard'
 import AchievementsCard from '@components/dashboard/AchievementsCard'
 import CoachCard from '@components/dashboard/CoachCard'
-import WorkoutMusicCard from '@components/dashboard/WorkoutMusicCard'
-import QuickWaterButton from '@components/ui/QuickWaterButton'
 import { SabedoriaDoDia } from '@components/SabedoriaDoDia'
-import { PeakRing } from '@components/PeakRing'
 
 const HomePage = () => {
   const { session } = useAuth()
@@ -255,60 +252,35 @@ const HomePage = () => {
       {/* Header Summary */}
       <HeaderSummary />
 
-      {/* Sabedoria do Dia */}
-      <div className="mb-3 sm:mb-4">
-        <SabedoriaDoDia />
-      </div>
-
-      {/* Quick Water Button */}
-      <div className="mb-3 sm:mb-4">
-        <QuickWaterButton />
-      </div>
-
-      {/* Peak Ring Unificado */}
+      {/* 1. Peak Rings */}
       <div className="premium-card mb-3 sm:mb-4 card-entry" style={{ animationDelay: '0ms' }}>
-        <PeakRing />
+        <PeakRings />
       </div>
 
-      {/* Tendências */}
+      {/* 2. Tendências */}
       <div className="premium-card mb-3 sm:mb-4 card-entry" style={{ animationDelay: '100ms' }}>
         <TrendsCard />
       </div>
 
-      {/* Último Treino */}
+      {/* 3. Último Treino */}
       <div className="premium-card mb-3 sm:mb-4 card-entry" style={{ animationDelay: '200ms' }}>
         <LatestWorkoutCard />
       </div>
 
-      {/* Músicas */}
+      {/* 4. Conquistas */}
       <div className="premium-card mb-3 sm:mb-4 card-entry" style={{ animationDelay: '300ms' }}>
-        <WorkoutMusicCard />
-      </div>
-
-      {/* Conquistas */}
-      <div className="premium-card mb-3 sm:mb-4 card-entry" style={{ animationDelay: '400ms' }}>
         <AchievementsCard />
       </div>
 
-      {/* Coach IA */}
-      <div className="premium-card mb-3 sm:mb-4 card-entry" style={{ animationDelay: '500ms' }}>
+      {/* 5. Análise da Semana (Coach IA) */}
+      <div className="premium-card mb-3 sm:mb-4 card-entry" style={{ animationDelay: '400ms' }}>
         <CoachCard />
       </div>
 
-      {/* Validade de Acesso */}
-      {session?.expiresAt && (
-        <div className="premium-card card-entry" style={{ animationDelay: '600ms' }}>
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-lg font-semibold">Validade de Acesso</h2>
-              <p className="text-sm opacity-60">Sua licença expira em breve</p>
-            </div>
-            <div className="text-right">
-              <div className="text-2xl font-bold text-primary-600">{formatExpirationDate(session.expiresAt)}</div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* 6. Sabedoria do Dia */}
+      <div className="premium-card mb-3 sm:mb-4 card-entry" style={{ animationDelay: '500ms' }}>
+        <SabedoriaDoDia />
+      </div>
     </main>
   )
 }

@@ -1,255 +1,177 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useAuth } from '@context/AuthContext'
-import { database, ref, get, set } from '@config/firebase.config'
 import Card from '@components/ui/Card'
 import Button from '@components/ui/Button'
+import { Heart, Coffee, Rocket, Star, Copy } from 'lucide-react'
+import { database, ref, set, push } from '@config/firebase.config'
 
-// Função para codificar tokenKey para paths válidos do Firebase
-const encodeTokenKey = (tokenKey) => {
-  return tokenKey.replace(/[.#$\[\]]/g, '_')
-}
-
-const FEATURES = [
+const SUPPORT_TIERS = [
   {
-    id: 'metas_diarias',
-    name: 'Metas Diárias',
-    description: 'Acompanhe suas metas diárias de treino e nutrição',
-    price: 0,
-    icon: '🎯',
-    unlockMessage: '✅ Metas Diárias (PeakOS) desbloqueado!\n\nVocê agora pode:\n• Definir e acompanhar metas diárias\n• Visualizar progresso em tempo real\n• Receber notificações de conquistas'
+    id: 'coffee',
+    name: 'Café',
+    description: 'Apoie o projeto com um café',
+    price: 5,
+    icon: Coffee,
+    color: 'from-amber-500 to-orange-500'
   },
   {
-    id: 'medidas_corporais',
-    name: 'Medidas Corporais',
-    description: 'Registre e acompanhe suas medidas corporais',
-    price: 0,
-    icon: '📏',
-    unlockMessage: '✅ Medidas Corporais (PeakOS) desbloqueado!\n\nVocê agora pode:\n• Registrar medidas corporais\n• Acompanhar evolução ao longo do tempo\n• Ver gráficos de progresso'
+    id: 'supporter',
+    name: 'Apoiador',
+    description: 'Apoie o desenvolvimento contínuo',
+    price: 15,
+    icon: Heart,
+    color: 'from-pink-500 to-rose-500'
   },
   {
-    id: 'jejum_sono',
-    name: 'Jejum e Sono',
-    description: 'Controle de jejum intermitente e registro de sono',
-    price: 0,
-    icon: '🌙',
-    unlockMessage: '✅ Jejum e Sono (PeakOS) desbloqueado!\n\nVocê agora pode:\n• Controlar jejum intermitente\n• Registrar horas de sono\n• Acompanhar qualidade do sono'
+    id: 'pro',
+    name: 'Pro',
+    description: 'Acesso a features premium',
+    price: 30,
+    icon: Star,
+    color: 'from-purple-500 to-indigo-500'
   },
   {
-    id: 'apple_health',
-    name: 'Apple Health',
-    description: 'Integração com Apple Health para dados de saúde',
-    price: 0,
-    icon: '🍎',
-    unlockMessage: '✅ Apple Health (PeakOS) desbloqueado!\n\nVocê agora pode:\n• Sincronizar dados do Apple Health\n• Integrar passos, sono e peso\n• Acompanhar métricas de saúde'
-  },
-  {
-    id: 'treinos_personalizados',
-    name: 'Treinos Personalizados',
-    description: 'Treinos gerados especificamente para o seu objetivo',
-    price: 6,
-    icon: '💪',
-    unlockMessage: '✅ Treinos Personalizados (PeakOS) desbloqueado!\n\nVocê agora tem acesso a:\n• Treinos personalizados gerados por IA\n• Planos de treino adaptados ao seu objetivo\n• Progressão automática de carga'
-  },
-  {
-    id: 'dieta_personalizada',
-    name: 'Dieta Personalizada',
-    description: 'Planos alimentares personalizados por IA',
-    price: 6,
-    icon: '�',
-    unlockMessage: '✅ Dieta Personalizada (PeakOS) desbloqueado!\n\nVocê agora tem acesso a:\n• Planos alimentares personalizados\n• Receitas adaptadas ao seu objetivo\n• Cálculo de macros e calorias'
-  },
-  {
-    id: 'cardio_suplementos',
-    name: 'Cardio e Suplementos',
-    description: 'Guia de cardio e suplementação personalizada',
-    price: 6,
-    icon: '🏃',
-    unlockMessage: '✅ Cardio e Suplementos (PeakOS) desbloqueado!\n\nVocê agora tem acesso a:\n• Planos de cardio personalizados\n• Guia de suplementação\n• Recomendações baseadas no seu objetivo'
-  },
-  {
-    id: 'analise_foto',
-    name: 'Análise de Foto',
-    description: 'IA analisa fotos para estimar composição corporal',
-    price: 6,
-    icon: '�',
-    unlockMessage: '✅ Análise de Foto (PeakOS) desbloqueado!\n\nVocê agora tem acesso a:\n• Upload de fotos para análise\n• Estimativa de composição corporal\n• Histórico de evolução'
-  },
-  {
-    id: 'perfil_completo',
-    name: 'Perfil Completo',
-    description: 'Perfil detalhado com métricas avançadas',
-    price: 6,
-    icon: '👤',
-    unlockMessage: '✅ Perfil Completo (PeakOS) desbloqueado!\n\nVocê agora tem acesso a:\n• Perfil detalhado com métricas avançadas\n• Análise completa de composição\n• Recomendações personalizadas'
+    id: 'rocket',
+    name: 'Rocket',
+    description: 'Apoie o crescimento do PeakOS',
+    price: 50,
+    icon: Rocket,
+    color: 'from-blue-500 to-cyan-500'
   }
 ]
 
 const FeaturesPage = () => {
-  const { session, hasFeature } = useAuth()
-  const [userFeatures, setUserFeatures] = useState([])
-  const [loading, setLoading] = useState(false)
+  const { session } = useAuth()
   const [showPixModal, setShowPixModal] = useState(false)
-  const [selectedFeature, setSelectedFeature] = useState(null)
+  const [selectedTier, setSelectedTier] = useState(null)
+  const [copied, setCopied] = useState(false)
 
-  useEffect(() => {
-    loadUserFeatures()
-  }, [session])
+  const PIX_KEY = '14cc72c1-f0d5-4522-a745-3af6c31a13f1'
 
-  const loadUserFeatures = async () => {
-    if (!session) return
-    try {
-      const encodedKey = encodeTokenKey(session.tokenKey)
-      // Sprint 0.3: Ler features de gymai_features/{tokenKey}/{featureId}
-      const snapshot = await get(ref(database, `gymai_features/${encodedKey}`))
-      const featuresData = snapshot.val() || {}
-      const features = Object.keys(featuresData).filter(key => featuresData[key] === true)
-      setUserFeatures(features)
-    } catch (error) {
-      console.error('Erro ao carregar features:', error)
-    }
-  }
-
-  const activateFreeFeature = async (featureId) => {
-    if (!session) return
-    setLoading(true)
-
-    try {
-      const encodedKey = encodeTokenKey(session.tokenKey)
-      // Sprint 0.3: Features GRATUITAS → set gymai_features/{tk}/{featureId} = true
-      await set(ref(database, `gymai_features/${encodedKey}/${featureId}`), true)
-      
-      const newFeatures = [...userFeatures, featureId]
-      setUserFeatures(newFeatures)
-
-      // A sessão será atualizada automaticamente pelo AuthContext
-      // Não é mais necessário manipular localStorage diretamente
-
-      // Mostrar notificação
-      const feature = FEATURES.find(f => f.id === featureId)
-      alert(feature.unlockMessage || `✅ ${feature.name} (PeakOS) desbloqueado com sucesso!`)
-    } catch (error) {
-      console.error('Erro ao ativar feature:', error)
-      alert('Erro ao ativar feature')
-    }
-
-    setLoading(false)
-  }
-
-  const buyFeature = async (feature) => {
-    setSelectedFeature(feature)
+  const buySupport = async (tier) => {
+    setSelectedTier(tier)
     setShowPixModal(true)
   }
 
-  const confirmPurchase = async () => {
-    if (!session || !selectedFeature) return
-    setLoading(true)
+  const copyPixKey = () => {
+    navigator.clipboard.writeText(PIX_KEY)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  const confirmSupport = async () => {
+    if (!selectedTier || !session) return
 
     try {
-      const encodedKey = encodeTokenKey(session.tokenKey)
-      const purchaseId = 'purchase_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8)
-      
-      // Sprint 0.3: Features PAGAS → grava gymai_purchases/{purchaseId}
-      await set(ref(database, `gymai_purchases/${purchaseId}`), {
-        tokenKey: session.tokenKey,
-        featureId: selectedFeature.id,
-        featureName: selectedFeature.name,
-        price: selectedFeature.price,
-        status: 'pending',
-        createdAt: Date.now(),
-        pixKey: '14cc72c1-f0d5-4522-a745-3af6c31a13f1'
+      // Registrar doação no Firebase
+      const encodedKey = session.tokenKey.replace(/[.#$\[\]]/g, '_')
+      const donationRef = push(ref(database, `gymai_donations/${encodedKey}`))
+      await set(donationRef, {
+        tier: selectedTier.id,
+        tierName: selectedTier.name,
+        amount: selectedTier.price,
+        timestamp: Date.now(),
+        status: 'pending'
       })
 
       setShowPixModal(false)
-      alert(`✅ Solicitação de compra enviada!\n\nChave PIX: 14cc72c1-f0d5-4522-a745-3af6c31a13f1\n\nApós o pagamento, o administrador ativará a feature ${selectedFeature.name} manualmente.`)
+      alert(`✅ Obrigado pelo apoio!\n\nSua doação de R$ ${selectedTier.price.toFixed(2)} foi registrada.\n\nChave PIX: ${PIX_KEY}\n\nApós o pagamento, envie o comprovante para heltonsales1982@gmail.com`)
+      setSelectedTier(null)
     } catch (error) {
-      console.error('Erro ao processar compra:', error)
-      alert('Erro ao processar compra')
+      console.error('Erro ao registrar doação:', error)
+      alert('Erro ao registrar doação. Tente novamente.')
     }
-
-    setLoading(false)
-    setSelectedFeature(null)
   }
 
   const formatPrice = (price) => {
-    if (price === 0) return 'Grátis'
     return `R$ ${price.toFixed(2)}`
   }
 
   return (
     <>
       <main className="container mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold font-display mb-2">Features do Usuário</h1>
-        <p className="text-[var(--color-muted)] mb-6">Gerencie as funcionalidades disponíveis para sua conta</p>
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold font-display mb-2">Apoie o PeakOS</h1>
+          <p className="text-[var(--color-muted)]">Ajude a manter o PeakOS gratuito e em desenvolvimento</p>
+        </div>
 
-        <div className="space-y-4">
-          {FEATURES.map(feature => {
-            const isActive = userFeatures.includes(feature.id)
-            const isFree = feature.price === 0
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          {SUPPORT_TIERS.map(tier => {
+            const Icon = tier.icon
             return (
-              <Card key={feature.id} className={isActive ? 'border-primary-500' : ''}>
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <span className="text-2xl">{feature.icon}</span>
-                      <h3 className="text-lg font-semibold">{feature.name}</h3>
-                    </div>
-                    <p className="text-sm text-[var(--color-muted)] mb-3">{feature.description}</p>
-                    <div className="text-sm font-medium">
-                      {formatPrice(feature.price)}
-                    </div>
+              <Card key={tier.id} className="relative overflow-hidden">
+                <div className={`absolute inset-0 bg-gradient-to-br ${tier.color} opacity-10`} />
+                <div className="relative p-6">
+                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${tier.color} flex items-center justify-center mb-4`}>
+                    <Icon className="text-white" size={24} />
                   </div>
+                  <h3 className="text-xl font-bold mb-2">{tier.name}</h3>
+                  <p className="text-sm text-[var(--color-muted)] mb-4">{tier.description}</p>
+                  <div className="text-2xl font-bold mb-4">{formatPrice(tier.price)}</div>
                   <Button
-                    variant={isActive ? 'outline' : 'default'}
-                    onClick={() => {
-                      if (isActive) return
-                      if (isFree) {
-                        activateFreeFeature(feature.id)
-                      } else {
-                        buyFeature(feature)
-                      }
-                    }}
-                    disabled={loading || isActive}
+                    className="w-full"
+                    onClick={() => buySupport(tier)}
                   >
-                    {isActive ? 'Ativado' : isFree ? 'Ativar' : 'Comprar'}
+                    Apoiar
                   </Button>
                 </div>
               </Card>
             )
           })}
         </div>
+
+        <Card className="bg-gradient-to-r from-primary-500/10 to-primary-600/10 border-primary-500/30">
+          <div className="text-center py-6">
+            <p className="text-sm text-[var(--color-muted)] mb-2">
+              Todo apoio é muito appreciatedo e ajuda a manter o PeakOS gratuito para todos
+            </p>
+            <p className="text-xs text-[var(--color-muted)]">
+              PeakOS é um projeto open-source desenvolvido com ❤️
+            </p>
+          </div>
+        </Card>
       </main>
 
-      {/* Modal PIX para features pagas */}
-      {showPixModal && selectedFeature && (
+      {/* Modal PIX */}
+      {showPixModal && selectedTier && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <Card className="w-full max-w-md p-6">
-            <h2 className="text-xl font-bold mb-4">Comprar {selectedFeature.name}</h2>
+            <h2 className="text-xl font-bold mb-4">Apoiar {selectedTier.name}</h2>
             <p className="text-[var(--color-muted)] mb-4">
-              Valor: <span className="font-semibold">{formatPrice(selectedFeature.price)}</span>
+              Valor: <span className="font-semibold">{formatPrice(selectedTier.price)}</span>
             </p>
             <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg mb-4">
               <p className="text-sm font-medium mb-2">Chave PIX:</p>
-              <p className="text-lg font-mono break-all">14cc72c1-f0d5-4522-a745-3af6c31a13f1</p>
+              <div className="flex items-center gap-2">
+                <p className="text-lg font-mono break-all flex-1">{PIX_KEY}</p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={copyPixKey}
+                  className="flex items-center gap-1"
+                >
+                  <Copy size={16} />
+                  {copied ? 'Copiado!' : 'Copiar'}
+                </Button>
+              </div>
             </div>
             <p className="text-sm text-[var(--color-muted)] mb-6">
-              Após o pagamento, o administrador ativará a feature manualmente.
+              Após o pagamento, envie o comprovante para heltonsales1982@gmail.com
             </p>
             <div className="flex gap-3">
               <Button
                 variant="outline"
                 onClick={() => {
                   setShowPixModal(false)
-                  setSelectedFeature(null)
+                  setSelectedTier(null)
                 }}
-                disabled={loading}
               >
                 Cancelar
               </Button>
               <Button
-                onClick={confirmPurchase}
-                disabled={loading}
+                onClick={confirmSupport}
               >
-                {loading ? 'Processando...' : 'Confirmar Compra'}
+                Confirmar
               </Button>
             </div>
           </Card>

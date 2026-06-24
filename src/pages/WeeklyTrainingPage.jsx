@@ -4,7 +4,6 @@ import { useToast } from '../components/Toast';
 import { WorkoutDayCard } from '../components/WorkoutDayCard';
 import { getSemanaStatus, finalizarTreinoDoDia, initializeWeeklyWorkouts } from '../services/weeklyWorkoutService';
 import { getPlanoTreinoSemanal } from '../services/trainingService';
-import { usePageFocus } from '../hooks/usePageFocus';
 
 export const WeeklyTrainingPage = () => {
   const { session } = useAuth();
@@ -39,8 +38,6 @@ export const WeeklyTrainingPage = () => {
       setLoading(false);
     }
   }, [session, semanaAtual, showToast]);
-
-  usePageFocus(carregarDados, null, { throttleMs: 2000 });
 
   useEffect(() => {
     const init = async () => {
